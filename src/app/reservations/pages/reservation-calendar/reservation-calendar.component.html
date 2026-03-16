@@ -1,0 +1,120 @@
+<div class="calendar-page">
+  <div class="page-header">
+    <div>
+      <h2>Reservations Calendar</h2>
+      <p>View and manage reservations by month, week, or list.</p>
+    </div>
+
+    <button class="primary-btn" (click)="createReservation()">+ New Reservation</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="view-switcher">
+      <button
+        [class.active]="currentView === 'month'"
+        (click)="setView('month')">
+        Month
+      </button>
+
+      <button
+        [class.active]="currentView === 'week'"
+        (click)="setView('week')">
+        Week
+      </button>
+
+      <button
+        [class.active]="currentView === 'list'"
+        (click)="setView('list')">
+        List
+      </button>
+    </div>
+
+    <div class="month-nav">
+      <button>←</button>
+      <span>{{ currentMonth }}</span>
+      <button>→</button>
+    </div>
+  </div>
+
+  <!-- MONTH VIEW -->
+  <div class="calendar-card" *ngIf="currentView === 'month'">
+    <div class="weekdays">
+      <div>Mon</div>
+      <div>Tue</div>
+      <div>Wed</div>
+      <div>Thu</div>
+      <div>Fri</div>
+      <div>Sat</div>
+      <div>Sun</div>
+    </div>
+
+    <div class="calendar-grid">
+      <div
+        class="day-cell"
+        *ngFor="let day of calendarDays"
+        [class.muted]="day.muted">
+
+        <div class="day-number">{{ day.day }}</div>
+
+        <div
+          class="reservation-item"
+          *ngFor="let reservation of day.reservations"
+          [ngClass]="getStatusClass(reservation.status)"
+          (click)="openReservation(reservation)"
+          title="{{reservation.title}} - {{reservation.client}}">
+          <strong>{{ reservation.title }}</strong>
+          <span>{{ reservation.time }}</span>
+          <small>{{ reservation.bartender }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK VIEW -->
+  <div class="calendar-card week-view" *ngIf="currentView === 'week'">
+    <h3>Weekly View</h3>
+    <p>This area can later be replaced with a full interactive weekly calendar.</p>
+
+    <div class="week-placeholder">
+      <div *ngFor="let reservation of reservations" class="week-event" [ngClass]="getStatusClass(reservation.status)">
+        <strong>{{ reservation.date }}</strong> — {{ reservation.title }}<br>
+        <span>{{ reservation.time }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div class="calendar-card list-view" *ngIf="currentView === 'list'">
+    <h3>Reservation List</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Event</th>
+          <th>Client</th>
+          <th>Date</th>
+          <th>Bartender</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+              *ngFor="let reservation of reservations"
+              (click)="openReservation(reservation)"
+              class="clickable-row">
+          <td>{{ reservation.id }}</td>
+          <td>{{ reservation.title }}</td>
+          <td>{{ reservation.client }}</td>
+          <td>{{ reservation.date }}</td>
+          <td>{{ reservation.bartender }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(reservation.status)">
+              {{ reservation.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,94 @@
+<div class="reservation-detail-page">
+  <div class="page-header">
+    <div>
+      <h2>Reservation Detail</h2>
+      <p>Review the full reservation and event information.</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="secondary-btn" (click)="goBack()">Back to Calendar</button>
+      <button class="primary-btn" (click)="editReservation()">Edit Reservation</button>
+    </div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-top">
+      <div>
+        <span class="reservation-id">{{ reservation.id }}</span>
+        <h3>{{ reservation.eventName }}</h3>
+        <p>{{ reservation.client }} • {{ reservation.eventType }}</p>
+      </div>
+
+      <div class="status-badge" [ngClass]="reservation.status">
+        {{ reservation.status }}
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Client</label>
+        <div>{{ reservation.client }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Event Type</label>
+        <div>{{ reservation.eventType }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Event Date</label>
+        <div>{{ reservation.eventDate }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Start Time</label>
+        <div>{{ reservation.startTime }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>End Time</label>
+        <div>{{ reservation.endTime }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Location</label>
+        <div>{{ reservation.location }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Guests</label>
+        <div>{{ reservation.guests }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Package</label>
+        <div>{{ reservation.package }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Drink Theme</label>
+        <div>{{ reservation.drinkTheme }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Bartender</label>
+        <div>{{ reservation.bartender }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Bar Type</label>
+        <div>{{ reservation.barType }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Budget Range</label>
+        <div>{{ reservation.budgetRange }}</div>
+      </div>
+
+      <div class="detail-item full-width">
+        <label>Notes</label>
+        <div>{{ reservation.notes }}</div>
+      </div>
+    </div>
+  </div>
+</div>

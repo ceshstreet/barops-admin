@@ -1,0 +1,45 @@
+<div class="client-list-page">
+  <div class="page-header">
+    <div>
+      <h2>Clients</h2>
+      <p>Manage customers, contacts, and event history.</p>
+    </div>
+
+    <button class="primary-btn" (click)="createClient()">+ New Client</button>
+  </div>
+
+  <div class="client-table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Client</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Event Type</th>
+          <th>Last Event</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let client of clients"
+          (click)="openClient(client)"
+          class="clickable-row">
+          <td>{{ client.id }}</td>
+          <td>{{ client.fullName }}</td>
+          <td>{{ client.phone }}</td>
+          <td>{{ client.email }}</td>
+          <td>{{ client.eventType }}</td>
+          <td>{{ client.lastEventDate }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(client.status)">
+              {{ client.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

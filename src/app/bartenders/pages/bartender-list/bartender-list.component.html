@@ -1,0 +1,43 @@
+<div class="bartender-list-page">
+  <div class="page-header">
+    <div>
+      <h2>Bartenders</h2>
+      <p>Manage staff, availability, specialties, and assignment readiness.</p>
+    </div>
+
+    <button class="primary-btn" (click)="createBartender()">+ New Bartender</button>
+  </div>
+
+  <div class="bartender-table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Specialty</th>
+          <th>Availability</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let bartender of bartenders"
+          (click)="openBartender(bartender)"
+          class="clickable-row">
+          <td>{{ bartender.id }}</td>
+          <td>{{ bartender.fullName }}</td>
+          <td>{{ bartender.phone }}</td>
+          <td>{{ bartender.specialty }}</td>
+          <td>{{ bartender.availability }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(bartender.status)">
+              {{ bartender.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

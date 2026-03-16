@@ -1,0 +1,89 @@
+<div class="bartender-form-page">
+  <div class="page-header">
+    <div>
+      <h2>Create Bartender</h2>
+      <p>Add a new bartender profile to the system.</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <form (ngSubmit)="saveBartender()" #bartenderForm="ngForm">
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Full Name</label>
+          <input
+            type="text"
+            [(ngModel)]="bartender.fullName"
+            name="fullName"
+            placeholder="Enter full name"
+            required />
+        </div>
+
+        <div class="field">
+          <label>Phone</label>
+          <input
+            type="text"
+            [(ngModel)]="bartender.phone"
+            name="phone"
+            placeholder="Enter phone number" />
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input
+            type="email"
+            [(ngModel)]="bartender.email"
+            name="email"
+            placeholder="Enter email address" />
+        </div>
+
+        <div class="field">
+          <label>Specialty</label>
+          <select [(ngModel)]="bartender.specialty" name="specialty">
+            <option value="">Select specialty</option>
+            <option *ngFor="let item of specialties" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Availability</label>
+          <select [(ngModel)]="bartender.availability" name="availability">
+            <option value="">Select availability</option>
+            <option *ngFor="let item of availabilities" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Experience Level</label>
+          <select [(ngModel)]="bartender.experienceLevel" name="experienceLevel">
+            <option value="">Select experience level</option>
+            <option *ngFor="let item of experienceLevels" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Status</label>
+          <select [(ngModel)]="bartender.status" name="status">
+            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+
+        <div class="field field-full">
+          <label>Notes</label>
+          <textarea
+            [(ngModel)]="bartender.notes"
+            name="notes"
+            rows="5"
+            placeholder="Add bartender notes, certifications, or comments"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="primary-btn">Save Bartender</button>
+      </div>
+
+    </form>
+  </div>
+</div>
