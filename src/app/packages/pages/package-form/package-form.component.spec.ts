@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BarTypeListComponent } from './bar-type-list.component';
+import { PackageFormComponent } from './package-form.component';
 
-describe('BarTypeListComponent', () => {
-  let component: BarTypeListComponent;
-  let fixture: ComponentFixture<BarTypeListComponent>;
+describe('PackageFormComponent', () => {
+  let component: PackageFormComponent;
+  let fixture: ComponentFixture<PackageFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BarTypeListComponent]
+      imports: [PackageFormComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(BarTypeListComponent);
+    fixture = TestBed.createComponent(PackageFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,0 +1,72 @@
+<div class="drink-theme-form-page">
+  <div class="page-header">
+    <div>
+      <h2>Create Drink Theme</h2>
+      <p>Add a new cocktail theme to the system.</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <form (ngSubmit)="saveDrinkTheme()" #drinkThemeForm="ngForm">
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Theme Name</label>
+          <input
+            type="text"
+            [(ngModel)]="drinkTheme.name"
+            name="name"
+            placeholder="Enter theme name"
+            required />
+        </div>
+
+        <div class="field">
+          <label>Category</label>
+          <select [(ngModel)]="drinkTheme.category" name="category">
+            <option value="">Select category</option>
+            <option *ngFor="let item of categories" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Target Event Type</label>
+          <select [(ngModel)]="drinkTheme.targetEventType" name="targetEventType">
+            <option value="">Select target event type</option>
+            <option *ngFor="let item of targetEventTypes" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Status</label>
+          <select [(ngModel)]="drinkTheme.status" name="status">
+            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+
+        <div class="field field-full">
+          <label>Cocktails Included</label>
+          <textarea
+            [(ngModel)]="drinkTheme.cocktailsIncluded"
+            name="cocktailsIncluded"
+            rows="4"
+            placeholder="Example: Mojito, Piña Colada, Margarita, Old Fashioned"></textarea>
+        </div>
+
+        <div class="field field-full">
+          <label>Description</label>
+          <textarea
+            [(ngModel)]="drinkTheme.description"
+            name="description"
+            rows="5"
+            placeholder="Add description, flavor profile, seasonality, or business notes"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="primary-btn">Save Drink Theme</button>
+      </div>
+
+    </form>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<div class="package-list-page">
+  <div class="page-header">
+    <div>
+      <h2>Packages</h2>
+      <p>Manage service packages, guest capacity, included cocktails, and assigned bar type.</p>
+    </div>
+
+    <button class="primary-btn" (click)="createPackage()">+ New Package</button>
+  </div>
+
+  <div class="package-table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Package</th>
+          <th>Guests</th>
+          <th>Cocktails Included</th>
+          <th>Bar Type</th>
+          <th>Duration</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let packageItem of packages"
+          (click)="openPackage(packageItem)"
+          class="clickable-row">
+          <td>{{ packageItem.id }}</td>
+          <td>{{ packageItem.name }}</td>
+          <td>{{ packageItem.guests }}</td>
+          <td>{{ packageItem.cocktailsIncluded }}</td>
+          <td>{{ packageItem.barType }}</td>
+          <td>{{ packageItem.duration }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(packageItem.status)">
+              {{ packageItem.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,1 +1,79 @@
-<p>bar-type-form works!</p>
+<div class="bar-type-form-page">
+  <div class="page-header">
+    <div>
+      <h2>Create Bar Type</h2>
+      <p>Add a new portable bar configuration to the system.</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <form (ngSubmit)="saveBarType()" #barTypeForm="ngForm">
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Bar Name</label>
+          <input
+            type="text"
+            [(ngModel)]="barType.name"
+            name="name"
+            placeholder="Enter bar name"
+            required />
+        </div>
+
+        <div class="field">
+          <label>Category</label>
+          <select [(ngModel)]="barType.category" name="category">
+            <option value="">Select category</option>
+            <option *ngFor="let item of categories" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Lighting</label>
+          <select [(ngModel)]="barType.lighting" name="lighting">
+            <option value="">Select option</option>
+            <option *ngFor="let item of lightingOptions" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Capacity</label>
+          <select [(ngModel)]="barType.capacity" name="capacity">
+            <option value="">Select capacity</option>
+            <option *ngFor="let item of capacityOptions" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Setup Type</label>
+          <select [(ngModel)]="barType.setupType" name="setupType">
+            <option value="">Select setup type</option>
+            <option *ngFor="let item of setupTypes" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Status</label>
+          <select [(ngModel)]="barType.status" name="status">
+            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+
+        <div class="field field-full">
+          <label>Notes</label>
+          <textarea
+            [(ngModel)]="barType.notes"
+            name="notes"
+            rows="5"
+            placeholder="Add notes about dimensions, logistics, or included setup details"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="primary-btn">Save Bar Type</button>
+      </div>
+
+    </form>
+  </div>
+</div>

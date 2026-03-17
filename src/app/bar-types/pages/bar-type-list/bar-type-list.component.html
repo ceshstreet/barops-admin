@@ -1,1 +1,43 @@
-<p>bar-type-list works!</p>
+<div class="bar-type-list-page">
+  <div class="page-header">
+    <div>
+      <h2>Bar Types</h2>
+      <p>Manage portable bars, setup categories, and operational capacity.</p>
+    </div>
+
+    <button class="primary-btn" (click)="createBarType()">+ New Bar Type</button>
+  </div>
+
+  <div class="bar-type-table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Bar Name</th>
+          <th>Category</th>
+          <th>Lighting</th>
+          <th>Capacity</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let barType of barTypes"
+          (click)="openBarType(barType)"
+          class="clickable-row">
+          <td>{{ barType.id }}</td>
+          <td>{{ barType.name }}</td>
+          <td>{{ barType.category }}</td>
+          <td>{{ barType.lighting }}</td>
+          <td>{{ barType.capacity }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(barType.status)">
+              {{ barType.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
