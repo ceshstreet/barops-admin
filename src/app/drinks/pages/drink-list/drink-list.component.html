@@ -1,0 +1,45 @@
+<div class="drink-list-page">
+  <div class="page-header">
+    <div>
+      <h2>Drinks</h2>
+      <p>Manage the master catalog of cocktails, preparation references, and garnish details.</p>
+    </div>
+
+    <button class="primary-btn" (click)="createDrink()">+ New Drink</button>
+  </div>
+
+  <div class="drink-table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Drink Name</th>
+          <th>Category</th>
+          <th>Base Spirit</th>
+          <th>Glassware</th>
+          <th>Garnish</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let drink of drinks"
+          (click)="openDrink(drink)"
+          class="clickable-row">
+          <td>{{ drink.id }}</td>
+          <td>{{ drink.name }}</td>
+          <td>{{ drink.category }}</td>
+          <td>{{ drink.baseSpirit }}</td>
+          <td>{{ drink.glassware }}</td>
+          <td>{{ drink.garnish }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(drink.status)">
+              {{ drink.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

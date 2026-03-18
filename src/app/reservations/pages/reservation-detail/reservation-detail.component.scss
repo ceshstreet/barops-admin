@@ -141,6 +141,59 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.section-title {
+  font-size: 20px;
+  margin: 0 0 16px;
+  font-weight: 700;
+}
+
+.drink-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.drink-card {
+  background: rgba(17, 31, 56, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 16px;
+
+  h4 {
+    margin: 0 0 10px;
+    font-size: 18px;
+  }
+}
+
+.drink-block {
+  margin-top: 12px;
+
+  label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: rgba(234, 241, 255, 0.55);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  li {
+    margin-bottom: 4px;
+    color: #eaf1ff;
+  }
+
+  p {
+    margin: 0;
+    color: #eaf1ff;
+    line-height: 1.5;
+  }
+}
+
 @media (max-width: 900px) {
   .detail-grid {
     grid-template-columns: 1fr;

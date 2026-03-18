@@ -11,6 +11,7 @@
     </div>
   </div>
 
+  <!-- EVENT DETAIL CARD -->
   <div class="detail-card">
     <div class="detail-top">
       <div>
@@ -88,6 +89,34 @@
       <div class="detail-item full-width">
         <label>Notes</label>
         <div>{{ reservation.notes }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRINKS FOR THIS EVENT -->
+  <div class="detail-card">
+    <h3 class="section-title">Drinks for this Event</h3>
+
+    <div class="drink-grid">
+      <div class="drink-card" *ngFor="let drink of reservation.drinks">
+        <h4>{{ drink.name }}</h4>
+
+        <div class="drink-block">
+          <label>Ingredients</label>
+          <ul>
+            <li *ngFor="let item of drink.ingredients">{{ item }}</li>
+          </ul>
+        </div>
+
+        <div class="drink-block">
+          <label>Preparation</label>
+          <p>{{ drink.preparation }}</p>
+        </div>
+
+        <div class="drink-block">
+          <label>Garnish</label>
+          <p>{{ drink.garnish }}</p>
+        </div>
       </div>
     </div>
   </div>

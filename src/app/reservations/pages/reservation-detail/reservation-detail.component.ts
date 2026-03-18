@@ -28,7 +28,44 @@ export class ReservationDetailComponent {
     barType: 'Ultimate Bar',
     budgetRange: '$1,200+',
     status: 'confirmed',
-    notes: 'Customer requested premium signature cocktails and full bar setup.'
+    notes: 'Customer requested premium signature cocktails and full bar setup.',
+    drinks: [
+      {
+        name: 'Cuban Mojito',
+        ingredients: [
+          'White Rum',
+          'Mint',
+          'Lime',
+          'Sugar Syrup',
+          'Soda Water',
+          'Ice'
+        ],
+        preparation: 'Muddle mint and lime, add rum and sugar syrup, fill with ice, top with soda water, and stir gently.',
+        garnish: 'Mint sprig + lime wheel'
+      },
+      {
+        name: 'Piña Colada',
+        ingredients: [
+          'Rum',
+          'Pineapple Juice',
+          'Coconut Cream',
+          'Ice'
+        ],
+        preparation: 'Blend rum, pineapple juice, coconut cream, and ice until smooth.',
+        garnish: 'Pineapple slice'
+      },
+      {
+        name: 'Margarita',
+        ingredients: [
+          'Tequila',
+          'Triple Sec',
+          'Lime Juice',
+          'Ice'
+        ],
+        preparation: 'Shake tequila, triple sec, lime juice, and ice, then strain into a prepared glass.',
+        garnish: 'Lime wheel + salt rim'
+      }
+    ]
   };
 
   constructor(

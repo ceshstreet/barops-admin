@@ -17,7 +17,8 @@ import { BarTypeFormComponent } from './bar-types/pages/bar-type-form/bar-type-f
 import { PackageListComponent } from './packages/pages/packages-list/packages-list.component';
 import { DrinkThemeListComponent } from './drink-themes/pages/drink-theme-list/drink-theme-list.component';
 import { DrinkThemeFormComponent } from './drink-themes/pages/drink-theme-form/drink-theme-form.component';
-
+import { DrinkListComponent } from './drinks/pages/drink-list/drink-list.component';
+import { DrinkFormComponent } from './drinks/pages/drink-form/drink-form.component';
 
 
 export const routes: Routes = [
@@ -42,7 +43,9 @@ export const routes: Routes = [
       { path: 'bar-types/new', component: BarTypeFormComponent},
       { path: 'packages', component: PackageListComponent },
       { path: 'drink-themes', component: DrinkThemeListComponent },
-      {path: 'drink-themes/new', component: DrinkThemeFormComponent},
+      { path: 'drink-themes/new', component: DrinkThemeFormComponent},
+      { path: 'drinks', component: DrinkListComponent},
+      { path: 'drinks/new', component: DrinkFormComponent},
 
 
     ]

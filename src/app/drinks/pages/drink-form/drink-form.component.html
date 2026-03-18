@@ -1,0 +1,98 @@
+<div class="drink-form-page">
+  <div class="page-header">
+    <div>
+      <h2>Create Drink</h2>
+      <p>Add a new drink recipe to the master catalog.</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <form (ngSubmit)="saveDrink()" #drinkForm="ngForm">
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Drink Name</label>
+          <input
+            type="text"
+            [(ngModel)]="drink.name"
+            name="name"
+            placeholder="Enter drink name"
+            required />
+        </div>
+
+        <div class="field">
+          <label>Category</label>
+          <select [(ngModel)]="drink.category" name="category">
+            <option value="">Select category</option>
+            <option *ngFor="let item of categories" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Base Spirit</label>
+          <select [(ngModel)]="drink.baseSpirit" name="baseSpirit">
+            <option value="">Select base spirit</option>
+            <option *ngFor="let item of baseSpirits" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Glassware</label>
+          <select [(ngModel)]="drink.glassware" name="glassware">
+            <option value="">Select glassware</option>
+            <option *ngFor="let item of glasswareOptions" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Garnish</label>
+          <input
+            type="text"
+            [(ngModel)]="drink.garnish"
+            name="garnish"
+            placeholder="Example: Mint + Lime Wheel" />
+        </div>
+
+        <div class="field">
+          <label>Status</label>
+          <select [(ngModel)]="drink.status" name="status">
+            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+
+        <div class="field field-full">
+          <label>Ingredients</label>
+          <textarea
+            [(ngModel)]="drink.ingredients"
+            name="ingredients"
+            rows="5"
+            placeholder="Example: White rum, lime juice, mint leaves, sugar syrup, soda water, ice"></textarea>
+        </div>
+
+        <div class="field field-full">
+          <label>Preparation</label>
+          <textarea
+            [(ngModel)]="drink.preparation"
+            name="preparation"
+            rows="6"
+            placeholder="Describe the recipe step by step"></textarea>
+        </div>
+
+        <div class="field field-full">
+          <label>Notes</label>
+          <textarea
+            [(ngModel)]="drink.notes"
+            name="notes"
+            rows="4"
+            placeholder="Extra notes for bartender, service, or presentation"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="primary-btn">Save Drink</button>
+      </div>
+
+    </form>
+  </div>
+</div>
