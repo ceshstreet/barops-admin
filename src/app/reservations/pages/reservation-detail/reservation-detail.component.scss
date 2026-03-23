@@ -28,6 +28,7 @@
 .header-actions {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .detail-card {
@@ -192,6 +193,30 @@
     color: #eaf1ff;
     line-height: 1.5;
   }
+}
+
+.ingredient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.ingredient-card {
+  background: rgba(17, 31, 56, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.ingredient-name {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.ingredient-qty {
+  font-size: 13px;
+  color: rgba(234, 241, 255, 0.68);
 }
 
 @media (max-width: 900px) {

@@ -60,7 +60,8 @@ export class ReservationDetailComponent {
           'Tequila',
           'Triple Sec',
           'Lime Juice',
-          'Ice'
+          'Ice',
+          'Salt'
         ],
         preparation: 'Shake tequila, triple sec, lime juice, and ice, then strain into a prepared glass.',
         garnish: 'Lime wheel + salt rim'
@@ -68,11 +69,14 @@ export class ReservationDetailComponent {
     ]
   };
 
+  ingredientSummary: { name: string; quantity: number }[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router
   ) {
     this.reservationId = this.route.snapshot.paramMap.get('id');
+    this.buildIngredientSummary();
   }
 
   goBack() {
@@ -81,5 +85,27 @@ export class ReservationDetailComponent {
 
   editReservation() {
     this.router.navigate(['/reservations/edit', this.reservationId]);
+  }
+
+  viewSummary() {
+    this.router.navigate(['/reservations', this.reservationId, 'summary']);
+  }
+
+  private buildIngredientSummary() {
+    const ingredientMap = new Map<string, number>();
+
+    this.reservation.drinks.forEach((drink) => {
+      drink.ingredients.forEach((ingredient) => {
+        const current = ingredientMap.get(ingredient) || 0;
+        ingredientMap.set(ingredient, current + 1);
+      });
+    });
+
+    this.ingredientSummary = Array.from(ingredientMap.entries()).map(
+      ([name, quantity]) => ({
+        name,
+        quantity
+      })
+    );
   }
 }

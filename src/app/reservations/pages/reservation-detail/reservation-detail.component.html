@@ -7,6 +7,7 @@
 
     <div class="header-actions">
       <button class="secondary-btn" (click)="goBack()">Back to Calendar</button>
+      <button class="secondary-btn" (click)="viewSummary()">View Summary</button>
       <button class="primary-btn" (click)="editReservation()">Edit Reservation</button>
     </div>
   </div>
@@ -117,6 +118,18 @@
           <label>Garnish</label>
           <p>{{ drink.garnish }}</p>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INGREDIENT SUMMARY -->
+  <div class="detail-card">
+    <h3 class="section-title">Ingredient Summary</h3>
+
+    <div class="ingredient-grid">
+      <div class="ingredient-card" *ngFor="let ingredient of ingredientSummary">
+        <div class="ingredient-name">{{ ingredient.name }}</div>
+        <div class="ingredient-qty">Used in {{ ingredient.quantity }} drink(s)</div>
       </div>
     </div>
   </div>
