@@ -1,4 +1,170 @@
-<div class="page-card">
-  <h2>Dashboard</h2>
-  <p>Welcome to the administrative system.</p>
+<div class="dashboard-page">
+  <div class="page-header">
+    <div>
+      <h2>Dashboard</h2>
+      <p>Overview of operations, upcoming events, staff readiness, and service catalog.</p>
+    </div>
+  </div>
+
+  <!-- HERO / HIGHLIGHT -->
+  <div class="hero-card">
+    <div class="hero-content">
+      <div class="hero-badge">Operations Overview</div>
+      <h3>Welcome back to BarOps Admin</h3>
+      <p>
+        Track reservations, prepare bartenders, review event drinks, and keep service execution
+        aligned from one central dashboard.
+      </p>
+
+      <div class="hero-actions">
+        <a routerLink="/reservations/calendar" class="hero-btn primary">Open Calendar</a>
+        <a routerLink="/reservations/new" class="hero-btn secondary">Create Reservation</a>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat-box">
+        <strong>6</strong>
+        <span>Upcoming Events</span>
+      </div>
+      <div class="hero-stat-box">
+        <strong>3</strong>
+        <span>Available Bartenders</span>
+      </div>
+      <div class="hero-stat-box">
+        <strong>5</strong>
+        <span>Drinks in Rotation</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI STATS -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of stats">
+      <div class="stat-top">
+        <span class="stat-label">{{ stat.label }}</span>
+      </div>
+      <div class="stat-value">{{ stat.value }}</div>
+      <div class="stat-helper">{{ stat.helper }}</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="dashboard-grid">
+    <!-- UPCOMING EVENTS -->
+    <div class="dashboard-card large-card">
+      <div class="card-header">
+        <div>
+          <h3>Upcoming Events</h3>
+          <p>Next reservations scheduled in the system.</p>
+        </div>
+        <a routerLink="/reservations/calendar" class="card-link">View all</a>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Event</th>
+              <th>Client</th>
+              <th>Date</th>
+              <th>Location</th>
+              <th>Bartender</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let event of upcomingEvents">
+              <td>{{ event.id }}</td>
+              <td>{{ event.eventName }}</td>
+              <td>{{ event.client }}</td>
+              <td>{{ event.date }}</td>
+              <td>{{ event.location }}</td>
+              <td>{{ event.bartender }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(event.status)">
+                  {{ event.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <div>
+          <h3>Operational Alerts</h3>
+          <p>Items requiring immediate attention.</p>
+        </div>
+      </div>
+
+      <div class="alert-list">
+        <div class="alert-item" *ngFor="let alert of alerts" [ngClass]="getAlertClass(alert.severity)">
+          <strong>{{ alert.title }}</strong>
+          <p>{{ alert.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <div>
+          <h3>Quick Actions</h3>
+          <p>Shortcuts for the most common tasks.</p>
+        </div>
+      </div>
+
+      <div class="action-grid">
+        <a *ngFor="let action of quickActions" [routerLink]="action.route" class="action-card">
+          <strong>{{ action.label }}</strong>
+          <span>{{ action.description }}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- STAFF STATUS -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <div>
+          <h3>Bartender Status</h3>
+          <p>Quick staff readiness check.</p>
+        </div>
+      </div>
+
+      <div class="staff-list">
+        <div class="staff-item" *ngFor="let bartender of bartenderWorkload">
+          <div class="staff-info">
+            <strong>{{ bartender.name }}</strong>
+            <span>{{ bartender.specialty }}</span>
+          </div>
+
+          <span class="status-badge" [ngClass]="getStatusClass(bartender.status)">
+            {{ bartender.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATALOG SUMMARY -->
+    <div class="dashboard-card full-row-card">
+      <div class="card-header">
+        <div>
+          <h3>Catalog Summary</h3>
+          <p>Current service configuration loaded into the system.</p>
+        </div>
+      </div>
+
+      <div class="catalog-grid">
+        <div class="catalog-item" *ngFor="let item of catalogSummary">
+          <strong>{{ item.value }}</strong>
+          <span>{{ item.label }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

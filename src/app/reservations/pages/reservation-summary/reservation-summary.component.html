@@ -1,0 +1,151 @@
+<div class="summary-page">
+  <div class="summary-actions no-print">
+    <button class="secondary-btn" (click)="goBack()">Back to Event</button>
+    <button class="primary-btn" (click)="printSummary()">Print / Save PDF</button>
+  </div>
+
+  <div class="summary-document">
+    <div class="summary-header">
+      <div>
+        <h1>Event Summary</h1>
+        <p class="subtitle">Operational event brief for service and bartender preparation</p>
+      </div>
+
+      <div class="summary-code">
+        <span>{{ reservation.id }}</span>
+      </div>
+    </div>
+
+    <!-- EVENT INFORMATION -->
+    <section class="summary-section">
+      <h2>Event Information</h2>
+
+      <div class="summary-grid">
+        <div class="summary-item">
+          <label>Client</label>
+          <div>{{ reservation.client }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>Event Name</label>
+          <div>{{ reservation.eventName }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>Event Type</label>
+          <div>{{ reservation.eventType }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>Date</label>
+          <div>{{ reservation.eventDate }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>Start Time</label>
+          <div>{{ reservation.startTime }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>End Time</label>
+          <div>{{ reservation.endTime }}</div>
+        </div>
+
+        <div class="summary-item full-width">
+          <label>Location</label>
+          <div>{{ reservation.location }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICE CONFIGURATION -->
+    <section class="summary-section">
+      <h2>Service Configuration</h2>
+
+      <div class="summary-grid">
+        <div class="summary-item">
+          <label>Guests</label>
+          <div>{{ reservation.guests }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>Package</label>
+          <div>{{ reservation.package }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>Drink Theme</label>
+          <div>{{ reservation.drinkTheme }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>Bartender</label>
+          <div>{{ reservation.bartender }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>Bar Type</label>
+          <div>{{ reservation.barType }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>Status</label>
+          <div class="capitalize">{{ reservation.status }}</div>
+        </div>
+
+        <div class="summary-item">
+          <label>Budget Range</label>
+          <div>{{ reservation.budgetRange }}</div>
+        </div>
+
+        <div class="summary-item full-width">
+          <label>Notes</label>
+          <div>{{ reservation.notes }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DRINKS -->
+    <section class="summary-section">
+      <h2>Drinks for This Event</h2>
+
+      <div class="drink-summary-card" *ngFor="let drink of reservation.drinks">
+        <div class="drink-summary-header">
+          <h3>{{ drink.name }}</h3>
+          <span>{{ drink.glassware }}</span>
+        </div>
+
+        <div class="drink-summary-grid">
+          <div class="drink-summary-block">
+            <label>Ingredients</label>
+            <ul>
+              <li *ngFor="let item of drink.ingredients">{{ item }}</li>
+            </ul>
+          </div>
+
+          <div class="drink-summary-block">
+            <label>Preparation</label>
+            <p>{{ drink.preparation }}</p>
+          </div>
+
+          <div class="drink-summary-block">
+            <label>Garnish</label>
+            <p>{{ drink.garnish }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INGREDIENT SUMMARY -->
+    <section class="summary-section">
+      <h2>Ingredient Summary</h2>
+
+      <div class="ingredient-summary-grid">
+        <div class="ingredient-summary-item" *ngFor="let ingredient of ingredientSummary">
+          <strong>{{ ingredient.name }}</strong>
+          <span>Used in {{ ingredient.quantity }} drink(s)</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

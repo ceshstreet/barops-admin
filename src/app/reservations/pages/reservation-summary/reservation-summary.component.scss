@@ -1,0 +1,285 @@
+.summary-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: #eaf1ff;
+}
+
+.summary-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.summary-document {
+  background: #ffffff;
+  color: #1c2430;
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  border-bottom: 2px solid #e8edf5;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    font-size: 34px;
+    color: #101828;
+  }
+
+  .subtitle {
+    margin: 8px 0 0;
+    color: #667085;
+    font-size: 14px;
+  }
+}
+
+.summary-code {
+  span {
+    display: inline-block;
+    background: #f4f1ff;
+    color: #6b4eff;
+    border: 1px solid #d7ccff;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.summary-section {
+  margin-top: 28px;
+
+  h2 {
+    margin: 0 0 14px;
+    font-size: 22px;
+    color: #101828;
+    border-bottom: 1px solid #e8edf5;
+    padding-bottom: 8px;
+  }
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.summary-item {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+
+  label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #667085;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  div {
+    color: #111827;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.drink-summary-card {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.drink-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #101828;
+  }
+
+  span {
+    font-size: 13px;
+    color: #475467;
+    background: #eef2f7;
+    padding: 6px 10px;
+    border-radius: 999px;
+  }
+}
+
+.drink-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+.drink-summary-block {
+  label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #667085;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  li {
+    margin-bottom: 4px;
+    color: #111827;
+  }
+
+  p {
+    margin: 0;
+    color: #111827;
+    line-height: 1.5;
+  }
+}
+
+.ingredient-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.ingredient-summary-item {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+
+  strong {
+    display: block;
+    color: #111827;
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+
+  span {
+    font-size: 13px;
+    color: #667085;
+  }
+}
+
+.primary-btn,
+.secondary-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #7c5cff, #32d7a3);
+  color: white;
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #eaf1ff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 900px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+
+  .drink-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-header {
+    flex-direction: column;
+  }
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+
+  .no-print,
+  .summary-actions {
+    display: none !important;
+  }
+
+  .summary-page {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .summary-document {
+    box-shadow: none;
+    max-width: 100%;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* FIX BUTTON STYLES IN SUMMARY */
+.summary-actions button {
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Botón primario */
+.summary-actions .primary-btn {
+  background: linear-gradient(135deg, #7c5cff, #32d7a3);
+  color: #ffffff;
+  border: none;
+}
+
+/* Botón secundario */
+.summary-actions .secondary-btn {
+  background: #f4f6f8;
+  color: #1c2430;
+  border: 1px solid #d0d5dd;
+}
+
+/* Hover */
+.summary-actions button:hover {
+  opacity: 0.9;
+}

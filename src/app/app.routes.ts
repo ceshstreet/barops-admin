@@ -19,6 +19,7 @@ import { DrinkThemeListComponent } from './drink-themes/pages/drink-theme-list/d
 import { DrinkThemeFormComponent } from './drink-themes/pages/drink-theme-form/drink-theme-form.component';
 import { DrinkListComponent } from './drinks/pages/drink-list/drink-list.component';
 import { DrinkFormComponent } from './drinks/pages/drink-form/drink-form.component';
+import { ReservationSummaryComponent } from './reservations/pages/reservation-summary/reservation-summary.component';
 
 
 export const routes: Routes = [
@@ -37,6 +38,7 @@ export const routes: Routes = [
       { path: 'suppliers', component: SupplierListComponent },
       { path: 'reports', component: ReportsDashboardComponent },
       { path: 'reservations/new', component: ReservationFormComponent },
+      { path: 'reservations/:id/summary', component: ReservationSummaryComponent},
       { path: 'reservations/:id', component: ReservationDetailComponent},
       { path: 'clients/new', component: ClientFormComponent},
       { path: 'bartenders/new', component: BartenderFormComponent},
