@@ -16,8 +16,8 @@
           <th>Client</th>
           <th>Phone</th>
           <th>Email</th>
-          <th>Event Type</th>
-          <th>Last Event</th>
+          <th>Preferred Contact</th>
+          <th>Notes</th>
         </tr>
       </thead>
 
@@ -26,12 +26,12 @@
           *ngFor="let client of clients"
           (click)="openClient(client)"
           class="clickable-row">
-          <td>{{ client.id }}</td>
+          <td>{{ client._id }}</td>
           <td>{{ getFullName(client) }}</td>
           <td>{{ client.phone }}</td>
           <td>{{ client.email }}</td>
-          <td>{{ client.eventType }}</td>
-          <td>{{ client.lastEventDate }}</td>
+          <td>{{ client.clientData?.preferredContact }}</td>
+          <td>{{ client.clientData?.notes }}</td>
         </tr>
       </tbody>
     </table>
