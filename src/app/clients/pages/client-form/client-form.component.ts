@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ClientService } from '../../services/client.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-client-form',
@@ -10,46 +12,78 @@ import { Router } from '@angular/router';
   templateUrl: './client-form.component.html',
   styleUrl: './client-form.component.scss'
 })
-export class ClientFormComponent {
-  constructor(private router: Router) {}
+export class ClientFormComponent implements OnInit {
+  isEditMode = false;
+  clientId: string | null = null;
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private clientService: ClientService,
+    private toastService: ToastService
+  ) {}
 
   client = {
-    firstName: '',
+    name: '',
     lastName: '',
     phone: '',
     email: '',
-    eventType: '',
-    preferredContact: '',
-    budgetRange: '',
-    notes: ''
+    clientData: {
+      preferredContact: '',
+      notes: ''
+    }
   };
 
-  eventTypes = [
-    'Wedding',
-    'Corporate Event',
-    'Birthday',
-    'Private Party',
-    'Pool Party',
-    'Holiday Event'
-  ];
+  preferredContacts = ['WHATSAPP', 'EMAIL', 'PHONE'];
 
-  preferredContacts = [
-    'Phone',
-    'Email',
-    'WhatsApp'
-  ];
-
-  budgetRanges = [
-    '$300 - $500',
-    '$500 - $800',
-    '$800 - $1,200',
-    '$1,200+'
-  ];
+  ngOnInit() {
+    this.clientId = this.route.snapshot.paramMap.get('id');
+    if (this.clientId) {
+      this.isEditMode = true;
+      this.clientService.getClients().subscribe({
+        next: (clients) => {
+          const found = clients.find(c => c._id === this.clientId);
+          if (found) {
+            this.client = {
+              name: found.name,
+              lastName: found.lastName,
+              phone: found.phone,
+              email: found.email,
+              clientData: {
+                preferredContact: found.clientData?.preferredContact || '',
+                notes: found.clientData?.notes || ''
+              }
+            };
+          }
+        }
+      });
+    }
+  }
 
   saveClient() {
-    console.log('Client data:', this.client);
-    alert('Mock save: client created successfully.');
-    this.router.navigate(['/clients']);
+    if (this.isEditMode && this.clientId) {
+      this.clientService.updateClient(this.clientId, this.client as any).subscribe({
+        next: () => {
+          this.toastService.show('Client updated successfully.', 'success');
+          setTimeout(() => this.router.navigate(['/clients']), 1500);
+        },
+        error: (err) => {
+          this.toastService.show('Error updating client.', 'error');
+          console.error(err);
+        }
+      });
+    } else {
+      this.clientService.insertClient(this.client as any).subscribe({
+        next: () => {
+          this.toastService.show('Client created successfully.', 'success');
+          setTimeout(() => this.router.navigate(['/clients']), 1500);
+        },
+        error: (err) => {
+          this.toastService.show('Error creating client.', 'error');
+          console.error(err);
+        }
+      });
+    }
   }
 
   cancel() {

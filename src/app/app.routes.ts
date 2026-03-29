@@ -38,17 +38,23 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'bar-types', component: BarTypeListComponent },
       { path: 'bar-types/new', component: BarTypeFormComponent},
+
       { path: 'bartenders', component: BartenderListComponent },
       { path: 'bartenders/new', component: BartenderFormComponent},
+
       { path: 'clients', component: ClientListComponent },
       { path: 'clients/new', component: ClientFormComponent},
+      { path: 'clients/:id/edit', component: ClientFormComponent },
+
       { path: 'dashboard', component: DashboardHomeComponent },
       { path: 'drink-themes', component: DrinkThemeListComponent },
       { path: 'drink-themes/new', component: DrinkThemeFormComponent},
       { path: 'drinks', component: DrinkListComponent},
       { path: 'drinks/new', component: DrinkFormComponent},
+
       { path: 'events', component: EventListComponent},
       { path: 'events/:id', component: EventDetailComponent},
+
       { path: 'inventory', component: InventoryListComponent },
       { path: 'packages', component: PackageListComponent },
       { path: 'reports', component: ReportsDashboardComponent },

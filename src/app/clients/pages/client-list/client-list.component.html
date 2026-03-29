@@ -4,7 +4,6 @@
       <h2>Clients</h2>
       <p>Manage customers, contacts, and event history.</p>
     </div>
-
     <button class="primary-btn" (click)="createClient()">+ New Client</button>
   </div>
 
@@ -12,28 +11,51 @@
     <table>
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Client</th>
+          <th>#</th>
+          <th (click)="sortByName()" style="cursor:pointer">
+            Client {{ sortAsc ? '↑' : '↓' }}
+          </th>
           <th>Phone</th>
           <th>Email</th>
           <th>Preferred Contact</th>
           <th>Notes</th>
+          <th>Actions</th>
         </tr>
       </thead>
-
       <tbody>
         <tr
-          *ngFor="let client of clients"
+          *ngFor="let client of clients; let i = index"
           (click)="openClient(client)"
           class="clickable-row">
-          <td>{{ client._id }}</td>
+          <td>{{ i + 1 }}</td>
           <td>{{ getFullName(client) }}</td>
           <td>{{ client.phone }}</td>
           <td>{{ client.email }}</td>
           <td>{{ client.clientData?.preferredContact }}</td>
           <td>{{ client.clientData?.notes }}</td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn-edit" (click)="editClient($event, client)">✏️</button>
+              <button class="btn-delete" (click)="confirmDelete($event, client)">🗑️</button>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+<!-- Modal de confirmación -->
+@if (showDeleteModal && clientToDelete) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon">🗑️</div>
+      <h3>Delete Client</h3>
+      <p>Are you sure you want to delete <strong>{{ getFullName(clientToDelete) }}</strong>? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="secondary-btn" (click)="cancelDelete()">Cancel</button>
+        <button class="danger-btn" (click)="confirmDeleteAction()">Delete</button>
+      </div>
+    </div>
+  </div>
+}

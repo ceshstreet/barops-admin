@@ -1,0 +1,8 @@
+@if (toastService.toast()) {
+  <div class="toast" [ngClass]="toastService.toast()!.type">
+    <span class="toast-icon">
+      {{ toastService.toast()!.type === 'success' ? '✅' : toastService.toast()!.type === 'error' ? '❌' : '⚠️' }}
+    </span>
+    <span>{{ toastService.toast()!.message }}</span>
+  </div>
+}

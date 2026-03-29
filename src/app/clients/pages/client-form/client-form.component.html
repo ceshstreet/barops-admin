@@ -1,8 +1,8 @@
 <div class="client-form-page">
   <div class="page-header">
     <div>
-      <h2>Create Client</h2>
-      <p>Add a new client profile to the system.</p>
+      <h2>{{ isEditMode ? 'Edit Client' : 'Create Client' }}</h2>
+      <p>{{ isEditMode ? 'Update client information.' : 'Add a new client profile to the system.' }}</p>
     </div>
   </div>
 
@@ -14,8 +14,8 @@
           <label>First Name</label>
           <input
             type="text"
-            [(ngModel)]="client.firstName"
-            name="firstName"
+            [(ngModel)]="client.name"
+            name="name"
             placeholder="Enter first name"
             required />
         </div>
@@ -36,7 +36,8 @@
             type="text"
             [(ngModel)]="client.phone"
             name="phone"
-            placeholder="Enter phone number" />
+            placeholder="Enter phone number (9 digits)"
+            required />
         </div>
 
         <div class="field">
@@ -45,46 +46,33 @@
             type="email"
             [(ngModel)]="client.email"
             name="email"
-            placeholder="Enter email address" />
-        </div>
-
-        <div class="field">
-          <label>Event Type</label>
-          <select [(ngModel)]="client.eventType" name="eventType">
-            <option value="">Select event type</option>
-            <option *ngFor="let type of eventTypes" [value]="type">{{ type }}</option>
-          </select>
+            placeholder="Enter email address"
+            required />
         </div>
 
         <div class="field">
           <label>Preferred Contact</label>
-          <select [(ngModel)]="client.preferredContact" name="preferredContact">
+          <select [(ngModel)]="client.clientData.preferredContact" name="preferredContact" required>
             <option value="">Select contact method</option>
             <option *ngFor="let method of preferredContacts" [value]="method">{{ method }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Budget Range</label>
-          <select [(ngModel)]="client.budgetRange" name="budgetRange">
-            <option value="">Select budget range</option>
-            <option *ngFor="let budget of budgetRanges" [value]="budget">{{ budget }}</option>
           </select>
         </div>
 
         <div class="field field-full">
           <label>Notes</label>
           <textarea
-            [(ngModel)]="client.notes"
+            [(ngModel)]="client.clientData.notes"
             name="notes"
             rows="5"
-            placeholder="Add client notes, preferences, or event details"></textarea>
+            placeholder="Add client notes or preferences"></textarea>
         </div>
       </div>
 
       <div class="form-actions">
         <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
-        <button type="submit" class="primary-btn">Save Client</button>
+        <button type="submit" class="primary-btn">
+          {{ isEditMode ? 'Update Client' : 'Save Client' }}
+        </button>
       </div>
 
     </form>
