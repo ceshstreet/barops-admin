@@ -4,12 +4,12 @@ import { Router } from '@angular/router';
 
 interface Client {
   id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   email: string;
   eventType: string;
   lastEventDate: string;
-  status: 'active' | 'prospect' | 'vip';
 }
 
 @Component({
@@ -25,39 +25,39 @@ export class ClientListComponent {
   clients: Client[] = [
     {
       id: 'CL-001',
-      fullName: 'Ana M.',
+      firstName: 'Ana',
+      lastName: 'Martinez',
       phone: '+503 7000-1001',
       email: 'ana@email.com',
       eventType: 'Wedding',
-      lastEventDate: '2026-02-07',
-      status: 'vip'
+      lastEventDate: '2026-02-07'
     },
     {
       id: 'CL-002',
-      fullName: 'Inversiones XYZ',
-      phone: '+503 2200-3300',
-      email: 'contact@xyz.com',
-      eventType: 'Corporate Event',
-      lastEventDate: '2026-02-08',
-      status: 'active'
-    },
-    {
-      id: 'CL-003',
-      fullName: 'Carlos R.',
+      firstName: 'Carlos',
+      lastName: 'Ruiz',
       phone: '+503 7111-2233',
       email: 'carlos@email.com',
       eventType: 'Private Party',
-      lastEventDate: '2026-02-10',
-      status: 'active'
+      lastEventDate: '2026-02-10'
     },
     {
-      id: 'CL-004',
-      fullName: 'Lucia V.',
+      id: 'CL-003',
+      firstName: 'Lucia',
+      lastName: 'Vasquez',
       phone: '+503 7444-8899',
       email: 'lucia@email.com',
       eventType: 'Birthday',
-      lastEventDate: '2026-02-14',
-      status: 'prospect'
+      lastEventDate: '2026-02-14'
+    },
+    {
+      id: 'CL-004',
+      firstName: 'David',
+      lastName: 'Hernandez',
+      phone: '+503 7555-9900',
+      email: 'david@email.com',
+      eventType: 'Corporate Event',
+      lastEventDate: '2026-02-18'
     }
   ];
 
@@ -69,9 +69,7 @@ export class ClientListComponent {
     this.router.navigate(['/clients', client.id]);
   }
 
-  getStatusClass(status: string): string {
-    if (status === 'vip') return 'vip';
-    if (status === 'active') return 'active';
-    return 'prospect';
+  getFullName(client: Client): string {
+    return `${client.firstName} ${client.lastName}`;
   }
 }

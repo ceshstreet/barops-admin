@@ -14,14 +14,14 @@ export class ClientFormComponent {
   constructor(private router: Router) {}
 
   client = {
-    fullName: '',
+    firstName: '',
+    lastName: '',
     phone: '',
     email: '',
     eventType: '',
     preferredContact: '',
     budgetRange: '',
-    notes: '',
-    status: 'prospect'
+    notes: ''
   };
 
   eventTypes = [
@@ -44,12 +44,6 @@ export class ClientFormComponent {
     '$500 - $800',
     '$800 - $1,200',
     '$1,200+'
-  ];
-
-  statuses = [
-    'prospect',
-    'active',
-    'vip'
   ];
 
   saveClient() {

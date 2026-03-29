@@ -1,0 +1,136 @@
+<div class="event-detail-page">
+  <div class="page-header">
+    <div>
+      <h2>Event Detail</h2>
+      <p>Review the full operational event information.</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="secondary-btn" (click)="goBack()">Back to Events</button>
+      <button class="secondary-btn" (click)="viewSummary()">View Summary</button>
+      <button class="primary-btn" (click)="editEvent()">Edit Event</button>
+    </div>
+  </div>
+
+  <!-- EVENT DETAIL CARD -->
+  <div class="detail-card">
+    <div class="detail-top">
+      <div>
+        <span class="event-id">{{ event.id }}</span>
+        <h3>{{ event.eventName }}</h3>
+        <p>{{ event.client }} • {{ event.eventType }}</p>
+      </div>
+
+      <div class="status-badge" [ngClass]="event.status">
+        {{ event.status }}
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Client</label>
+        <div>{{ event.client }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Event Type</label>
+        <div>{{ event.eventType }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Event Date</label>
+        <div>{{ event.eventDate }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Start Time</label>
+        <div>{{ event.startTime }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>End Time</label>
+        <div>{{ event.endTime }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Location</label>
+        <div>{{ event.location }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Guests</label>
+        <div>{{ event.guests }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Package</label>
+        <div>{{ event.package }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Drink Theme</label>
+        <div>{{ event.drinkTheme }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Bartender</label>
+        <div>{{ event.bartender }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Bar Type</label>
+        <div>{{ event.barType }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label>Budget Range</label>
+        <div>{{ event.budgetRange }}</div>
+      </div>
+
+      <div class="detail-item full-width">
+        <label>Notes</label>
+        <div>{{ event.notes }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRINKS FOR THIS EVENT -->
+  <div class="detail-card">
+    <h3 class="section-title">Drinks for this Event</h3>
+
+    <div class="drink-grid">
+      <div class="drink-card" *ngFor="let drink of event.drinks">
+        <h4>{{ drink.name }}</h4>
+
+        <div class="drink-block">
+          <label>Ingredients</label>
+          <ul>
+            <li *ngFor="let item of drink.ingredients">{{ item }}</li>
+          </ul>
+        </div>
+
+        <div class="drink-block">
+          <label>Preparation</label>
+          <p>{{ drink.preparation }}</p>
+        </div>
+
+        <div class="drink-block">
+          <label>Garnish</label>
+          <p>{{ drink.garnish }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INGREDIENT SUMMARY -->
+  <div class="detail-card">
+    <h3 class="section-title">Ingredient Summary</h3>
+
+    <div class="ingredient-grid">
+      <div class="ingredient-card" *ngFor="let ingredient of ingredientSummary">
+        <div class="ingredient-name">{{ ingredient.name }}</div>
+        <div class="ingredient-qty">Used in {{ ingredient.quantity }} drink(s)</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -11,12 +11,22 @@
 
       <div class="form-grid">
         <div class="field">
-          <label>Full Name</label>
+          <label>First Name</label>
           <input
             type="text"
-            [(ngModel)]="client.fullName"
-            name="fullName"
-            placeholder="Enter full name"
+            [(ngModel)]="client.firstName"
+            name="firstName"
+            placeholder="Enter first name"
+            required />
+        </div>
+
+        <div class="field">
+          <label>Last Name</label>
+          <input
+            type="text"
+            [(ngModel)]="client.lastName"
+            name="lastName"
+            placeholder="Enter last name"
             required />
         </div>
 
@@ -59,13 +69,6 @@
           <select [(ngModel)]="client.budgetRange" name="budgetRange">
             <option value="">Select budget range</option>
             <option *ngFor="let budget of budgetRanges" [value]="budget">{{ budget }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Status</label>
-          <select [(ngModel)]="client.status" name="status">
-            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
           </select>
         </div>
 

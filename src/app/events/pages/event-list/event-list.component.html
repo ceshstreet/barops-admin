@@ -1,0 +1,43 @@
+<div class="event-list-page">
+  <div class="page-header">
+    <div>
+      <h2>Events</h2>
+      <p>Operational view of confirmed events ready for execution.</p>
+    </div>
+  </div>
+
+  <div class="event-table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Event</th>
+          <th>Client</th>
+          <th>Date</th>
+          <th>Bartender</th>
+          <th>Bar Type</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let event of events"
+          (click)="openEvent(event)"
+          class="clickable-row">
+          <td>{{ event.id }}</td>
+          <td>{{ event.eventName }}</td>
+          <td>{{ event.client }}</td>
+          <td>{{ event.date }}</td>
+          <td>{{ event.bartender }}</td>
+          <td>{{ event.barType }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(event.status)">
+              {{ event.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
