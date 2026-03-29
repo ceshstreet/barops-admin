@@ -8,6 +8,7 @@ export interface Client {
   lastName: string;
   phone: string;
   email: string;
+  status?: boolean;
   clientData?: {
     preferredContact: string;
     notes: string;
@@ -24,6 +25,10 @@ export class ClientService {
 
   getClients(): Observable<Client[]> {
     return this.http.get<Client[]>(this.apiUrl);
+  }
+
+  getClientById(id: string): Observable<Client> {
+    return this.http.get<Client>(`${this.apiUrl}/${id}`);
   }
 
   insertClient(client: Client): Observable<Client> {

@@ -5,8 +5,11 @@ import { BartenderFormComponent } from './bartenders/pages/bartender-form/barten
 import { BartenderListComponent } from './bartenders/pages/bartender-list/bartender-list.component';
 import { BarTypeFormComponent } from './bar-types/pages/bar-type-form/bar-type-form.component';
 import { BarTypeListComponent } from './bar-types/pages/bar-type-list/bar-type-list.component';
+
 import { ClientFormComponent } from './clients/pages/client-form/client-form.component';
 import { ClientListComponent } from './clients/pages/client-list/client-list.component';
+import { ClientDetailComponent } from './clients/pages/client-detail/client-detail.component';
+
 import { DashboardHomeComponent } from './dashboard/pages/dashboard-home/dashboard-home.component';
 import { DrinkFormComponent } from './drinks/pages/drink-form/drink-form.component';
 import { DrinkListComponent } from './drinks/pages/drink-list/drink-list.component';
@@ -44,6 +47,7 @@ export const routes: Routes = [
 
       { path: 'clients', component: ClientListComponent },
       { path: 'clients/new', component: ClientFormComponent},
+      { path: 'clients/:id', component: ClientDetailComponent },
       { path: 'clients/:id/edit', component: ClientFormComponent },
 
       { path: 'dashboard', component: DashboardHomeComponent },

@@ -1,0 +1,43 @@
+<div class="client-detail-page">
+
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">← Back</button>
+    <button class="primary-btn" (click)="editClient()">✏️ Edit Client</button>
+  </div>
+
+  @if (client) {
+    <div class="detail-card">
+      <div class="client-hero">
+        <div class="avatar">{{ client.name[0] }}{{ client.lastName[0] }}</div>
+        <div>
+          <h2>{{ getFullName() }}</h2>
+          <span class="status-badge" [class.active]="client.status" [class.inactive]="!client.status">
+            {{ client.status ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ client.email }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Phone</span>
+          <span class="info-value">{{ client.phone }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Preferred Contact</span>
+          <span class="info-value">{{ client.clientData?.preferredContact || '—' }}</span>
+        </div>
+        <div class="info-item info-full">
+          <span class="info-label">Notes</span>
+          <span class="info-value">{{ client.clientData?.notes || '—' }}</span>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="loading">Loading client...</div>
+  }
+
+</div>
