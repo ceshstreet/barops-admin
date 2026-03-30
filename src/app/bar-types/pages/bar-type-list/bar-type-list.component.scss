@@ -25,7 +25,7 @@
   }
 }
 
-.bar-type-table-card {
+.bar-table-card {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
@@ -37,11 +37,11 @@ table {
   width: 100%;
   border-collapse: collapse;
 
-  th,
-  td {
+  th, td {
     text-align: left;
     padding: 14px 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    vertical-align: middle;
   }
 
   th {
@@ -60,10 +60,10 @@ table {
 .clickable-row {
   cursor: pointer;
   transition: 0.2s ease;
-}
 
-.clickable-row:hover {
-  background: rgba(255, 255, 255, 0.04);
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
 }
 
 .status-badge {
@@ -73,16 +73,34 @@ table {
   font-size: 12px;
   font-weight: 600;
   text-transform: capitalize;
+
+  &.active {
+    background: rgba(68, 224, 138, 0.14);
+    border: 1px solid rgba(68, 224, 138, 0.30);
+    color: #4ade80;
+  }
+
+  &.inactive {
+    background: rgba(255, 107, 107, 0.14);
+    border: 1px solid rgba(255, 107, 107, 0.30);
+    color: #f87171;
+  }
 }
 
-.status-badge.active {
-  background: rgba(68, 224, 138, 0.14);
-  border: 1px solid rgba(68, 224, 138, 0.30);
-}
+.lighting-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 
-.status-badge.inactive {
-  background: rgba(255, 107, 107, 0.14);
-  border: 1px solid rgba(255, 107, 107, 0.30);
+  &.has-lighting {
+    background: rgba(250, 204, 21, 0.14);
+    border: 1px solid rgba(250, 204, 21, 0.3);
+    color: #facc15;
+  }
 }
 
 .primary-btn {
@@ -93,6 +111,106 @@ table {
   padding: 12px 18px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: #eaf1ff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.danger-btn {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.3);
+  }
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  .btn-edit, .btn-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  .btn-delete:hover {
+    background: rgba(255, 80, 80, 0.15);
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: #1a1f35;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+
+  .modal-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 12px;
+    font-size: 20px;
+    color: #eaf1ff;
+  }
+
+  p {
+    color: rgba(234, 241, 255, 0.68);
+    font-size: 14px;
+    margin-bottom: 24px;
+
+    strong {
+      color: #eaf1ff;
+    }
+  }
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {

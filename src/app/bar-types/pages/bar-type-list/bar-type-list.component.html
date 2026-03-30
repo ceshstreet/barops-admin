@@ -4,40 +4,61 @@
       <h2>Bar Types</h2>
       <p>Manage portable bars, setup categories, and operational capacity.</p>
     </div>
-
     <button class="primary-btn" (click)="createBarType()">+ New Bar Type</button>
   </div>
 
-  <div class="bar-type-table-card">
+  <div class="bar-table-card">
     <table>
       <thead>
         <tr>
-          <th>ID</th>
+          <th>#</th>
           <th>Bar Name</th>
           <th>Category</th>
           <th>Lighting</th>
           <th>Capacity</th>
           <th>Status</th>
+          <th>Actions</th>
         </tr>
       </thead>
-
       <tbody>
-        <tr
-          *ngFor="let barType of barTypes"
-          (click)="openBarType(barType)"
-          class="clickable-row">
-          <td>{{ barType.id }}</td>
-          <td>{{ barType.name }}</td>
-          <td>{{ barType.category }}</td>
-          <td>{{ barType.lighting }}</td>
-          <td>{{ barType.capacity }}</td>
+        <tr *ngFor="let bar of barTypes; let i = index" class="clickable-row"
+          (click)="openBarType(bar)">
+          <td>{{ i + 1 }}</td>
+          <td>{{ bar.name }}</td>
+          <td>{{ bar.category }}</td>
           <td>
-            <span class="status-badge" [ngClass]="getStatusClass(barType.status)">
-              {{ barType.status }}
+            <span class="lighting-tag" [class.has-lighting]="bar.lighting">
+              {{ bar.lighting ? 'Yes' : 'No' }}
             </span>
+          </td>
+          <td>{{ bar.capacity }} persons</td>
+          <td>
+            <span class="status-badge" [class.active]="bar.status" [class.inactive]="!bar.status">
+              {{ bar.status ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn-edit" (click)="editBarType($event, bar)">✏️</button>
+              <button class="btn-delete" (click)="confirmDelete($event, bar)">🗑️</button>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+@if (showDeleteModal && barToDelete) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon">🗑️</div>
+      <h3>Delete Bar Type</h3>
+      <p>Are you sure you want to delete <strong>{{ barToDelete.name }}</strong>? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="secondary-btn" (click)="cancelDelete()">Cancel</button>
+        <button class="danger-btn" (click)="confirmDeleteAction()">Delete</button>
+      </div>
+    </div>
+  </div>
+}

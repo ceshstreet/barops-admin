@@ -26,6 +26,16 @@
   padding: 24px;
 }
 
+.stage-banner {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 204, 102, 0.14);
+  border: 1px solid rgba(255, 204, 102, 0.30);
+  color: #eaf1ff;
+  font-size: 14px;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

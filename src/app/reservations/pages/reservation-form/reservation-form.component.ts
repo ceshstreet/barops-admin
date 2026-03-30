@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-reservation-form',
@@ -10,6 +11,8 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './reservation-form.component.scss'
 })
 export class ReservationFormComponent {
+  constructor(private router: Router) {}
+
   reservation = {
     client: '',
     eventName: '',
@@ -19,20 +22,16 @@ export class ReservationFormComponent {
     endTime: '',
     location: '',
     guests: '',
-    package: '',
-    drinkTheme: '',
-    bartender: '',
-    barType: '',
     budgetRange: '',
     notes: '',
-    status: 'pending'
+    stage: 'pending'
   };
 
   clients = [
-    'Ana M.',
-    'Inversiones XYZ',
-    'Carlos R.',
-    'Lucia V.'
+    'Ana Martinez',
+    'Carlos Ruiz',
+    'Lucia Vasquez',
+    'David Hernandez'
   ];
 
   eventTypes = [
@@ -52,37 +51,6 @@ export class ReservationFormComponent {
     '100+'
   ];
 
-  packages = [
-    'Basic',
-    'Premium',
-    'Ultimate'
-  ];
-
-  drinkThemes = [
-    'Classic',
-    'Caribbean',
-    'Beach / Pool Party',
-    'Tequila',
-    'BBQ',
-    'Rum',
-    'Halloween',
-    'Christmas',
-    'New Years'
-  ];
-
-  bartenders = [
-    'Maria P.',
-    'Jorge L.',
-    'Sofia G.',
-    'Pending assignment'
-  ];
-
-  barTypes = [
-    'Travel Bar',
-    'Ultimate Bar',
-    'Stadium Bar'
-  ];
-
   budgetRanges = [
     '$300 - $500',
     '$500 - $800',
@@ -90,14 +58,13 @@ export class ReservationFormComponent {
     '$1,200+'
   ];
 
-  statuses = [
-    'pending',
-    'confirmed',
-    'cancelled'
-  ];
-
   saveReservation() {
-    console.log('Reservation data:', this.reservation);
-    alert('Mock save: reservation captured successfully.');
+    console.log('Reservation created in early stage:', this.reservation);
+    alert('Mock save: reservation created in pending stage.');
+    this.router.navigate(['/reservations']);
+  }
+
+  cancel() {
+    this.router.navigate(['/reservations']);
   }
 }

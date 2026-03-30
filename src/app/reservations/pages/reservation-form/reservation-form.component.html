@@ -2,12 +2,16 @@
   <div class="page-header">
     <div>
       <h2>Create Reservation</h2>
-      <p>Capture reservation details for a new event.</p>
+      <p>Capture the initial booking request before moving it into operations.</p>
     </div>
   </div>
 
   <div class="form-card">
     <form (ngSubmit)="saveReservation()" #reservationForm="ngForm">
+
+      <div class="stage-banner">
+        <strong>Stage:</strong> {{ reservation.stage | titlecase }}
+      </div>
 
       <div class="form-grid">
         <div class="field">
@@ -20,7 +24,12 @@
 
         <div class="field">
           <label>Event Name</label>
-          <input type="text" [(ngModel)]="reservation.eventName" name="eventName" placeholder="Enter event name" required />
+          <input
+            type="text"
+            [(ngModel)]="reservation.eventName"
+            name="eventName"
+            placeholder="Enter event name"
+            required />
         </div>
 
         <div class="field">
@@ -48,7 +57,11 @@
 
         <div class="field field-full">
           <label>Location</label>
-          <input type="text" [(ngModel)]="reservation.location" name="location" placeholder="City, venue, or address" />
+          <input
+            type="text"
+            [(ngModel)]="reservation.location"
+            name="location"
+            placeholder="City, venue, or address" />
         </div>
 
         <div class="field">
@@ -60,38 +73,6 @@
         </div>
 
         <div class="field">
-          <label>Package</label>
-          <select [(ngModel)]="reservation.package" name="package">
-            <option value="">Select package</option>
-            <option *ngFor="let item of packages" [value]="item">{{ item }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Drink Theme</label>
-          <select [(ngModel)]="reservation.drinkTheme" name="drinkTheme">
-            <option value="">Select drink theme</option>
-            <option *ngFor="let theme of drinkThemes" [value]="theme">{{ theme }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Bartender</label>
-          <select [(ngModel)]="reservation.bartender" name="bartender">
-            <option value="">Select bartender</option>
-            <option *ngFor="let bartender of bartenders" [value]="bartender">{{ bartender }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Bar Type</label>
-          <select [(ngModel)]="reservation.barType" name="barType">
-            <option value="">Select bar type</option>
-            <option *ngFor="let bar of barTypes" [value]="bar">{{ bar }}</option>
-          </select>
-        </div>
-
-        <div class="field">
           <label>Budget Range</label>
           <select [(ngModel)]="reservation.budgetRange" name="budgetRange">
             <option value="">Select budget range</option>
@@ -99,21 +80,18 @@
           </select>
         </div>
 
-        <div class="field">
-          <label>Status</label>
-          <select [(ngModel)]="reservation.status" name="status">
-            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
-          </select>
-        </div>
-
         <div class="field field-full">
           <label>Notes</label>
-          <textarea [(ngModel)]="reservation.notes" name="notes" rows="5" placeholder="Additional details"></textarea>
+          <textarea
+            [(ngModel)]="reservation.notes"
+            name="notes"
+            rows="5"
+            placeholder="Additional booking notes, client requests, or initial comments"></textarea>
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="button" class="secondary-btn">Cancel</button>
+        <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
         <button type="submit" class="primary-btn">Save Reservation</button>
       </div>
 

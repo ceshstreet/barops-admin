@@ -1,8 +1,8 @@
 <div class="bar-type-form-page">
   <div class="page-header">
     <div>
-      <h2>Create Bar Type</h2>
-      <p>Add a new portable bar configuration to the system.</p>
+      <h2>{{ isEditMode ? 'Edit Bar Type' : 'Create Bar Type' }}</h2>
+      <p>{{ isEditMode ? 'Update bar configuration.' : 'Add a new portable bar configuration to the system.' }}</p>
     </div>
   </div>
 
@@ -22,7 +22,7 @@
 
         <div class="field">
           <label>Category</label>
-          <select [(ngModel)]="barType.category" name="category">
+          <select [(ngModel)]="barType.category" name="category" required>
             <option value="">Select category</option>
             <option *ngFor="let item of categories" [value]="item">{{ item }}</option>
           </select>
@@ -30,23 +30,26 @@
 
         <div class="field">
           <label>Lighting</label>
-          <select [(ngModel)]="barType.lighting" name="lighting">
-            <option value="">Select option</option>
-            <option *ngFor="let item of lightingOptions" [value]="item">{{ item }}</option>
+          <select [(ngModel)]="barType.lighting" name="lighting" required>
+            <option [ngValue]="true">Yes</option>
+            <option [ngValue]="false">No</option>
           </select>
         </div>
 
         <div class="field">
-          <label>Capacity</label>
-          <select [(ngModel)]="barType.capacity" name="capacity">
-            <option value="">Select capacity</option>
-            <option *ngFor="let item of capacityOptions" [value]="item">{{ item }}</option>
-          </select>
+          <label>Capacity (persons)</label>
+          <input
+            type="number"
+            [(ngModel)]="barType.capacity"
+            name="capacity"
+            placeholder="Enter capacity"
+            min="0"
+            required />
         </div>
 
         <div class="field">
           <label>Setup Type</label>
-          <select [(ngModel)]="barType.setupType" name="setupType">
+          <select [(ngModel)]="barType.setupType" name="setupType" required>
             <option value="">Select setup type</option>
             <option *ngFor="let item of setupTypes" [value]="item">{{ item }}</option>
           </select>
@@ -55,23 +58,17 @@
         <div class="field">
           <label>Status</label>
           <select [(ngModel)]="barType.status" name="status">
-            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+            <option [ngValue]="true">Active</option>
+            <option [ngValue]="false">Inactive</option>
           </select>
-        </div>
-
-        <div class="field field-full">
-          <label>Notes</label>
-          <textarea
-            [(ngModel)]="barType.notes"
-            name="notes"
-            rows="5"
-            placeholder="Add notes about dimensions, logistics, or included setup details"></textarea>
         </div>
       </div>
 
       <div class="form-actions">
         <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
-        <button type="submit" class="primary-btn">Save Bar Type</button>
+        <button type="submit" class="primary-btn">
+          {{ isEditMode ? 'Update Bar Type' : 'Save Bar Type' }}
+        </button>
       </div>
 
     </form>

@@ -43,6 +43,8 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'bar-types', component: BarTypeListComponent },
       { path: 'bar-types/new', component: BarTypeFormComponent},
+      { path: 'bar-types/:id/edit', component: BarTypeFormComponent },
+      { path: 'bar-types/:id', component: BarTypeFormComponent },
 
       { path: 'bartenders', component: BartenderListComponent },
       { path: 'bartenders/new', component: BartenderFormComponent},

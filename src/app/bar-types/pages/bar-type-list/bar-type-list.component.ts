@@ -1,15 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-
-interface BarType {
-  id: string;
-  name: string;
-  category: string;
-  lighting: string;
-  capacity: string;
-  status: 'active' | 'inactive';
-}
+import { BarTypeService, BarType } from '../../services/bar-type.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-bar-type-list',
@@ -18,46 +11,75 @@ interface BarType {
   templateUrl: './bar-type-list.component.html',
   styleUrl: './bar-type-list.component.scss'
 })
-export class BarTypeListComponent {
-  constructor(private router: Router) {}
+export class BarTypeListComponent implements OnInit {
+  barTypes: BarType[] = [];
 
-  barTypes: BarType[] = [
-    {
-      id: 'BAR-001',
-      name: 'Travel Bar',
-      category: 'Portable',
-      lighting: 'No',
-      capacity: 'Small to medium events',
-      status: 'active'
-    },
-    {
-      id: 'BAR-002',
-      name: 'Ultimate Bar',
-      category: 'Premium Lighted',
-      lighting: 'Yes',
-      capacity: 'Medium to large events',
-      status: 'active'
-    },
-    {
-      id: 'BAR-003',
-      name: 'Stadium Bar',
-      category: 'Large Lighted',
-      lighting: 'Yes',
-      capacity: 'Large events',
-      status: 'active'
-    }
-  ];
+  // Variables para el modal de eliminación
+  showDeleteModal = false;
+  barToDelete: BarType | null = null;
+
+  constructor(
+    private router: Router,
+    private barTypeService: BarTypeService,
+    private toastService: ToastService
+  ) {}
+
+  ngOnInit() {
+    this.loadBarTypes();
+  }
+
+  loadBarTypes() {
+    this.barTypeService.getBarTypes().subscribe({
+      next: (data) => {
+        this.barTypes = data;
+      },
+      error: (err) => {
+        this.toastService.show('Error loading bar types', 'error');
+        console.error(err);
+      }
+    });
+  }
 
   createBarType() {
     this.router.navigate(['/bar-types/new']);
   }
 
-  openBarType(barType: BarType) {
-    this.router.navigate(['/bar-types', barType.id]);
+  // Navegar al detalle (Recuerda que el backend usa _id)
+  openBarType(bar: BarType) {
+    this.router.navigate(['/bar-types', bar._id]);
   }
 
-  getStatusClass(status: string): string {
-    if (status === 'active') return 'active';
-    return 'inactive';
+  // Navegar a edición
+  editBarType(event: Event, bar: BarType) {
+    event.stopPropagation(); // Evita que se dispare el click de la fila (openBarType)
+    this.router.navigate(['/bar-types', bar._id, 'edit']);
+  }
+
+  // Lógica del Modal de Eliminación
+  confirmDelete(event: Event, bar: BarType) {
+    event.stopPropagation();
+    this.barToDelete = bar;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete() {
+    this.barToDelete = null;
+    this.showDeleteModal = false;
+  }
+
+  confirmDeleteAction() {
+    if (!this.barToDelete || !this.barToDelete._id) return;
+
+    this.barTypeService.deleteBarType(this.barToDelete._id).subscribe({
+      next: () => {
+        this.toastService.show('Bar type deleted successfully', 'success');
+        this.barTypes = this.barTypes.filter(b => b._id !== this.barToDelete!._id);
+        this.cancelDelete();
+      },
+      error: (err) => {
+        this.toastService.show('Error deleting bar type', 'error');
+        console.error(err);
+      }
+    });
   }
 }
