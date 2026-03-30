@@ -1,0 +1,52 @@
+<div class="bartender-detail-page">
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">← Back</button>
+    <button class="primary-btn" (click)="editBartender()">✏️ Edit Bartender</button>
+  </div>
+
+  @if (bartender) {
+    <div class="detail-card">
+      <div class="bartender-hero">
+        <div class="avatar">{{ bartender.name[0] }}{{ bartender.lastName[0] }}</div>
+        <div>
+          <h2>{{ getFullName() }}</h2>
+          <span class="status-badge"
+                [class.available]="bartender.status === 'AVAILABLE'"
+                [class.busy]="bartender.status === 'BUSY'"
+                [class.inactive]="bartender.status === 'UNAVAILABLE'">
+            {{ bartender.status }}
+          </span>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ bartender.email }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Phone</span>
+          <span class="info-value">{{ bartender.phone }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Specialty</span>
+          <span class="info-value">{{ bartender.bartenderData?.specialty }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Experience Level</span>
+          <span class="info-value">{{ bartender.bartenderData?.experienceLevel }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Availability Schedule</span>
+          <span class="info-value">{{ bartender.bartenderData?.availabilitySchedule || 'Not specified' }}</span>
+        </div>
+        <div class="info-item info-full">
+          <span class="info-label">Notes</span>
+          <span class="info-value">{{ bartender.bartenderData?.notes || 'No additional notes' }}</span>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="loading">Loading bartender details...</div>
+  }
+</div>

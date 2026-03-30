@@ -1,10 +1,12 @@
 
 
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
+
 import { BartenderFormComponent } from './bartenders/pages/bartender-form/bartender-form.component';
 import { BartenderListComponent } from './bartenders/pages/bartender-list/bartender-list.component';
 import { BarTypeFormComponent } from './bar-types/pages/bar-type-form/bar-type-form.component';
 import { BarTypeListComponent } from './bar-types/pages/bar-type-list/bar-type-list.component';
+import { BartenderDetailComponent } from './bartenders/pages/bartender-detail/bartender-detail.component';
 
 import { ClientFormComponent } from './clients/pages/client-form/client-form.component';
 import { ClientListComponent } from './clients/pages/client-list/client-list.component';
@@ -44,6 +46,9 @@ export const routes: Routes = [
 
       { path: 'bartenders', component: BartenderListComponent },
       { path: 'bartenders/new', component: BartenderFormComponent},
+      { path: 'bartenders/:id', component: BartenderDetailComponent },
+      { path: 'bartenders/:id/edit', component: BartenderFormComponent },
+
 
       { path: 'clients', component: ClientListComponent },
       { path: 'clients/new', component: ClientFormComponent},

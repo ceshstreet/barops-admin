@@ -4,7 +4,6 @@
       <h2>Bartenders</h2>
       <p>Manage staff, availability, specialties, and assignment readiness.</p>
     </div>
-
     <button class="primary-btn" (click)="createBartender()">+ New Bartender</button>
   </div>
 
@@ -12,32 +11,52 @@
     <table>
       <thead>
         <tr>
-          <th>ID</th>
+          <th>#</th>
           <th>Name</th>
           <th>Phone</th>
           <th>Specialty</th>
           <th>Availability</th>
           <th>Status</th>
+          <th>Actions</th>
         </tr>
       </thead>
-
       <tbody>
         <tr
-          *ngFor="let bartender of bartenders"
+          *ngFor="let bartender of bartenders; let i = index"
           (click)="openBartender(bartender)"
           class="clickable-row">
-          <td>{{ bartender.id }}</td>
-          <td>{{ bartender.fullName }}</td>
+          <td>{{ i + 1 }}</td>
+          <td>{{ getFullName(bartender) }}</td>
           <td>{{ bartender.phone }}</td>
-          <td>{{ bartender.specialty }}</td>
-          <td>{{ bartender.availability }}</td>
+          <td>{{ bartender.bartenderData?.specialty }}</td>
+          <td>{{ bartender.bartenderData?.availabilitySchedule }}</td>
           <td>
-            <span class="status-badge" [ngClass]="getStatusClass(bartender.status)">
+            <span class="status-badge" [ngClass]="getStatusClass(bartender.status || '')">
               {{ bartender.status }}
             </span>
+          </td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn-edit" (click)="editBartender($event, bartender)">✏️</button>
+              <button class="btn-delete" (click)="confirmDelete($event, bartender)">🗑️</button>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+@if (showDeleteModal && bartenderToDelete) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon">🗑️</div>
+      <h3>Delete Bartender</h3>
+      <p>Are you sure you want to delete <strong>{{ getFullName(bartenderToDelete) }}</strong>? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="secondary-btn" (click)="cancelDelete()">Cancel</button>
+        <button class="danger-btn" (click)="confirmDeleteAction()">Delete</button>
+      </div>
+    </div>
+  </div>
+}

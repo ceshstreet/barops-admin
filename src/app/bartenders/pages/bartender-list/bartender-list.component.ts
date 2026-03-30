@@ -1,15 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-
-interface Bartender {
-  id: string;
-  fullName: string;
-  phone: string;
-  specialty: string;
-  availability: string;
-  status: 'available' | 'busy' | 'inactive';
-}
+import { BartenderService, Bartender } from '../../services/bartender.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-bartender-list',
@@ -18,55 +11,71 @@ interface Bartender {
   templateUrl: './bartender-list.component.html',
   styleUrl: './bartender-list.component.scss'
 })
-export class BartenderListComponent {
-  constructor(private router: Router) {}
+export class BartenderListComponent implements OnInit {
+  bartenders: Bartender[] = [];
+  showDeleteModal = false;
+  bartenderToDelete: Bartender | null = null;
 
-  bartenders: Bartender[] = [
-    {
-      id: 'BT-001',
-      fullName: 'Maria P.',
-      phone: '+503 7000-2001',
-      specialty: 'Classic Cocktails',
-      availability: 'Weekends / Nights',
-      status: 'available'
-    },
-    {
-      id: 'BT-002',
-      fullName: 'Jorge L.',
-      phone: '+503 7000-2002',
-      specialty: 'Tropical Drinks',
-      availability: 'Mon - Sat / Afternoons',
-      status: 'busy'
-    },
-    {
-      id: 'BT-003',
-      fullName: 'Sofia G.',
-      phone: '+503 7000-2003',
-      specialty: 'Mocktails & Premium Service',
-      availability: 'Weekends',
-      status: 'available'
-    },
-    {
-      id: 'BT-004',
-      fullName: 'Carlos M.',
-      phone: '+503 7000-2004',
-      specialty: 'Bar Setup & Support',
-      availability: 'On Request',
-      status: 'inactive'
-    }
-  ];
+  constructor(
+    private router: Router,
+    private bartenderService: BartenderService,
+    private toastService: ToastService
+  ) {}
+
+  ngOnInit() {
+    this.bartenderService.getBartenders().subscribe({
+      next: (data) => this.bartenders = data,
+      error: (err) => console.error('Error cargando bartenders:', err)
+    });
+  }
 
   createBartender() {
     this.router.navigate(['/bartenders/new']);
   }
 
   openBartender(bartender: Bartender) {
-    this.router.navigate(['/bartenders', bartender.id]);
+    this.router.navigate(['/bartenders', bartender._id]);
+  }
+
+  editBartender(event: Event, bartender: Bartender) {
+    event.stopPropagation(); // Para que no se abra el Detail al mismo tiempo
+    this.router.navigate(['/bartenders', bartender._id, 'edit']);
+  }
+
+
+  confirmDelete(event: Event, bartender: Bartender) {
+    event.stopPropagation();
+    this.bartenderToDelete = bartender;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete() {
+    this.bartenderToDelete = null;
+    this.showDeleteModal = false;
+  }
+
+  confirmDeleteAction() {
+    if (!this.bartenderToDelete) return;
+    this.bartenderService.deleteBartender(this.bartenderToDelete._id!).subscribe({
+      next: () => {
+        this.bartenders = this.bartenders.filter(b => b._id !== this.bartenderToDelete!._id);
+        this.toastService.show('Bartender deleted successfully.', 'success');
+        this.cancelDelete();
+      },
+      error: (err) => {
+        this.toastService.show('Error deleting bartender.', 'error');
+        console.error(err);
+      }
+    });
+  }
+
+  getFullName(bartender: Bartender): string {
+    return `${bartender.name} ${bartender.lastName}`;
   }
 
   getStatusClass(status: string): string {
-    if (status === 'available') return 'available';
-    if (status === 'busy') return 'busy';
+    if (status === 'AVAILABLE') return 'available';
+    if (status === 'BUSY') return 'busy';
     return 'inactive';
   }
 }

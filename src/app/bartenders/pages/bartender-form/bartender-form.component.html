@@ -1,89 +1,88 @@
 <div class="bartender-form-page">
   <div class="page-header">
     <div>
-      <h2>Create Bartender</h2>
-      <p>Add a new bartender profile to the system.</p>
+      <h2>{{ isEditMode ? 'Edit Bartender' : 'Create Bartender' }}</h2>
+      <p>{{ isEditMode ? 'Update staff information.' : 'Add a new bartender profile to the system.' }}</p>
     </div>
   </div>
 
   <div class="form-card">
-    <form (ngSubmit)="saveBartender()" #bartenderForm="ngForm">
+    @if (bartender) {
+      <form (ngSubmit)="saveBartender()" #bartenderForm="ngForm">
+        <div class="form-grid">
 
-      <div class="form-grid">
-        <div class="field">
-          <label>Full Name</label>
-          <input
-            type="text"
-            [(ngModel)]="bartender.fullName"
-            name="fullName"
-            placeholder="Enter full name"
-            required />
+          <div class="field">
+            <label>First Name</label>
+            <input type="text" [(ngModel)]="bartender.name" name="name" placeholder="Enter first name" required />
+          </div>
+
+          <div class="field">
+            <label>Last Name</label>
+            <input type="text" [(ngModel)]="bartender.lastName" name="lastName" placeholder="Enter last name" required />
+          </div>
+
+          <div class="field">
+            <label>Phone</label>
+            <input type="text" [(ngModel)]="bartender.phone" name="phone" placeholder="9 digits (e.g. 774200040)" required />
+          </div>
+
+          <div class="field">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="bartender.email" name="email" placeholder="Enter email" required />
+          </div>
+
+          @if (!isEditMode) {
+            <div class="field">
+              <label>Password (Min 12 chars)</label>
+              <input type="password" [(ngModel)]="bartender.password" name="password" placeholder="Minimum 12 characters" required />
+            </div>
+          }
+
+          <div class="field">
+            <label>Status</label>
+            <select [(ngModel)]="bartender.status" name="status">
+              <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Specialty</label>
+            <select [(ngModel)]="bartender.bartenderData!.specialty" name="specialty" required>
+              <option value="">Select specialty</option>
+              <option *ngFor="let item of specialties" [value]="item">{{ item }}</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Experience Level</label>
+            <select [(ngModel)]="bartender.bartenderData!.experienceLevel" name="experienceLevel" required>
+              <option value="">Select level</option>
+              <option *ngFor="let item of experienceLevels" [value]="item">{{ item }}</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Availability Schedule</label>
+            <input type="text" [(ngModel)]="bartender.bartenderData!.availabilitySchedule" name="availabilitySchedule" placeholder="e.g. Weekends" />
+          </div>
+
+          <div class="field field-full">
+            <label>Notes</label>
+            <textarea [(ngModel)]="bartender.bartenderData!.notes" name="notes" rows="3" placeholder="Additional notes..."></textarea>
+          </div>
         </div>
 
-        <div class="field">
-          <label>Phone</label>
-          <input
-            type="text"
-            [(ngModel)]="bartender.phone"
-            name="phone"
-            placeholder="Enter phone number" />
+        <div class="form-actions">
+          <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
+          <button type="submit" class="primary-btn" [disabled]="!bartenderForm.valid">
+            {{ isEditMode ? 'Update Bartender' : 'Save Bartender' }}
+          </button>
         </div>
-
-        <div class="field">
-          <label>Email</label>
-          <input
-            type="email"
-            [(ngModel)]="bartender.email"
-            name="email"
-            placeholder="Enter email address" />
-        </div>
-
-        <div class="field">
-          <label>Specialty</label>
-          <select [(ngModel)]="bartender.specialty" name="specialty">
-            <option value="">Select specialty</option>
-            <option *ngFor="let item of specialties" [value]="item">{{ item }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Availability</label>
-          <select [(ngModel)]="bartender.availability" name="availability">
-            <option value="">Select availability</option>
-            <option *ngFor="let item of availabilities" [value]="item">{{ item }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Experience Level</label>
-          <select [(ngModel)]="bartender.experienceLevel" name="experienceLevel">
-            <option value="">Select experience level</option>
-            <option *ngFor="let item of experienceLevels" [value]="item">{{ item }}</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Status</label>
-          <select [(ngModel)]="bartender.status" name="status">
-            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
-          </select>
-        </div>
-
-        <div class="field field-full">
-          <label>Notes</label>
-          <textarea
-            [(ngModel)]="bartender.notes"
-            name="notes"
-            rows="5"
-            placeholder="Add bartender notes, certifications, or comments"></textarea>
-        </div>
+      </form>
+    } @else {
+      <div class="loading-state">
+        <p>Loading bartender data...</p>
       </div>
-
-      <div class="form-actions">
-        <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
-        <button type="submit" class="primary-btn">Save Bartender</button>
-      </div>
-
-    </form>
+    }
   </div>
 </div>
