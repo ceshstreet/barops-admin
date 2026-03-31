@@ -1,7 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ClientService, Client } from '../../../clients/services/client.service';
+import { EventService } from '../../services/event.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-reservation-form',
@@ -10,38 +13,17 @@ import { Router } from '@angular/router';
   templateUrl: './reservation-form.component.html',
   styleUrl: './reservation-form.component.scss'
 })
-export class ReservationFormComponent {
-  constructor(private router: Router) {}
+export class ReservationFormComponent implements OnInit {
+  clients: Client[] = [];
 
   reservation = {
-    client: '',
-    eventName: '',
-    eventType: '',
+    title: '',
+    clientId: '',
     eventDate: '',
-    startTime: '',
-    endTime: '',
     location: '',
     guests: '',
-    budgetRange: '',
-    notes: '',
-    stage: 'pending'
+    notes: ''
   };
-
-  clients = [
-    'Ana Martinez',
-    'Carlos Ruiz',
-    'Lucia Vasquez',
-    'David Hernandez'
-  ];
-
-  eventTypes = [
-    'Wedding',
-    'Corporate Event',
-    'Birthday',
-    'Private Party',
-    'Pool Party',
-    'Holiday Event'
-  ];
 
   guestOptions = [
     'Up to 25',
@@ -51,17 +33,35 @@ export class ReservationFormComponent {
     '100+'
   ];
 
-  budgetRanges = [
-    '$300 - $500',
-    '$500 - $800',
-    '$800 - $1,200',
-    '$1,200+'
-  ];
+  constructor(
+    private router: Router,
+    private clientService: ClientService,
+    private eventService: EventService,
+    private toastService: ToastService
+  ) {}
+
+  ngOnInit() {
+    this.clientService.getClients().subscribe({
+      next: (data) => this.clients = data,
+      error: (err) => console.error('Error cargando clientes:', err)
+    });
+  }
+
+  getFullName(client: Client): string {
+    return `${client.name} ${client.lastName}`;
+  }
 
   saveReservation() {
-    console.log('Reservation created in early stage:', this.reservation);
-    alert('Mock save: reservation created in pending stage.');
-    this.router.navigate(['/reservations']);
+    this.eventService.insertEvent(this.reservation).subscribe({
+      next: () => {
+        this.toastService.show('Reservation created successfully.', 'success');
+        setTimeout(() => this.router.navigate(['/reservations']), 1500);
+      },
+      error: (err) => {
+        this.toastService.show('Error creating reservation.', 'error');
+        console.error(err);
+      }
+    });
   }
 
   cancel() {

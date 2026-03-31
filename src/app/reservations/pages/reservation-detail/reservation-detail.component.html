@@ -1,136 +1,79 @@
 <div class="reservation-detail-page">
   <div class="page-header">
-    <div>
-      <h2>Reservation Detail</h2>
-      <p>Review the full reservation and event information.</p>
-    </div>
-
-    <div class="header-actions">
-      <button class="secondary-btn" (click)="goBack()">Back to Calendar</button>
-      <button class="secondary-btn" (click)="viewSummary()">View Summary</button>
-      <button class="primary-btn" (click)="editReservation()">Edit Reservation</button>
-    </div>
+    <button class="back-btn" (click)="goBack()">← Back</button>
   </div>
 
-  <!-- EVENT DETAIL CARD -->
-  <div class="detail-card">
-    <div class="detail-top">
-      <div>
-        <span class="reservation-id">{{ reservation.id }}</span>
-        <h3>{{ reservation.eventName }}</h3>
-        <p>{{ reservation.client }} • {{ reservation.eventType }}</p>
-      </div>
-
-      <div class="status-badge" [ngClass]="reservation.status">
-        {{ reservation.status }}
-      </div>
-    </div>
-
-    <div class="detail-grid">
-      <div class="detail-item">
-        <label>Client</label>
-        <div>{{ reservation.client }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Event Type</label>
-        <div>{{ reservation.eventType }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Event Date</label>
-        <div>{{ reservation.eventDate }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Start Time</label>
-        <div>{{ reservation.startTime }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>End Time</label>
-        <div>{{ reservation.endTime }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Location</label>
-        <div>{{ reservation.location }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Guests</label>
-        <div>{{ reservation.guests }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Package</label>
-        <div>{{ reservation.package }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Drink Theme</label>
-        <div>{{ reservation.drinkTheme }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Bartender</label>
-        <div>{{ reservation.bartender }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Bar Type</label>
-        <div>{{ reservation.barType }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Budget Range</label>
-        <div>{{ reservation.budgetRange }}</div>
-      </div>
-
-      <div class="detail-item full-width">
-        <label>Notes</label>
-        <div>{{ reservation.notes }}</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DRINKS FOR THIS EVENT -->
-  <div class="detail-card">
-    <h3 class="section-title">Drinks for this Event</h3>
-
-    <div class="drink-grid">
-      <div class="drink-card" *ngFor="let drink of reservation.drinks">
-        <h4>{{ drink.name }}</h4>
-
-        <div class="drink-block">
-          <label>Ingredients</label>
-          <ul>
-            <li *ngFor="let item of drink.ingredients">{{ item }}</li>
-          </ul>
+  @if (reservation) {
+    <div class="detail-card">
+      <div class="detail-top">
+        <div>
+          <span class="reservation-code">{{ reservation.eventCode }}</span>
+          <h3>{{ reservation.title }}</h3>
+          <p>{{ getClientName() }}</p>
         </div>
+        <span class="status-badge pending">{{ reservation.status }}</span>
+      </div>
 
-        <div class="drink-block">
-          <label>Preparation</label>
-          <p>{{ drink.preparation }}</p>
+      <!-- CONTACT CARD -->
+      <div class="contact-card">
+        <div class="contact-avatar">
+          {{ getClientInitials() }}
         </div>
+        <div class="contact-info">
+          <div class="contact-name">{{ getClientName() }}</div>
+          <div class="contact-actions">
+            <a [href]="'mailto:' + getClientEmail()" class="contact-btn email">
+              <span class="material-icons">email</span>
+              {{ getClientEmail() }}
+            </a>
+            <a [href]="'https://wa.me/' + getClientPhone()" target="_blank" class="contact-btn whatsapp">
+              <span class="material-icons">phone</span>
+              {{ getClientPhone() }}
+            </a>
+          </div>
+        </div>
+      </div>
 
-        <div class="drink-block">
-          <label>Garnish</label>
-          <p>{{ drink.garnish }}</p>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label>Event Date</label>
+          <div>{{ reservation.eventDate }}</div>
+        </div>
+        <div class="detail-item">
+          <label>Location</label>
+          <div>{{ reservation.location }}</div>
+        </div>
+        <div class="detail-item">
+          <label>Guests</label>
+          <div>{{ reservation.guests || '—' }}</div>
+        </div>
+        <div class="detail-item full-width">
+          <label>Notes</label>
+          <div>{{ reservation.notes || '—' }}</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- INGREDIENT SUMMARY -->
-  <div class="detail-card">
-    <h3 class="section-title">Ingredient Summary</h3>
-
-    <div class="ingredient-grid">
-      <div class="ingredient-card" *ngFor="let ingredient of ingredientSummary">
-        <div class="ingredient-name">{{ ingredient.name }}</div>
-        <div class="ingredient-qty">Used in {{ ingredient.quantity }} drink(s)</div>
+    @if (reservation.status === 'PENDIENTE') {
+      <div class="action-card">
+        <h3>Process Reservation</h3>
+        <div class="field">
+          <label>Assign Bartender</label>
+          <select [(ngModel)]="selectedBartenderId">
+            <option value="">Select available bartender</option>
+            <option *ngFor="let b of bartenders" [value]="b._id">
+              {{ b.name }} {{ b.lastName }} — {{ b.bartenderData?.specialty }}
+            </option>
+          </select>
+        </div>
+        <div class="action-buttons">
+          <button class="danger-btn" (click)="rejectReservation()">✗ Reject</button>
+          <button class="approve-btn" (click)="approveReservation()">✓ Approve</button>
+        </div>
       </div>
-    </div>
-  </div>
+    }
+
+  } @else {
+    <div class="loading">Loading reservation...</div>
+  }
 </div>

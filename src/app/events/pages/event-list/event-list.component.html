@@ -2,11 +2,28 @@
   <div class="page-header">
     <div>
       <h2>Events</h2>
-      <p>Operational view of confirmed events ready for execution.</p>
+      <p>Operational view of approved and scheduled events.</p>
     </div>
   </div>
 
-  <div class="event-table-card">
+  <div class="view-switcher-card">
+    <div class="view-switcher">
+      <button
+        [class.active]="currentView === 'list'"
+        (click)="setView('list')">
+        List View
+      </button>
+
+      <button
+        [class.active]="currentView === 'calendar'"
+        (click)="setView('calendar')">
+        Calendar View
+      </button>
+    </div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div class="event-table-card" *ngIf="currentView === 'list'">
     <table>
       <thead>
         <tr>
@@ -14,6 +31,7 @@
           <th>Event</th>
           <th>Client</th>
           <th>Date</th>
+          <th>Location</th>
           <th>Bartender</th>
           <th>Bar Type</th>
           <th>Status</th>
@@ -29,6 +47,7 @@
           <td>{{ event.eventName }}</td>
           <td>{{ event.client }}</td>
           <td>{{ event.date }}</td>
+          <td>{{ event.location }}</td>
           <td>{{ event.bartender }}</td>
           <td>{{ event.barType }}</td>
           <td>
@@ -39,5 +58,10 @@
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <div class="calendar-card" *ngIf="currentView === 'calendar'">
+    <full-calendar [options]="calendarOptions"></full-calendar>
   </div>
 </div>

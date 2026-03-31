@@ -1,1 +1,81 @@
-<p>reservation-list works!</p>
+<div class="reservation-list-page">
+  <div class="page-header">
+    <div>
+      <h2>Reservations</h2>
+      <p>Pending booking requests awaiting approval.</p>
+    </div>
+    <button class="primary-btn" (click)="createReservation()">+ New Reservation</button>
+  </div>
+
+  <div class="view-switcher-card">
+    <div class="view-switcher">
+      <button [class.active]="currentView === 'list'" (click)="setView('list')">
+        List View
+      </button>
+      <button [class.active]="currentView === 'calendar'" (click)="setView('calendar')">
+        Calendar View
+      </button>
+    </div>
+  </div>
+
+  @if (currentView === 'list') {
+    <div class="reservation-table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Code</th>
+            <th>Event</th>
+            <th>Client</th>
+            <th>Date</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let reservation of reservations; let i = index"
+            (click)="openReservation(reservation)"
+            class="clickable-row">
+            <td>{{ i + 1 }}</td>
+            <td>{{ reservation.eventCode }}</td>
+            <td>{{ reservation.title }}</td>
+            <td>{{ getClientName(reservation) }}</td>
+            <td>{{ reservation.eventDate }}</td>
+            <td>{{ reservation.location }}</td>
+            <td>
+              <span class="status-badge pending">{{ reservation.status }}</span>
+            </td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn-edit" > edit </button>
+                <button class="btn-delete" >🗑️</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (currentView === 'calendar') {
+    <div class="calendar-card">
+      <full-calendar [options]="calendarOptions"></full-calendar>
+    </div>
+  }
+</div>
+
+@if (showDeleteModal && reservationToDelete) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon">🗑️</div>
+      <h3>Delete Reservation</h3>
+      <p>Are you sure you want to delete <strong>{{ reservationToDelete.title }}</strong>? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="secondary-btn" (click)="cancelDelete()">Cancel</button>
+        <button class="danger-btn" (click)="confirmDeleteAction()">Delete</button>
+      </div>
+    </div>
+  </div>
+}

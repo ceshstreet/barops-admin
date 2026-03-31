@@ -1,111 +1,111 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { EventService, Event } from '../../../reservations/services/event.service';
+import { BartenderService, Bartender } from '../../../bartenders/services/bartender.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-reservation-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './reservation-detail.component.html',
   styleUrl: './reservation-detail.component.scss'
 })
-export class ReservationDetailComponent {
-  reservationId: string | null = null;
-
-  reservation = {
-    id: 'EVT-1021',
-    client: 'Ana M.',
-    eventName: 'Wedding - Hacienda Los Pinos',
-    eventType: 'Wedding',
-    eventDate: '2026-02-07',
-    startTime: '6:00 PM',
-    endTime: '11:00 PM',
-    location: 'Hacienda Los Pinos',
-    guests: '100+',
-    package: 'Ultimate',
-    drinkTheme: 'Classic',
-    bartender: 'Maria P.',
-    barType: 'Ultimate Bar',
-    budgetRange: '$1,200+',
-    status: 'confirmed',
-    notes: 'Customer requested premium signature cocktails and full bar setup.',
-    drinks: [
-      {
-        name: 'Cuban Mojito',
-        ingredients: [
-          'White Rum',
-          'Mint',
-          'Lime',
-          'Sugar Syrup',
-          'Soda Water',
-          'Ice'
-        ],
-        preparation: 'Muddle mint and lime, add rum and sugar syrup, fill with ice, top with soda water, and stir gently.',
-        garnish: 'Mint sprig + lime wheel'
-      },
-      {
-        name: 'Piña Colada',
-        ingredients: [
-          'Rum',
-          'Pineapple Juice',
-          'Coconut Cream',
-          'Ice'
-        ],
-        preparation: 'Blend rum, pineapple juice, coconut cream, and ice until smooth.',
-        garnish: 'Pineapple slice'
-      },
-      {
-        name: 'Margarita',
-        ingredients: [
-          'Tequila',
-          'Triple Sec',
-          'Lime Juice',
-          'Ice',
-          'Salt'
-        ],
-        preparation: 'Shake tequila, triple sec, lime juice, and ice, then strain into a prepared glass.',
-        garnish: 'Lime wheel + salt rim'
-      }
-    ]
-  };
-
-  ingredientSummary: { name: string; quantity: number }[] = [];
+export class ReservationDetailComponent implements OnInit {
+  reservation: Event | null = null;
+  bartenders: Bartender[] = [];
+  selectedBartenderId = '';
+  showApproveModal = false;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
-  ) {
-    this.reservationId = this.route.snapshot.paramMap.get('id');
-    this.buildIngredientSummary();
+    private router: Router,
+    private eventService: EventService,
+    private bartenderService: BartenderService,
+    private toastService: ToastService
+  ) {}
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.eventService.getEvents().subscribe({
+        next: (data) => {
+          this.reservation = data.find(e => e._id === id) || null;
+        },
+        error: (err) => console.error(err)
+      });
+    }
+
+    this.bartenderService.getBartenders().subscribe({
+      next: (data) => this.bartenders = data.filter(b => b.status === 'AVAILABLE'),
+      error: (err) => console.error(err)
+    });
+  }
+
+  getClientName(): string {
+    const client = this.reservation?.clientId as any;
+    if (client && client.name) return `${client.name} ${client.lastName}`;
+    return '—';
+  }
+
+
+  getClientInitials(): string {
+    const client = this.reservation?.clientId as any;
+    if (client && client.name) {
+      return `${client.name[0]}${client.lastName[0]}`.toUpperCase();
+    }
+    return '?';
+  }
+
+  getClientEmail(): string {
+    const client = this.reservation?.clientId as any;
+    return client?.email || '—';
+  }
+
+  getClientPhone(): string {
+    const client = this.reservation?.clientId as any;
+    return client?.phone || '—';
+  }
+
+
+  approveReservation() {
+    if (!this.selectedBartenderId) {
+      this.toastService.show('Please select a bartender.', 'warning');
+      return;
+    }
+    this.eventService.updateEvent(this.reservation!._id!, {
+      status: 'APROBADO',
+      bartenderId: this.selectedBartenderId
+    }).subscribe({
+      next: () => {
+        this.toastService.show('Reservation approved successfully.', 'success');
+        setTimeout(() => this.router.navigate(['/reservations']), 1500);
+      },
+      error: (err) => {
+        this.toastService.show('Error approving reservation.', 'error');
+        console.error(err);
+      }
+    });
+  }
+
+  rejectReservation() {
+    this.eventService.updateEvent(this.reservation!._id!, {
+      status: 'RECHAZADO'
+    }).subscribe({
+      next: () => {
+        this.toastService.show('Reservation rejected.', 'warning');
+        setTimeout(() => this.router.navigate(['/reservations']), 1500);
+      },
+      error: (err) => {
+        this.toastService.show('Error rejecting reservation.', 'error');
+        console.error(err);
+      }
+    });
   }
 
   goBack() {
-    this.router.navigate(['/reservations/calendar']);
-  }
-
-  editReservation() {
-    this.router.navigate(['/reservations/edit', this.reservationId]);
-  }
-
-  viewSummary() {
-    this.router.navigate(['/reservations', this.reservationId, 'summary']);
-  }
-
-  private buildIngredientSummary() {
-    const ingredientMap = new Map<string, number>();
-
-    this.reservation.drinks.forEach((drink) => {
-      drink.ingredients.forEach((ingredient) => {
-        const current = ingredientMap.get(ingredient) || 0;
-        ingredientMap.set(ingredient, current + 1);
-      });
-    });
-
-    this.ingredientSummary = Array.from(ingredientMap.entries()).map(
-      ([name, quantity]) => ({
-        name,
-        quantity
-      })
-    );
+    this.router.navigate(['/reservations']);
   }
 }
