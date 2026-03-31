@@ -73,6 +73,32 @@
   grid-column: 1 / -1;
 }
 
+.drink-selector-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.drink-chip {
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(17, 31, 56, 0.55);
+  color: #eaf1ff;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-size: 13px;
+}
+
+.drink-chip:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.drink-chip.selected {
+  background: rgba(124, 92, 255, 0.18);
+  border-color: rgba(124, 92, 255, 0.30);
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;

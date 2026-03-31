@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h2>Create Drink Theme</h2>
-      <p>Add a new cocktail theme to the system.</p>
+      <p>Create a drink theme by grouping drinks from the master catalog.</p>
     </div>
   </div>
 
@@ -28,7 +28,7 @@
           </select>
         </div>
 
-        <div class="field">
+        <div class="field field-full">
           <label>Target Event Type</label>
           <select [(ngModel)]="drinkTheme.targetEventType" name="targetEventType">
             <option value="">Select target event type</option>
@@ -36,20 +36,19 @@
           </select>
         </div>
 
-        <div class="field">
-          <label>Status</label>
-          <select [(ngModel)]="drinkTheme.status" name="status">
-            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
-          </select>
-        </div>
-
         <div class="field field-full">
-          <label>Cocktails Included</label>
-          <textarea
-            [(ngModel)]="drinkTheme.cocktailsIncluded"
-            name="cocktailsIncluded"
-            rows="4"
-            placeholder="Example: Mojito, Piña Colada, Margarita, Old Fashioned"></textarea>
+          <label>Drinks Included</label>
+
+          <div class="drink-selector-grid">
+            <button
+              type="button"
+              class="drink-chip"
+              *ngFor="let drink of availableDrinks"
+              [class.selected]="isSelected(drink)"
+              (click)="toggleDrink(drink)">
+              {{ drink }}
+            </button>
+          </div>
         </div>
 
         <div class="field field-full">

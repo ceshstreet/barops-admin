@@ -6,9 +6,8 @@ interface DrinkTheme {
   id: string;
   name: string;
   category: string;
-  cocktailsIncluded: string;
+  drinks: string[];
   targetEventType: string;
-  status: 'active' | 'inactive';
 }
 
 @Component({
@@ -26,41 +25,22 @@ export class DrinkThemeListComponent {
       id: 'THM-001',
       name: 'Caribbean',
       category: 'Tropical',
-      cocktailsIncluded: 'Passion Fruit Mojito, Piña Colada, Painkiller, Cuba Libre',
-      targetEventType: 'Beach / Outdoor Events',
-      status: 'active'
+      drinks: ['Cuban Mojito', 'Piña Colada', 'Mai Tai'],
+      targetEventType: 'Beach / Outdoor Events'
     },
     {
       id: 'THM-002',
-      name: 'Beach / Pool Party',
-      category: 'Seasonal / Party',
-      cocktailsIncluded: 'Mai Tai, Blue Hawaii, Rum Punch, Blueberry Mojito',
-      targetEventType: 'Pool Parties',
-      status: 'active'
+      name: 'Classic',
+      category: 'Classic Cocktails',
+      drinks: ['Margarita', 'Old Fashioned', 'Cuban Mojito'],
+      targetEventType: 'Weddings / Corporate'
     },
     {
       id: 'THM-003',
-      name: 'Tequila',
-      category: 'Spirit-Based',
-      cocktailsIncluded: 'Paloma, Tequila Sunrise, Margarita, El Diablo',
-      targetEventType: 'Private / Social Events',
-      status: 'active'
-    },
-    {
-      id: 'THM-004',
-      name: 'Classic',
-      category: 'Classic Cocktails',
-      cocktailsIncluded: 'Old Fashioned, Martini, Cosmopolitan, Mojito',
-      targetEventType: 'Weddings / Corporate',
-      status: 'active'
-    },
-    {
-      id: 'THM-005',
       name: 'Christmas',
       category: 'Holiday',
-      cocktailsIncluded: 'White Christmas Margarita, Grinch Punch, Christmas Punch',
-      targetEventType: 'Holiday Events',
-      status: 'active'
+      drinks: ['Grinch Punch', 'Piña Colada'],
+      targetEventType: 'Holiday Events'
     }
   ];
 
@@ -72,8 +52,7 @@ export class DrinkThemeListComponent {
     this.router.navigate(['/drink-themes', theme.id]);
   }
 
-  getStatusClass(status: string): string {
-    if (status === 'active') return 'active';
-    return 'inactive';
+  getDrinkCount(theme: DrinkTheme): number {
+    return theme.drinks.length;
   }
 }

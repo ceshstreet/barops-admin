@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h2>Drink Themes</h2>
-      <p>Manage cocktail themes, categories, and event-oriented menu options.</p>
+      <p>Manage drink themes as grouped selections from the drinks catalog.</p>
     </div>
 
     <button class="primary-btn" (click)="createDrinkTheme()">+ New Drink Theme</button>
@@ -15,9 +15,9 @@
           <th>ID</th>
           <th>Theme Name</th>
           <th>Category</th>
-          <th>Cocktails Included</th>
+          <th>Drinks Included</th>
+          <th>Total Drinks</th>
           <th>Target Event Type</th>
-          <th>Status</th>
         </tr>
       </thead>
 
@@ -29,13 +29,9 @@
           <td>{{ theme.id }}</td>
           <td>{{ theme.name }}</td>
           <td>{{ theme.category }}</td>
-          <td>{{ theme.cocktailsIncluded }}</td>
+          <td>{{ theme.drinks.join(', ') }}</td>
+          <td>{{ getDrinkCount(theme) }}</td>
           <td>{{ theme.targetEventType }}</td>
-          <td>
-            <span class="status-badge" [ngClass]="getStatusClass(theme.status)">
-              {{ theme.status }}
-            </span>
-          </td>
         </tr>
       </tbody>
     </table>

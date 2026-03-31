@@ -16,10 +16,9 @@ export class DrinkThemeFormComponent {
   drinkTheme = {
     name: '',
     category: '',
-    cocktailsIncluded: '',
     targetEventType: '',
-    description: '',
-    status: 'active'
+    selectedDrinks: [] as string[],
+    description: ''
   };
 
   categories = [
@@ -41,10 +40,33 @@ export class DrinkThemeFormComponent {
     'Indoor Events'
   ];
 
-  statuses = [
-    'active',
-    'inactive'
+  availableDrinks = [
+    'Cuban Mojito',
+    'Piña Colada',
+    'Margarita',
+    'Old Fashioned',
+    'Paloma',
+    'Tequila Sunrise',
+    'Mai Tai',
+    'Blue Hawaii',
+    'Grinch Punch'
   ];
+
+  toggleDrink(drink: string) {
+    const exists = this.drinkTheme.selectedDrinks.includes(drink);
+
+    if (exists) {
+      this.drinkTheme.selectedDrinks = this.drinkTheme.selectedDrinks.filter(
+        (item) => item !== drink
+      );
+    } else {
+      this.drinkTheme.selectedDrinks = [...this.drinkTheme.selectedDrinks, drink];
+    }
+  }
+
+  isSelected(drink: string): boolean {
+    return this.drinkTheme.selectedDrinks.includes(drink);
+  }
 
   saveDrinkTheme() {
     console.log('Drink Theme data:', this.drinkTheme);
