@@ -49,8 +49,8 @@
             </td>
             <td>
               <div class="actions-cell">
-                <button class="btn-edit" > edit </button>
-                <button class="btn-delete" >🗑️</button>
+                <button class="btn-edit" (click)="editReservation($event, reservation)">✏️</button>
+                <button class="btn-delete" (click)="confirmDelete($event, reservation)">🗑️</button>
               </div>
             </td>
           </tr>

@@ -5,7 +5,7 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { EventService, Event } from '../../../reservations/services/event.service';
+import { EventService, Event as ReservationEvent } from '../../../reservations/services/event.service';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
@@ -16,10 +16,10 @@ import { ToastService } from '../../../shared/services/toast.service';
   styleUrl: './reservation-list.component.scss'
 })
 export class ReservationListComponent implements OnInit {
-  reservations: Event[] = [];
+  reservations: ReservationEvent[] = [];
   currentView: 'list' | 'calendar' = 'list';
   showDeleteModal = false;
-  reservationToDelete: Event | null = null;
+  reservationToDelete: ReservationEvent | null = null;
 
   calendarOptions: any = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -75,17 +75,17 @@ export class ReservationListComponent implements OnInit {
     this.router.navigate(['/reservations/new']);
   }
 
-  openReservation(reservation: Event) {
+  openReservation(reservation: ReservationEvent) {
     this.router.navigate(['/reservations', reservation._id]);
   }
 
-  editReservation(event: Event, reservation: Event) {
-    (event as any).stopPropagation();
+  editReservation(event: MouseEvent, reservation: ReservationEvent) {
+    event.stopPropagation();
     this.router.navigate(['/reservations', reservation._id, 'edit']);
   }
 
-  confirmDelete(event: Event, reservation: Event) {
-    (event as any).stopPropagation();
+  confirmDelete(event: MouseEvent, reservation: ReservationEvent) {
+    event.stopPropagation();
     this.reservationToDelete = reservation;
     this.showDeleteModal = true;
   }
@@ -110,7 +110,7 @@ export class ReservationListComponent implements OnInit {
     });
   }
 
-  getClientName(reservation: Event): string {
+  getClientName(reservation: ReservationEvent): string {
     const client = reservation.clientId as any;
     if (client && client.name) return `${client.name} ${client.lastName}`;
     return '—';

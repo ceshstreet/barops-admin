@@ -12,12 +12,8 @@
       <div class="form-grid">
         <div class="field">
           <label>Drink Name</label>
-          <input
-            type="text"
-            [(ngModel)]="drink.name"
-            name="name"
-            placeholder="Enter drink name"
-            required />
+          <input type="text" [(ngModel)]="drink.name" name="name"
+            placeholder="Enter drink name" required />
         </div>
 
         <div class="field">
@@ -46,11 +42,14 @@
 
         <div class="field">
           <label>Garnish</label>
-          <input
-            type="text"
-            [(ngModel)]="drink.garnish"
-            name="garnish"
+          <input type="text" [(ngModel)]="drink.garnish" name="garnish"
             placeholder="Example: Mint + Lime Wheel" />
+        </div>
+
+        <div class="field">
+          <label>Serving Size (ml por persona)</label>
+          <input type="number" [(ngModel)]="drink.servingSizeMl" name="servingSizeMl"
+            placeholder="Ej: 180" min="0" />
         </div>
 
         <div class="field">
@@ -59,31 +58,38 @@
             <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
           </select>
         </div>
+      </div>
 
-        <div class="field field-full">
-          <label>Ingredients</label>
-          <textarea
-            [(ngModel)]="drink.ingredients"
-            name="ingredients"
-            rows="5"
-            placeholder="Example: White rum, lime juice, mint leaves, sugar syrup, soda water, ice"></textarea>
+      <!-- INGREDIENTS -->
+      <div class="ingredients-section">
+        <div class="ingredients-header">
+          <h3>Ingredients <span class="hint">(por 1 bebida)</span></h3>
+          <button type="button" class="add-btn" (click)="addIngredient()">+ Add</button>
         </div>
 
+        <div class="ingredient-row" *ngFor="let ing of ingredients; let i = index">
+          <input type="text" [(ngModel)]="ing.name" [name]="'ingName' + i"
+            placeholder="Ingredient name" class="ing-name" />
+          <input type="number" [(ngModel)]="ing.amount" [name]="'ingAmount' + i"
+            placeholder="Amount" class="ing-amount" min="0" />
+          <select [(ngModel)]="ing.unit" [name]="'ingUnit' + i" class="ing-unit">
+            <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+          </select>
+          <button type="button" class="remove-btn" (click)="removeIngredient(i)"
+            [disabled]="ingredients.length === 1">✕</button>
+        </div>
+      </div>
+
+      <div class="form-grid">
         <div class="field field-full">
           <label>Preparation</label>
-          <textarea
-            [(ngModel)]="drink.preparation"
-            name="preparation"
-            rows="6"
+          <textarea [(ngModel)]="drink.preparation" name="preparation" rows="5"
             placeholder="Describe the recipe step by step"></textarea>
         </div>
 
         <div class="field field-full">
           <label>Notes</label>
-          <textarea
-            [(ngModel)]="drink.notes"
-            name="notes"
-            rows="4"
+          <textarea [(ngModel)]="drink.notes" name="notes" rows="3"
             placeholder="Extra notes for bartender, service, or presentation"></textarea>
         </div>
       </div>

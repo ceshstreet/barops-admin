@@ -3,6 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
+interface Ingredient {
+  name: string;
+  amount: number;
+  unit: string;
+}
+
 @Component({
   selector: 'app-drink-form',
   standalone: true,
@@ -19,50 +25,48 @@ export class DrinkFormComponent {
     baseSpirit: '',
     glassware: '',
     garnish: '',
-    ingredients: '',
     preparation: '',
     notes: '',
-    status: 'active'
+    status: 'active',
+    servingSizeMl: 0
   };
 
+  ingredients: Ingredient[] = [
+    { name: '', amount: 0, unit: 'ml' }
+  ];
+
   categories = [
-    'Classic Cocktail',
-    'Tropical',
-    'Spirit-Based',
-    'Holiday',
-    'Mocktail',
-    'Custom'
+    'Classic Cocktail', 'Tropical', 'Spirit-Based',
+    'Holiday', 'Mocktail', 'Custom'
   ];
 
   baseSpirits = [
-    'White Rum',
-    'Dark Rum',
-    'Tequila',
-    'Vodka',
-    'Whiskey',
-    'Gin',
-    'Brandy',
-    'None / Non-Alcoholic'
+    'White Rum', 'Dark Rum', 'Tequila', 'Vodka',
+    'Whiskey', 'Gin', 'Brandy', 'None / Non-Alcoholic'
   ];
 
   glasswareOptions = [
-    'Highball',
-    'Rocks Glass',
-    'Coupe',
-    'Margarita Glass',
-    'Hurricane Glass',
-    'Punch Glass',
-    'Wine Glass',
-    'Martini Glass'
+    'Highball', 'Rocks Glass', 'Coupe', 'Margarita Glass',
+    'Hurricane Glass', 'Punch Glass', 'Wine Glass', 'Martini Glass'
   ];
 
-  statuses = [
-    'active',
-    'inactive'
-  ];
+  units = ['ml', 'oz', 'pizca', 'unidad', 'dash', 'cdta'];
+
+  statuses = ['active', 'inactive'];
+
+  addIngredient() {
+    this.ingredients.push({ name: '', amount: 0, unit: 'ml' });
+  }
+
+  removeIngredient(index: number) {
+    if (this.ingredients.length > 1) {
+      this.ingredients.splice(index, 1);
+    }
+  }
 
   saveDrink() {
-    console.log('Drink data:', this.drink);
+    const drinkData = { ...this.drink, ingredients: this.ingredients };
+    console.log('Drink data:', drinkData);
     alert('Mock save: drink created successfully.');
     this.router.navigate(['/drinks']);
   }

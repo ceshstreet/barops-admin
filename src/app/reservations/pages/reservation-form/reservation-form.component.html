@@ -1,8 +1,8 @@
 <div class="reservation-form-page">
   <div class="page-header">
     <div>
-      <h2>Create Reservation</h2>
-      <p>Capture the initial booking request before moving it into operations.</p>
+      <h2>{{ isEditMode ? 'Edit Reservation' : 'Create Reservation' }}</h2>
+      <p>{{ isEditMode ? 'Update the booking details.' : 'Capture the initial booking request before moving it into operations.' }}</p>
     </div>
   </div>
 
@@ -73,7 +73,9 @@
 
       <div class="form-actions">
         <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
-        <button type="submit" class="primary-btn">Save Reservation</button>
+        <button type="submit" class="primary-btn">
+          {{ isEditMode ? 'Update Reservation' : 'Save Reservation' }}
+        </button>
       </div>
 
     </form>
