@@ -1,16 +1,17 @@
 .drink-list-page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
   color: #eaf1ff;
 }
 
+// ═══════════════════════════════════════
+// HEADER
+// ═══════════════════════════════════════
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  align-items: flex-start;
 
   h2 {
     margin: 0;
@@ -20,89 +21,509 @@
 
   p {
     margin: 6px 0 0;
-    color: rgba(234, 241, 255, 0.68);
+    color: rgba(234, 241, 255, 0.55);
     font-size: 14px;
   }
 }
 
-.drink-table-card {
-  background: rgba(255, 255, 255, 0.04);
+.primary-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #7c5cff, #32d7a3);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 22px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+}
+
+// ═══════════════════════════════════════
+// TAB SWITCHER
+// ═══════════════════════════════════════
+.tab-switcher {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  padding: 4px;
+  width: fit-content;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  background: transparent;
+  color: rgba(234, 241, 255, 0.4);
+  transition: all 0.2s;
+
+  &.active {
+    background: rgba(124, 92, 255, 0.15);
+    color: #a78bfa;
+    border-color: rgba(124, 92, 255, 0.2);
+  }
+
+  &:not(.active):hover {
+    color: rgba(234, 241, 255, 0.7);
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+// ═══════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════
+.filters-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(234, 241, 255, 0.35);
+  }
+
+  input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: #eaf1ff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &::placeholder {
+      color: rgba(234, 241, 255, 0.4);
+    }
+
+    &:focus {
+      border-color: rgba(124, 92, 255, 0.4);
+    }
+  }
+}
+
+.filter-select {
+  padding: 10px 34px 10px 14px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 18px;
-  overflow-x: auto;
+  background: rgba(17, 31, 56, 0.65);
+  color: #eaf1ff;
+  font-size: 13px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%2364748b' d='M5 7L1 3h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: rgba(124, 92, 255, 0.4);
+  }
+}
+
+// ═══════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #eaf1ff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: rgba(234, 241, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+}
+
+// ═══════════════════════════════════════
+// TABLE
+// ═══════════════════════════════════════
+.table-card {
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-
-  th,
-  td {
-    text-align: left;
-    padding: 14px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    vertical-align: top;
-  }
-
-  th {
-    color: rgba(234, 241, 255, 0.55);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  td {
-    color: #eaf1ff;
-    font-size: 14px;
-  }
 }
 
-.clickable-row {
+thead tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(234, 241, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.table-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.035);
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: background 0.15s;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba(124, 92, 255, 0.04);
+  }
 }
 
-.clickable-row:hover {
-  background: rgba(255, 255, 255, 0.04);
+td {
+  padding: 14px 16px;
+  font-size: 14px;
 }
 
-.status-badge {
+.drink-name {
+  color: #eaf1ff;
+  font-weight: 600;
+}
+
+.text-muted {
+  color: rgba(234, 241, 255, 0.5);
+  font-size: 13px;
+}
+
+// ═══════════════════════════════════════
+// SPIRIT TAGS
+// ═══════════════════════════════════════
+.spirit-tag {
   display: inline-block;
-  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 6px;
+
+  &[data-spirit="White Rum"]              { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); }
+  &[data-spirit="Dark Rum"],
+  &[data-spirit="Rum"]                    { color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); }
+  &[data-spirit="Tequila"]                { color: #a3e635; background: rgba(163, 230, 53, 0.1); border: 1px solid rgba(163, 230, 53, 0.2); }
+  &[data-spirit="Whiskey"]                { color: #f97316; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.2); }
+  &[data-spirit="Vodka"]                  { color: #c4b5fd; background: rgba(196, 181, 253, 0.1); border: 1px solid rgba(196, 181, 253, 0.2); }
+  &[data-spirit="Gin"]                    { color: #2dd4bf; background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.2); }
+  &[data-spirit="Brandy"]                 { color: #fb923c; background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.2); }
+  &[data-spirit="None / Non-Alcoholic"]   { color: #94a3b8; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.2); }
+}
+
+// ═══════════════════════════════════════
+// STATUS BADGE
+// ═══════════════════════════════════════
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 11px;
   border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  &.active {
+    background: rgba(52, 211, 153, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.25);
+    .status-dot { background: #34d399; }
+  }
+
+  &.inactive {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    .status-dot { background: #ef4444; }
+  }
+}
+
+// ═══════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  text-transform: capitalize;
+  transition: all 0.15s;
+  padding: 5px 14px;
+
+  &.view-btn {
+    background: rgba(124, 92, 255, 0.1);
+    border-color: rgba(124, 92, 255, 0.2);
+    color: #a78bfa;
+    &:hover { background: rgba(124, 92, 255, 0.2); }
+  }
 }
 
-.status-badge.active {
-  background: rgba(68, 224, 138, 0.14);
-  border: 1px solid rgba(68, 224, 138, 0.30);
+.empty-state {
+  padding: 50px;
+  text-align: center;
+  color: rgba(234, 241, 255, 0.4);
+  font-size: 14px;
 }
 
-.status-badge.inactive {
-  background: rgba(255, 107, 107, 0.14);
-  border: 1px solid rgba(255, 107, 107, 0.30);
+// ═══════════════════════════════════════
+// EVENT CALCULATOR
+// ═══════════════════════════════════════
+.calc-card {
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
 }
 
-.primary-btn {
-  background: linear-gradient(135deg, #7c5cff, #32d7a3);
-  color: white;
-  border: none;
+.calc-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 28px 32px 22px;
+  color: #7c5cff;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #eaf1ff;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(234, 241, 255, 0.45);
+    font-size: 14px;
+  }
+
+  svg {
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Drink selector grid ──
+.calc-drinks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  padding: 0 32px 28px;
+}
+
+.calc-drink-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
   border-radius: 14px;
-  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.25s;
+
+  &.selected {
+    background: rgba(124, 92, 255, 0.06);
+    border-color: rgba(124, 92, 255, 0.18);
+  }
+}
+
+.calc-drink-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.calc-drink-name {
+  color: #eaf1ff;
+  font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
+}
+
+.calc-qty-input {
+  width: 72px;
+  padding: 9px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #eaf1ff;
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s;
+
+  // Hide spinners
+  -moz-appearance: textfield;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &:focus {
+    border-color: rgba(124, 92, 255, 0.4);
+  }
+
+  &.has-value {
+    border-color: rgba(124, 92, 255, 0.3);
+    background: rgba(124, 92, 255, 0.1);
+  }
+}
+
+// ── Results ──
+.calc-results-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 26px 32px;
+  background: rgba(52, 211, 153, 0.02);
+}
+
+.calc-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  h4 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 800;
+    color: #34d399;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+  }
+}
+
+.calc-total-badge {
+  font-size: 13px;
+  color: rgba(234, 241, 255, 0.45);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 14px;
+  border-radius: 8px;
+}
+
+.calc-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.calc-result-card {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.calc-result-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.calc-result-name {
+  color: rgba(234, 241, 255, 0.5);
+  font-size: 13px;
+}
+
+.calc-result-total {
+  color: #eaf1ff;
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-result-sources {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.calc-source-tag {
+  font-size: 10px;
+  color: rgba(234, 241, 255, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.calc-empty {
+  padding: 40px 32px;
+  text-align: center;
+  color: rgba(234, 241, 255, 0.3);
+  font-size: 14px;
+}
+
+// ═══════════════════════════════════════
+// RESPONSIVE
+// ═══════════════════════════════════════
+@media (max-width: 1100px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  table {
-    min-width: 980px;
-  }
+  .page-header { flex-direction: column; gap: 14px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .filters-bar { flex-direction: column; }
+  .calc-drinks-grid { grid-template-columns: 1fr; }
+  .calc-results-grid { grid-template-columns: 1fr; }
 }

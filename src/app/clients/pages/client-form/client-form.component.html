@@ -32,12 +32,7 @@
 
         <div class="field">
           <label>Phone</label>
-          <input
-            type="text"
-            [(ngModel)]="client.phone"
-            name="phone"
-            placeholder="Enter phone number (9 digits)"
-            required />
+          <input #phoneInput type="tel" name="phone" placeholder="Enter phone number" required />
         </div>
 
         <div class="field">

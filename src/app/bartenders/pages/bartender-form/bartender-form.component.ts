@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BartenderService, Bartender } from '../../services/bartender.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import intlTelInput from 'intl-tel-input';
 
 @Component({
   selector: 'app-bartender-form',
@@ -12,9 +13,11 @@ import { ToastService } from '../../../shared/services/toast.service';
   templateUrl: './bartender-form.component.html',
   styleUrl: './bartender-form.component.scss'
 })
-export class BartenderFormComponent implements OnInit {
+export class BartenderFormComponent implements OnInit, AfterViewInit {
+  @ViewChild('phoneInput') phoneInput!: ElementRef;
   isEditMode = false;
   bartenderId: string | null = null;
+  iti: any;
 
   bartender: any = {
     name: '',
@@ -44,27 +47,62 @@ export class BartenderFormComponent implements OnInit {
 
   ngOnInit() {
     this.bartenderId = this.route.snapshot.paramMap.get('id');
-
     if (this.bartenderId) {
       this.isEditMode = true;
       this.bartenderService.getBartenderById(this.bartenderId).subscribe({
         next: (data) => {
           this.bartender = data;
-          // Inicializamos los datos anidados por si vienen vacíos del back
           if (!this.bartender.bartenderData) {
             this.bartender.bartenderData = { specialty: '', availabilitySchedule: '', experienceLevel: '', notes: '' };
           }
-          // Limpiamos password para que no de error de validación al editar
           this.bartender.password = '';
+
+          // Cargar teléfono en intl-tel-input
+          setTimeout(() => {
+            const phoneEl = document.querySelector('.iti input[type="tel"]') as HTMLInputElement;
+            if (phoneEl && data.phone) {
+              // Usar iti para setear el número correctamente
+              if (this.iti) {
+                this.iti.setNumber(data.phone);
+              } else {
+                const cleaned = data.phone.replace(/^\+\d{1,4}/, '').trim();
+                phoneEl.value = cleaned;
+              }
+            }
+          }, 300);
         },
-        error: (err) => this.toastService.show('Error al cargar datos del bartender', 'error')
+        error: () => this.toastService.show('Error al cargar datos del bartender', 'error')
       });
     }
   }
 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      const phoneEl = document.querySelector('input[type="tel"]') as HTMLInputElement;
+      if (phoneEl) {
+        this.iti = intlTelInput(phoneEl, {
+          initialCountry: 'sv',
+          separateDialCode: true
+        });
+      }
+    }, 100);
+  }
+
+
+  //
   saveBartender() {
+    const phoneEl = document.querySelector('.iti input[type="tel"]') as HTMLInputElement;
+    const dialCodeEl = document.querySelector('.iti__selected-dial-code') as HTMLElement;
+
+    const dialCode = dialCodeEl?.innerText?.trim() || '+503';
+    const number = phoneEl?.value?.trim() || '';
+    const fullPhone = `${dialCode}${number}`.replace(/\s/g, '');
+
+    console.log('Phone enviado:', fullPhone);
+    const bartenderData = { ...this.bartender, phone: fullPhone };
+
     if (this.isEditMode && this.bartenderId) {
-      this.bartenderService.updateBartender(this.bartenderId, this.bartender).subscribe({
+      this.bartenderService.updateBartender(this.bartenderId, bartenderData).subscribe({
         next: () => {
           this.toastService.show('Bartender actualizado con éxito', 'success');
           setTimeout(() => this.router.navigate(['/bartenders']), 1500);
@@ -75,7 +113,7 @@ export class BartenderFormComponent implements OnInit {
         }
       });
     } else {
-      this.bartenderService.insertBartender(this.bartender).subscribe({
+      this.bartenderService.insertBartender(bartenderData).subscribe({
         next: () => {
           this.toastService.show('Bartender creado con éxito', 'success');
           setTimeout(() => this.router.navigate(['/bartenders']), 1500);
@@ -88,6 +126,7 @@ export class BartenderFormComponent implements OnInit {
     }
   }
 
+  ///
   cancel() {
     this.router.navigate(['/bartenders']);
   }

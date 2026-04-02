@@ -16,6 +16,8 @@ import { DrinkListComponent } from './drinks/pages/drink-list/drink-list.compone
 import { DrinkThemeFormComponent } from './drink-themes/pages/drink-theme-form/drink-theme-form.component';
 import { DrinkThemeListComponent } from './drink-themes/pages/drink-theme-list/drink-theme-list.component';
 
+import { DrinkDetailComponent } from './drinks/pages/drink-detail/drink-detail.component';
+
 import { EventListComponent } from './events/pages/event-list/event-list.component';
 import { EventCalendarComponent } from './events/pages/event-calendar/event-calendar.component';
 import { EventDetailComponent } from './events/pages/event-detail/event-detail.component';
@@ -59,8 +61,12 @@ export const routes: Routes = [
 
       { path: 'drink-themes', component: DrinkThemeListComponent },
       { path: 'drink-themes/new', component: DrinkThemeFormComponent },
+
+
       { path: 'drinks', component: DrinkListComponent },
       { path: 'drinks/new', component: DrinkFormComponent },
+      { path: 'drinks/:id/edit', component: DrinkFormComponent },
+      { path: 'drinks/:id', component: DrinkDetailComponent },
 
       { path: 'events', component: EventListComponent },
       { path: 'events/calendar', component: EventCalendarComponent },

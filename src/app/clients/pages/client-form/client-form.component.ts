@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ClientService } from '../../services/client.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import intlTelInput from 'intl-tel-input';
 
 @Component({
   selector: 'app-client-form',
@@ -12,16 +13,11 @@ import { ToastService } from '../../../shared/services/toast.service';
   templateUrl: './client-form.component.html',
   styleUrl: './client-form.component.scss'
 })
-export class ClientFormComponent implements OnInit {
+export class ClientFormComponent implements OnInit, AfterViewInit {
+  @ViewChild('phoneInput') phoneInput!: ElementRef<HTMLInputElement>;
   isEditMode = false;
   clientId: string | null = null;
-
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private clientService: ClientService,
-    private toastService: ToastService
-  ) {}
+  iti: any;
 
   client = {
     name: '',
@@ -35,6 +31,14 @@ export class ClientFormComponent implements OnInit {
   };
 
   preferredContacts = ['WHATSAPP', 'EMAIL', 'PHONE'];
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private clientService: ClientService,
+    private toastService: ToastService
+  ) {}
+
 
   ngOnInit() {
     this.clientId = this.route.snapshot.paramMap.get('id');
@@ -54,15 +58,45 @@ export class ClientFormComponent implements OnInit {
                 notes: found.clientData?.notes || ''
               }
             };
+
+            // Setear el teléfono en intl-tel-input después de cargar
+            setTimeout(() => {
+              const phoneEl = document.querySelector('.iti input[type="tel"]') as HTMLInputElement;
+              if (phoneEl && found.phone) {
+                // Quitar el código de país (cualquier cosa que empiece con +)
+                const cleaned = found.phone.replace(/^\+\d{1,4}/, '').trim();
+                phoneEl.value = cleaned;
+              }
+            }, 200);
           }
         }
       });
     }
   }
 
+
+
+  ngAfterViewInit() {
+    this.iti = intlTelInput(this.phoneInput.nativeElement, {
+      initialCountry: 'sv',
+      separateDialCode: true
+    });
+  }
+
+
+  ////
   saveClient() {
+    const phoneEl = document.querySelector('.iti input[type="tel"]') as HTMLInputElement;
+    const dialCodeEl = document.querySelector('.iti__selected-dial-code') as HTMLElement;
+
+    const dialCode = dialCodeEl?.innerText?.trim() || '+503';
+    const number = phoneEl?.value?.trim() || '';
+    const fullPhone = `${dialCode}${number}`.replace(/\s/g, '');
+
+    const clientData = { ...this.client, phone: fullPhone };
+
     if (this.isEditMode && this.clientId) {
-      this.clientService.updateClient(this.clientId, this.client as any).subscribe({
+      this.clientService.updateClient(this.clientId, clientData as any).subscribe({
         next: () => {
           this.toastService.show('Client updated successfully.', 'success');
           setTimeout(() => this.router.navigate(['/clients']), 1500);
@@ -73,7 +107,7 @@ export class ClientFormComponent implements OnInit {
         }
       });
     } else {
-      this.clientService.insertClient(this.client as any).subscribe({
+      this.clientService.insertClient(clientData as any).subscribe({
         next: () => {
           this.toastService.show('Client created successfully.', 'success');
           setTimeout(() => this.router.navigate(['/clients']), 1500);
@@ -85,7 +119,7 @@ export class ClientFormComponent implements OnInit {
       });
     }
   }
-
+  ///
   cancel() {
     this.router.navigate(['/clients']);
   }

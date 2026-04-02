@@ -1,45 +1,217 @@
 <div class="drink-list-page">
+
+  <!-- ═══ HEADER ═══ -->
   <div class="page-header">
     <div>
       <h2>Drinks</h2>
-      <p>Manage the master catalog of cocktails, preparation references, and garnish details.</p>
+      <p>Catálogo de tragos con ingredientes y calculadora de eventos.</p>
+    </div>
+    <button class="primary-btn" routerLink="/drinks/new">
+      + New Drink
+    </button>
+  </div>
+
+  <!-- ═══ TAB SWITCHER ═══ -->
+  <div class="tab-switcher">
+    <button class="tab-btn" [class.active]="activeTab === 'drinks'"
+      (click)="activeTab = 'drinks'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 2h8l-2 18H10L8 2z" /><path d="M6 2h12" />
+      </svg>
+      Drinks
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'calculator'"
+      (click)="activeTab = 'calculator'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="2" />
+        <path d="M8 6h8" /><path d="M8 10h8" />
+        <path d="M8 14h2" /><path d="M14 14h2" />
+        <path d="M8 18h2" /><path d="M14 18h2" />
+      </svg>
+      Event Calculator
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 1: DRINKS LIST                        -->
+  <!-- ══════════════════════════════════════════ -->
+  <ng-container *ngIf="activeTab === 'drinks'">
+
+    <!-- FILTERS -->
+    <div class="filters-bar">
+      <div class="search-box">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="M21 21l-4.35-4.35"></path>
+        </svg>
+        <input type="text" placeholder="Search drinks..." [(ngModel)]="searchTerm" />
+      </div>
+
+      <select [(ngModel)]="filterSpirit" class="filter-select">
+        <option value="">All Spirits</option>
+        <option *ngFor="let spirit of spiritOptions" [value]="spirit">{{ spirit }}</option>
+      </select>
+
+      <select [(ngModel)]="filterCategory" class="filter-select">
+        <option value="">All Categories</option>
+        <option *ngFor="let cat of categoryOptions" [value]="cat">{{ cat }}</option>
+      </select>
+
+      <select [(ngModel)]="filterStatus" class="filter-select">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
     </div>
 
-    <button class="primary-btn" (click)="createDrink()">+ New Drink</button>
-  </div>
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-value">{{ drinks.length }}</span>
+        <span class="stat-label">TOTAL DRINKS</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ activeDrinks }}</span>
+        <span class="stat-label">ACTIVE</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ inactiveDrinks }}</span>
+        <span class="stat-label">INACTIVE</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ uniqueSpirits }}</span>
+        <span class="stat-label">BASE SPIRITS</span>
+      </div>
+    </div>
 
-  <div class="drink-table-card">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Drink Name</th>
-          <th>Category</th>
-          <th>Base Spirit</th>
-          <th>Glassware</th>
-          <th>Garnish</th>
-          <th>Status</th>
-        </tr>
-      </thead>
+    <!-- TABLE -->
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>NAME</th>
+            <th>CATEGORY</th>
+            <th>SPIRIT</th>
+            <th>GLASS</th>
+            <th>INGREDIENTS</th>
+            <th>STATUS</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let drink of filteredDrinks" class="table-row"
+            (click)="viewDrink(drink._id)">
+            <td class="drink-name">{{ drink.name }}</td>
+            <td class="text-muted">{{ drink.category }}</td>
+            <td>
+              <span class="spirit-tag" [attr.data-spirit]="drink.baseSpirit">
+                {{ drink.baseSpirit }}
+              </span>
+            </td>
+            <td class="text-muted">{{ drink.glassware }}</td>
+            <td class="text-muted">{{ drink.ingredients.length }} items</td>
+            <td>
+              <span class="status-badge"
+                [class.active]="drink.status"
+                [class.inactive]="!drink.status">
+                <span class="status-dot"></span>
+                {{ drink.status ? 'ACTIVE' : 'INACTIVE' }}
+              </span>
+            </td>
+            <td>
+              <button class="action-btn view-btn"
+                (click)="$event.stopPropagation(); viewDrink(drink._id)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Ver
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      <tbody>
-        <tr
-          *ngFor="let drink of drinks"
-          (click)="openDrink(drink)"
-          class="clickable-row">
-          <td>{{ drink.id }}</td>
-          <td>{{ drink.name }}</td>
-          <td>{{ drink.category }}</td>
-          <td>{{ drink.baseSpirit }}</td>
-          <td>{{ drink.glassware }}</td>
-          <td>{{ drink.garnish }}</td>
-          <td>
-            <span class="status-badge" [ngClass]="getStatusClass(drink.status)">
-              {{ drink.status }}
+      <div *ngIf="filteredDrinks.length === 0" class="empty-state">
+        No drinks found.
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TAB 2: EVENT CALCULATOR                   -->
+  <!-- ══════════════════════════════════════════ -->
+  <ng-container *ngIf="activeTab === 'calculator'">
+
+    <div class="calc-card">
+      <div class="calc-card-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="2" />
+          <path d="M8 6h8" /><path d="M8 10h8" />
+          <path d="M8 14h2" /><path d="M14 14h2" />
+          <path d="M8 18h2" /><path d="M14 18h2" />
+        </svg>
+        <div>
+          <h3>Calculadora de Evento</h3>
+          <p>Ingresá la cantidad de cada trago y calculá los insumos totales.</p>
+        </div>
+      </div>
+
+      <!-- Drink quantity inputs -->
+      <div class="calc-drinks-grid">
+        <div *ngFor="let drink of activeDrinksList"
+          class="calc-drink-card"
+          [class.selected]="isSelected(drink._id)">
+          <div class="calc-drink-info">
+            <span class="calc-drink-name">{{ drink.name }}</span>
+            <span class="spirit-tag" [attr.data-spirit]="drink.baseSpirit">
+              {{ drink.baseSpirit }}
             </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+          </div>
+          <input type="number"
+            class="calc-qty-input"
+            [class.has-value]="isSelected(drink._id)"
+            [ngModel]="eventSelections[drink._id] || ''"
+            (ngModelChange)="eventSelections[drink._id] = $event; onSelectionChange()"
+            placeholder="0"
+            min="0" />
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div *ngIf="hasSelections" class="calc-results-section">
+        <div class="calc-results-header">
+          <h4>Insumos Totales Requeridos</h4>
+          <span class="calc-total-badge">{{ totalDrinksCount }} tragos total</span>
+        </div>
+
+        <div class="calc-results-grid">
+          <div *ngFor="let item of calculatedTotals" class="calc-result-card">
+            <div class="calc-result-main">
+              <span class="calc-result-name">{{ item.name }}</span>
+              <span class="calc-result-total">{{ item.displayTotal }}</span>
+            </div>
+            <div class="calc-result-sources">
+              <span *ngFor="let source of item.sources" class="calc-source-tag">
+                {{ source.drink }}: {{ source.qty }}×
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="!hasSelections" class="calc-empty">
+        Ingresá cantidades arriba para ver el cálculo de insumos.
+      </div>
+    </div>
+
+  </ng-container>
+
 </div>
