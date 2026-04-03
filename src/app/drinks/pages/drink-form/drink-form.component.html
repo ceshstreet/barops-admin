@@ -1,77 +1,181 @@
 <div class="drink-form-page">
   <div class="page-header">
-    <div>
-      <h2>Create Drink</h2>
-      <p>Add a new drink recipe to the master catalog.</p>
-    </div>
+    <h2>{{ isEdit ? 'Edit Drink' : 'Create Drink' }}</h2>
+    <p>{{ isEdit ? 'Modify item details.' : 'Add a new item to your catalog.' }}</p>
   </div>
 
   <div class="form-card">
-    <form (ngSubmit)="saveDrink()" #drinkForm="ngForm">
+
+    <!-- ═══ TYPE SELECTOR ═══ -->
+    <div class="form-section" *ngIf="!isEdit">
+      <h3 class="section-title">Item Type</h3>
+      <div class="type-selector">
+        <button *ngFor="let dt of drinkTypes" type="button"
+          class="type-card"
+          [class.active]="selectedType === dt.value"
+          [style.--type-color]="dt.color"
+          (click)="switchType(dt.value)">
+          <span class="type-emoji">{{ dt.icon }}</span>
+          <span class="type-name">{{ dt.label }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ ITEM INFO ═══ -->
+    <div class="form-section">
+      <h3 class="section-title" [style.color]="activeType.color">
+        {{ activeType.icon }} {{ activeType.label }} Info
+      </h3>
 
       <div class="form-grid">
+        <!-- Name — always -->
         <div class="field">
-          <label>Drink Name</label>
-          <input type="text" [(ngModel)]="drink.name" name="name"
-            placeholder="Enter drink name" required />
+          <label>Name</label>
+          <input type="text" [(ngModel)]="name" name="name" required
+            [placeholder]="selectedType === 'cocktail' ? 'E.g. Cuban Mojito' :
+              selectedType === 'beer' ? 'E.g. Corona Extra' :
+              selectedType === 'beverage' ? 'E.g. Agua Mineral' : 'E.g. Malbec Reserva'" />
         </div>
 
-        <div class="field">
-          <label>Category</label>
-          <select [(ngModel)]="drink.category" name="category">
-            <option value="">Select category</option>
-            <option *ngFor="let item of categories" [value]="item">{{ item }}</option>
-          </select>
-        </div>
+        <!-- ── COCKTAIL FIELDS ── -->
+        <ng-container *ngIf="selectedType === 'cocktail'">
+          <div class="field">
+            <label>Category</label>
+            <select [(ngModel)]="category" name="category">
+              <option value="">Select category</option>
+              <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Base Spirit</label>
+            <select [(ngModel)]="baseSpirit" name="baseSpirit">
+              <option value="">Select base spirit</option>
+              <option *ngFor="let s of baseSpirits" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Glassware</label>
+            <select [(ngModel)]="glassware" name="glassware">
+              <option value="">Select glassware</option>
+              <option *ngFor="let g of glasswareOptions" [value]="g">{{ g }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Garnish</label>
+            <input type="text" [(ngModel)]="garnish" name="garnish" placeholder="E.g. Mint + Lime Wheel" />
+          </div>
+          <div class="field">
+            <label>Serving Size (ml)</label>
+            <input type="number" [(ngModel)]="servingSize" name="servingSize" placeholder="350" min="0" />
+          </div>
+        </ng-container>
 
-        <div class="field">
-          <label>Base Spirit</label>
-          <select [(ngModel)]="drink.baseSpirit" name="baseSpirit">
-            <option value="">Select base spirit</option>
-            <option *ngFor="let item of baseSpirits" [value]="item">{{ item }}</option>
-          </select>
-        </div>
+        <!-- ── BEER FIELDS ── -->
+        <ng-container *ngIf="selectedType === 'beer'">
+          <div class="field">
+            <label>Beer Type</label>
+            <select [(ngModel)]="subtype" name="subtype">
+              <option value="">Select type</option>
+              <option *ngFor="let s of beerSubtypes" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Brand</label>
+            <input type="text" [(ngModel)]="brand" name="brand" placeholder="E.g. Corona, Heineken" />
+          </div>
+          <div class="field">
+            <label>Origin</label>
+            <input type="text" [(ngModel)]="origin" name="origin" placeholder="E.g. Mexico, Belgium" />
+          </div>
+          <div class="field">
+            <label>Size</label>
+            <select [(ngModel)]="size" name="size">
+              <option value="">Select size</option>
+              <option *ngFor="let s of sizes" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </ng-container>
 
-        <div class="field">
-          <label>Glassware</label>
-          <select [(ngModel)]="drink.glassware" name="glassware">
-            <option value="">Select glassware</option>
-            <option *ngFor="let item of glasswareOptions" [value]="item">{{ item }}</option>
-          </select>
-        </div>
+        <!-- ── BEVERAGE FIELDS ── -->
+        <ng-container *ngIf="selectedType === 'beverage'">
+          <div class="field">
+            <label>Beverage Type</label>
+            <select [(ngModel)]="subtype" name="subtype">
+              <option value="">Select type</option>
+              <option *ngFor="let s of bevSubtypes" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Brand</label>
+            <input type="text" [(ngModel)]="brand" name="brand" placeholder="E.g. Coca-Cola, Cristal" />
+          </div>
+          <div class="field">
+            <label>Size</label>
+            <select [(ngModel)]="size" name="size">
+              <option value="">Select size</option>
+              <option *ngFor="let s of sizes" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </ng-container>
 
-        <div class="field">
-          <label>Garnish</label>
-          <input type="text" [(ngModel)]="drink.garnish" name="garnish"
-            placeholder="Example: Mint + Lime Wheel" />
-        </div>
+        <!-- ── WINE FIELDS ── -->
+        <ng-container *ngIf="selectedType === 'wine'">
+          <div class="field">
+            <label>Wine Type</label>
+            <select [(ngModel)]="subtype" name="subtype">
+              <option value="">Select type</option>
+              <option *ngFor="let s of wineSubtypes" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Brand / Winery</label>
+            <input type="text" [(ngModel)]="brand" name="brand" placeholder="E.g. Catena Zapata" />
+          </div>
+          <div class="field">
+            <label>Origin</label>
+            <input type="text" [(ngModel)]="origin" name="origin" placeholder="E.g. Argentina, Chile" />
+          </div>
+          <div class="field">
+            <label>Size</label>
+            <select [(ngModel)]="size" name="size">
+              <option value="">Select size</option>
+              <option *ngFor="let s of sizes" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </ng-container>
 
-        <div class="field">
-          <label>Serving Size (ml por persona)</label>
-          <input type="number" [(ngModel)]="drink.servingSizeMl" name="servingSizeMl"
-            placeholder="Ej: 180" min="0" />
-        </div>
-
+        <!-- Status — always -->
         <div class="field">
           <label>Status</label>
-          <select [(ngModel)]="drink.status" name="status">
-            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+          <select [(ngModel)]="status" name="status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
           </select>
         </div>
       </div>
+    </div>
 
-      <!-- INGREDIENTS -->
-      <div class="ingredients-section">
-        <div class="ingredients-header">
-          <h3>Ingredients <span class="hint">(por 1 bebida)</span></h3>
-          <button type="button" class="add-btn" (click)="addIngredient()">+ Add</button>
+    <!-- ═══ INGREDIENTS — COCKTAIL ONLY ═══ -->
+    <div class="form-section" *ngIf="selectedType === 'cocktail'">
+      <div class="ingredients-header">
+        <div>
+          <h3 class="section-title" style="margin-bottom: 2px;">Ingredients</h3>
+          <span class="section-hint">por 1 bebida</span>
         </div>
+        <button type="button" class="add-btn" (click)="addIngredient()">+ Add</button>
+      </div>
 
-        <div class="ingredient-row" *ngFor="let ing of ingredients; let i = index">
+      <div class="ingredients-table">
+        <div class="ing-table-header">
+          <span>Ingredient</span>
+          <span>Qty</span>
+          <span>Unit</span>
+          <span></span>
+        </div>
+        <div *ngFor="let ing of ingredients; let i = index" class="ingredient-row">
           <input type="text" [(ngModel)]="ing.name" [name]="'ingName' + i"
             placeholder="Ingredient name" class="ing-name" />
-          <input type="number" [(ngModel)]="ing.amount" [name]="'ingAmount' + i"
-            placeholder="Amount" class="ing-amount" min="0" />
+          <input type="number" [(ngModel)]="ing.quantity" [name]="'ingQty' + i"
+            placeholder="0" class="ing-qty" min="0" />
           <select [(ngModel)]="ing.unit" [name]="'ingUnit' + i" class="ing-unit">
             <option *ngFor="let u of units" [value]="u">{{ u }}</option>
           </select>
@@ -79,26 +183,40 @@
             [disabled]="ingredients.length === 1">✕</button>
         </div>
       </div>
+    </div>
 
+    <!-- ═══ PREPARATION — COCKTAIL ONLY ═══ -->
+    <div class="form-section" *ngIf="selectedType === 'cocktail'">
       <div class="form-grid">
         <div class="field field-full">
           <label>Preparation</label>
-          <textarea [(ngModel)]="drink.preparation" name="preparation" rows="5"
+          <textarea [(ngModel)]="preparation" name="preparation" rows="4"
             placeholder="Describe the recipe step by step"></textarea>
         </div>
+      </div>
+    </div>
 
+    <!-- ═══ NOTES — ALWAYS ═══ -->
+    <div class="form-section">
+      <div class="form-grid">
         <div class="field field-full">
           <label>Notes</label>
-          <textarea [(ngModel)]="drink.notes" name="notes" rows="3"
-            placeholder="Extra notes for bartender, service, or presentation"></textarea>
+          <textarea [(ngModel)]="notes" name="notes" rows="3"
+            [placeholder]="selectedType === 'cocktail' ? 'Extra notes for bartender, service, or presentation' :
+              selectedType === 'beer' ? 'E.g. Serve with lime wedge, seasonal availability' :
+              selectedType === 'beverage' ? 'E.g. Must be prepared fresh, popular mixer' :
+              'E.g. Premium option for weddings, serve chilled'"></textarea>
         </div>
       </div>
+    </div>
 
-      <div class="form-actions">
-        <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
-        <button type="submit" class="primary-btn">Save Drink</button>
-      </div>
+    <!-- ═══ ACTIONS ═══ -->
+    <div class="form-actions">
+      <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
+      <button type="button" class="primary-btn" (click)="saveDrink()" [disabled]="!name">
+        {{ isEdit ? 'Save Changes' : 'Save ' + activeType.label }}
+      </button>
+    </div>
 
-    </form>
   </div>
 </div>

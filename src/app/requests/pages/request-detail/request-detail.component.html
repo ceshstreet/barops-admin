@@ -1,1 +1,137 @@
-<p>request-detail works!</p>
+<div class="request-detail-page" *ngIf="request && !loading && !error">
+
+  <!-- Back button -->
+  <button class="back-btn" (click)="goBack()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5" />
+      <path d="M12 19l-7-7 7-7" />
+    </svg>
+    Volver a Requests
+  </button>
+
+  <div class="detail-card">
+
+    <!-- HEADER -->
+    <div class="detail-header">
+      <div class="header-info">
+        <div class="title-row">
+          <div class="avatar-chip">{{ getInitials(request.fullName) }}</div>
+          <div class="title-block">
+            <h2>{{ request.eventName }}</h2>
+            <div class="meta-row">
+              <span class="meta-text">{{ request.fullName || 'Unknown client' }}</span>
+              <span class="meta-sep">•</span>
+              <span class="meta-text">{{ request.email }}</span>
+              <span class="meta-sep">•</span>
+              <span class="meta-text">{{ request.phone }}</span>
+            </div>
+          </div>
+
+          <span
+            class="status-badge"
+            [class.reviewed]="request.status === 'REVIEWED'"
+            [class.created]="request.status === 'CLIENT_CREATED'">
+            <span class="status-dot"></span>
+            {{ request.status || 'NEW' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="action-btn client-btn" (click)="convertToClient()">
+          <span class="material-icons">person_add</span>
+          Add Client
+        </button>
+
+        <button class="action-btn event-btn" (click)="convertToEvent()">
+          <span class="material-icons">event_available</span>
+          Create Event
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="detail-body">
+
+      <!-- LEFT -->
+      <div class="body-left">
+        <div class="section-title-row">
+          <h3 class="section-title">Request Details</h3>
+          <span class="section-hint">captured from website form</span>
+        </div>
+
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Client Name</span>
+            <span class="info-value">{{ request.fullName || 'N/A' }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ request.email || 'N/A' }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Phone</span>
+            <span class="info-value">{{ request.phone || 'N/A' }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Event Type</span>
+            <span class="info-value">{{ request.eventType || 'N/A' }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Event Date</span>
+            <span class="info-value">{{ request.eventDate || 'N/A' }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Location</span>
+            <span class="info-value">{{ request.location || 'N/A' }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Guests</span>
+            <span class="info-value">{{ request.guests || 'N/A' }}</span>
+          </div>
+
+          <div class="info-item no-border">
+            <span class="info-label">Budget Range</span>
+            <span class="info-value">{{ request.budgetRange || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="body-right">
+        <div class="info-block">
+          <h3 class="section-title">Received</h3>
+          <p class="info-text">{{ request.createdAt || 'N/A' }}</p>
+        </div>
+
+        <div class="info-block">
+          <h3 class="section-title">Email Preview</h3>
+          <p class="info-text muted">
+            This request was submitted from the landing page and normalized from Odoo.
+          </p>
+        </div>
+
+        <div class="note-card" *ngIf="request.rawDescription">
+          <h3 class="note-title">Message / Raw Content</h3>
+          <p class="note-text">{{ request.rawDescription }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading state -->
+<div *ngIf="loading" class="loading-state">
+  Loading request detail...
+</div>
+
+<div *ngIf="error && !loading" class="loading-state error-state">
+  {{ error }}
+</div>

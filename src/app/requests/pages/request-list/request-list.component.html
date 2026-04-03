@@ -1,57 +1,151 @@
-<div class="table-card" *ngIf="!loading && !error">
-  <table *ngIf="filteredRequests.length > 0; else emptyState">
-    <thead>
-      <tr>
-        <th>Event</th>
-        <th>Phone</th>
-        <th>Type</th>
-        <th>Date</th>
-        <th>Received</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr
-        *ngFor="let request of filteredRequests; trackBy: trackByOdooId"
-        class="table-row"
-        (click)="viewRequest(request.odooId)"
-      >
-        <td class="primary-text">{{ request.eventName }}</td>
-
-        <td class="muted-text">{{ request.phone || 'N/A' }}</td>
-
-        <td>
-          <span class="tag">{{ request.eventType || 'N/A' }}</span>
-        </td>
-
-        <td class="muted-text">{{ request.eventDate || 'N/A' }}</td>
-
-        <td class="muted-text">{{ request.createdAt || 'N/A' }}</td>
-
-        <td>
-          <div class="actions-cell" (click)="$event.stopPropagation()">
-            <button class="icon-btn view-btn" (click)="viewRequest(request.odooId)" title="View request">
-              <span class="material-icons">visibility</span>
-            </button>
-
-            <button class="icon-btn client-btn" (click)="convertToClient(request, $event)" title="Convert to client">
-              <span class="material-icons">person_add</span>
-            </button>
-
-            <button class="icon-btn event-btn" (click)="convertToEvent(request, $event)" title="Convert to event">
-              <span class="material-icons">event_available</span>
-            </button>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <ng-template #emptyState>
-    <div class="empty-state">
-      <span class="material-icons">inbox</span>
-      <p>No requests found with the current filters.</p>
+<div class="request-list-page">
+  <div class="page-header">
+    <div>
+      <h2>Requests</h2>
+      <p>Review incoming quote requests from the website.</p>
     </div>
-  </ng-template>
+  </div>
+
+  <div class="filters-bar">
+    <div class="field field-search">
+      <label>Search</label>
+      <input
+        type="text"
+        placeholder="Search by event, client name or phone"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-value">{{ requests.length }}</span>
+      <span class="stat-label">Total Requests</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-value">{{ filteredRequests.length }}</span>
+      <span class="stat-label">Visible</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-value">{{ newCount }}</span>
+      <span class="stat-label">New</span>
+    </div>
+  </div>
+
+  <div class="table-card" *ngIf="!loading && !error">
+    <table *ngIf="filteredRequests.length > 0; else emptyState">
+      <thead>
+        <tr>
+          <th (click)="sort('eventName')" class="sortable">
+            <span>Event</span>
+            <span class="material-icons sort-icon">{{ getSortIcon('eventName') }}</span>
+          </th>
+
+          <th (click)="sort('fullName')" class="sortable">
+            <span>Name</span>
+            <span class="material-icons sort-icon">{{ getSortIcon('fullName') }}</span>
+          </th>
+
+          <th (click)="sort('phone')" class="sortable">
+            <span>Phone</span>
+            <span class="material-icons sort-icon">{{ getSortIcon('phone') }}</span>
+          </th>
+
+          <th (click)="sort('eventDate')" class="sortable">
+            <span>Date</span>
+            <span class="material-icons sort-icon">{{ getSortIcon('eventDate') }}</span>
+          </th>
+
+          <th (click)="sort('createdAt')" class="sortable">
+            <span>Received</span>
+            <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+          </th>
+
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let request of filteredRequests; trackBy: trackByOdooId"
+          class="table-row"
+          [class.unread-row]="!request.isRead"
+          (click)="viewRequest(request.odooId, request)"
+        >
+          <td class="primary-text">{{ request.eventName }}</td>
+
+          <td class="muted-text">{{ request.fullName || 'N/A' }}</td>
+
+          <td class="muted-text">{{ request.phone || 'N/A' }}</td>
+
+          <td class="muted-text">{{ request.eventDate || 'N/A' }}</td>
+
+          <td class="muted-text">{{ request.createdAt || 'N/A' }}</td>
+
+          <td>
+            <span class="status-badge" [class.reviewed]="request.status === 'REVIEWED'">
+              {{ request.status }}
+            </span>
+          </td>
+
+          <td>
+            <div class="actions-cell" (click)="$event.stopPropagation()">
+              <button
+                class="icon-btn read-btn"
+                (click)="markAsRead(request, $event)"
+                title="Mark as read"
+              >
+                <span class="material-icons">drafts</span>
+              </button>
+
+              <button
+                class="icon-btn view-btn"
+                (click)="viewRequest(request.odooId, request)"
+                title="View request"
+              >
+                <span class="material-icons">visibility</span>
+              </button>
+
+              <button
+                class="icon-btn client-btn"
+                (click)="convertToClient(request, $event)"
+                title="Convert to client"
+              >
+                <span class="material-icons">person_add</span>
+              </button>
+
+              <button
+                class="icon-btn event-btn"
+                (click)="convertToEvent(request, $event)"
+                title="Convert to event"
+              >
+                <span class="material-icons">event_available</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <span class="material-icons">inbox</span>
+        <p>No requests found with the current filters.</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="status-card" *ngIf="loading">
+    <span class="material-icons">hourglass_top</span>
+    <p>Loading requests...</p>
+  </div>
+
+  <div class="status-card error" *ngIf="error">
+    <span class="material-icons">error</span>
+    <p>{{ error }}</p>
+  </div>
 </div>
