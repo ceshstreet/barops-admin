@@ -1,58 +1,45 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-
-interface DrinkTheme {
-  id: string;
-  name: string;
-  category: string;
-  drinks: string[];
-  targetEventType: string;
-}
+import { Router, RouterModule } from '@angular/router';
+import { DrinkTheme } from '../../models/drink-theme.model';
+import { MOCK_THEMES } from '../../models/drink-theme.mock';
+import { Drink } from '../../../drinks/models/drink.model';
+import { MOCK_DRINKS } from '../../../drinks/models/drink.mock';
 
 @Component({
   selector: 'app-drink-theme-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './drink-theme-list.component.html',
-  styleUrl: './drink-theme-list.component.scss'
+  styleUrl: './drink-theme-list.component.scss',
 })
-export class DrinkThemeListComponent {
+export class DrinkThemeListComponent implements OnInit {
+  themes: DrinkTheme[] = [];
+  allDrinks: Drink[] = [];
+
   constructor(private router: Router) {}
 
-  drinkThemes: DrinkTheme[] = [
-    {
-      id: 'THM-001',
-      name: 'Caribbean',
-      category: 'Tropical',
-      drinks: ['Cuban Mojito', 'Piña Colada', 'Mai Tai'],
-      targetEventType: 'Beach / Outdoor Events'
-    },
-    {
-      id: 'THM-002',
-      name: 'Classic',
-      category: 'Classic Cocktails',
-      drinks: ['Margarita', 'Old Fashioned', 'Cuban Mojito'],
-      targetEventType: 'Weddings / Corporate'
-    },
-    {
-      id: 'THM-003',
-      name: 'Christmas',
-      category: 'Holiday',
-      drinks: ['Grinch Punch', 'Piña Colada'],
-      targetEventType: 'Holiday Events'
-    }
-  ];
+  ngOnInit(): void {
+    // TODO: Replace with service calls
+    this.themes = MOCK_THEMES;
+    this.allDrinks = MOCK_DRINKS;
+  }
 
-  createDrinkTheme() {
+  getDrinksForTheme(theme: DrinkTheme): Drink[] {
+    return theme.drinkIds
+      .map(id => this.allDrinks.find(d => d._id === id))
+      .filter((d): d is Drink => !!d);
+  }
+
+  viewTheme(id: string): void {
+    this.router.navigate(['/drink-themes', id]);
+  }
+
+  editTheme(id: string): void {
+    this.router.navigate(['/drink-themes', id, 'edit']);
+  }
+
+  createTheme(): void {
     this.router.navigate(['/drink-themes/new']);
-  }
-
-  openDrinkTheme(theme: DrinkTheme) {
-    this.router.navigate(['/drink-themes', theme.id]);
-  }
-
-  getDrinkCount(theme: DrinkTheme): number {
-    return theme.drinks.length;
   }
 }

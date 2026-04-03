@@ -1,45 +1,96 @@
 <div class="package-list-page">
+
+  <!-- ═══ HEADER ═══ -->
   <div class="page-header">
     <div>
       <h2>Packages</h2>
-      <p>Manage service packages, guest capacity, included cocktails, and assigned bar type.</p>
+      <p>Templates de paquetes para armar cotizaciones por evento.</p>
     </div>
-
     <button class="primary-btn" (click)="createPackage()">+ New Package</button>
   </div>
 
-  <div class="package-table-card">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Package</th>
-          <th>Guests</th>
-          <th>Cocktails Included</th>
-          <th>Bar Type</th>
-          <th>Duration</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr
-          *ngFor="let packageItem of packages"
-          (click)="openPackage(packageItem)"
-          class="clickable-row">
-          <td>{{ packageItem.id }}</td>
-          <td>{{ packageItem.name }}</td>
-          <td>{{ packageItem.guests }}</td>
-          <td>{{ packageItem.cocktailsIncluded }}</td>
-          <td>{{ packageItem.barType }}</td>
-          <td>{{ packageItem.duration }}</td>
-          <td>
-            <span class="status-badge" [ngClass]="getStatusClass(packageItem.status)">
-              {{ packageItem.status }}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- ═══ STATS ═══ -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-value">{{ packages.length }}</span>
+      <span class="stat-label">TEMPLATES</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ activeCount }}</span>
+      <span class="stat-label">ACTIVE</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">${{ minPrice }}+</span>
+      <span class="stat-label">STARTING AT</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ pricePerGuestRange }}</span>
+      <span class="stat-label">PER GUEST</span>
+    </div>
   </div>
+
+  <!-- ═══ SEARCH ═══ -->
+  <div class="search-box">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path>
+    </svg>
+    <input type="text" placeholder="Search packages..." [(ngModel)]="searchTerm" />
+  </div>
+
+  <!-- ═══ PACKAGE CARDS ═══ -->
+  <div class="packages-list">
+    <div *ngFor="let pkg of filtered" class="package-card" (click)="viewPackage(pkg._id)">
+
+      <div class="card-content">
+        <div class="card-info">
+          <!-- Title -->
+          <div class="card-title-row">
+            <span class="card-name">{{ pkg.name }}</span>
+            <span class="status-badge" [class.active]="pkg.status" [class.inactive]="!pkg.status">
+              <span class="status-dot"></span>
+              {{ pkg.status ? 'Active' : 'Seasonal' }}
+            </span>
+          </div>
+
+          <!-- Description -->
+          <p class="card-desc">{{ pkg.description }}</p>
+
+          <!-- Meta -->
+          <div class="card-meta">
+            <span>👥 {{ pkg.minGuests }}–{{ pkg.maxGuests }}</span>
+            <span>⏱ {{ pkg.duration }}</span>
+            <span>🍸 {{ pkg.barType }}</span>
+          </div>
+
+          <!-- Themes + summary -->
+          <div class="card-tags">
+            <span *ngFor="let theme of getThemesForPackage(pkg)" class="theme-chip"
+              [style.color]="theme.color"
+              [style.background]="theme.color + '12'"
+              [style.border-color]="theme.color + '25'">
+              <span class="theme-dot" [style.background]="theme.color"></span>
+              {{ theme.name }}
+            </span>
+            <span class="content-summary">
+              {{ getCocktailCount(pkg) }} cocktails ·
+              {{ pkg.beers.length }} beers ·
+              {{ pkg.beverages.length }} bev
+              <ng-container *ngIf="pkg.wines.length > 0"> · {{ pkg.wines.length }} wines</ng-container>
+            </span>
+          </div>
+        </div>
+
+        <!-- Price -->
+        <div class="card-price">
+          <span class="price-from">From</span>
+          <span class="price-amount">${{ calcMinPrice(pkg) }}</span>
+          <span class="price-detail">${{ pkg.basePrice }} base + ${{ pkg.pricePerGuest }}/guest</span>
+          <button class="view-btn" (click)="$event.stopPropagation(); viewPackage(pkg._id)">Ver</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div *ngIf="filtered.length === 0" class="empty-state">No packages found.</div>
 </div>

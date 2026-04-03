@@ -46,7 +46,7 @@ export class DrinkDetailComponent implements OnInit {
   calculateIngredients(): void {
     if (!this.drink) return;
 
-    this.calculatedIngredients = this.drink.ingredients.map(ing => {
+    this.calculatedIngredients = (this.drink.ingredients || []).map(ing => {
       const total = ing.quantity * this.calcQty;
       return {
         name: ing.name,

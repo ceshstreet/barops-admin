@@ -1,0 +1,175 @@
+<div class="package-detail-page" *ngIf="pkg">
+
+  <button class="back-btn" (click)="goBack()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+    </svg>
+    Volver a Packages
+  </button>
+
+  <div class="detail-card">
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="detail-header">
+      <div class="header-info">
+        <div class="title-row">
+          <h2>{{ pkg.name }}</h2>
+          <span class="status-badge" [class.active]="pkg.status" [class.inactive]="!pkg.status">
+            <span class="status-dot"></span>
+            {{ pkg.status ? 'Active' : 'Seasonal' }}
+          </span>
+        </div>
+        <p class="pkg-desc">{{ pkg.description }}</p>
+        <div class="meta-row">
+          <span>👥 {{ pkg.minGuests }}–{{ pkg.maxGuests }} guests</span>
+          <span>⏱ {{ pkg.duration }}</span>
+          <span>🍸 {{ pkg.barType }}</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="edit-btn" (click)="editPackage()">✏️ Edit</button>
+      </div>
+    </div>
+
+    <!-- ═══ CONTENT ═══ -->
+    <div class="detail-body">
+
+      <!-- LEFT: What's included -->
+      <div class="body-left">
+
+        <!-- Cocktails -->
+        <div class="content-section">
+          <h3 class="section-title cocktail">🍸 Cocktails ({{ allCocktailNames.length }})</h3>
+          <div class="theme-chips">
+            <span *ngFor="let theme of themes" class="theme-chip"
+              [style.color]="theme.color"
+              [style.background]="theme.color + '12'"
+              [style.border-color]="theme.color + '25'">
+              <span class="chip-dot" [style.background]="theme.color"></span>
+              {{ theme.name }}
+            </span>
+          </div>
+          <div class="items-grid">
+            <div *ngFor="let name of allCocktailNames" class="item-pill">
+              {{ name }}
+              <span *ngIf="isExtraCocktail(name)" class="extra-badge">EXTRA</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Beers -->
+        <div class="content-section" *ngIf="pkg.beers.length > 0">
+          <h3 class="section-title beer">🍺 Beers ({{ pkg.beers.length }})</h3>
+          <div class="items-grid">
+            <div *ngFor="let beer of pkg.beers" class="item-pill with-tag">
+              <span>{{ beer.name }}</span>
+              <span class="avail-tag beer">{{ beer.availability }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Beverages -->
+        <div class="content-section" *ngIf="pkg.beverages.length > 0">
+          <h3 class="section-title beverage">💧 Beverages ({{ pkg.beverages.length }})</h3>
+          <div class="items-grid">
+            <div *ngFor="let bev of pkg.beverages" class="item-pill with-tag">
+              <span>{{ bev.name }}</span>
+              <span class="avail-tag beverage">{{ bev.availability }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wines -->
+        <div class="content-section" *ngIf="pkg.wines.length > 0">
+          <h3 class="section-title wine">🍷 Wine ({{ pkg.wines.length }})</h3>
+          <div class="items-grid">
+            <div *ngFor="let wine of pkg.wines" class="item-pill with-tag">
+              <span>{{ wine.name }}</span>
+              <span class="wine-detail">{{ wine.detail }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="content-section">
+          <h3 class="section-title service">✓ Included Services</h3>
+          <div class="services-list">
+            <div *ngFor="let svc of includedServices" class="service-row">
+              <span class="svc-name">{{ svc.name }}</span>
+              <span class="svc-detail">{{ svc.detail }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Price Calculator -->
+      <div class="body-right">
+        <div class="calc-card">
+          <div class="calc-header">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c5cff" stroke-width="2">
+              <rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h8"/>
+            </svg>
+            <h3>Price Calculator</h3>
+          </div>
+
+          <!-- Guest slider -->
+          <div class="calc-slider">
+            <div class="slider-header">
+              <span class="slider-label">Guests</span>
+              <span class="slider-value">{{ calcGuests }}</span>
+            </div>
+            <input type="range" [min]="pkg.minGuests" [max]="pkg.maxGuests"
+              [(ngModel)]="calcGuests" />
+            <div class="slider-range">
+              <span>{{ pkg.minGuests }} min</span>
+              <span>{{ pkg.maxGuests }} max</span>
+            </div>
+          </div>
+
+          <!-- Breakdown -->
+          <div class="calc-breakdown">
+            <div class="breakdown-row">
+              <span>Base price</span>
+              <span>${{ pkg.basePrice }}</span>
+            </div>
+            <div class="breakdown-row">
+              <span>{{ calcGuests }} guests × ${{ pkg.pricePerGuest }}</span>
+              <span>${{ calcGuests * pkg.pricePerGuest }}</span>
+            </div>
+            <div *ngFor="let addon of selectedAddOns" class="breakdown-row addon">
+              <span>+ {{ addon.name }}</span>
+              <span>+${{ addon.addOnPrice }}</span>
+            </div>
+          </div>
+
+          <!-- Add-ons -->
+          <div *ngIf="optionalServices.length > 0" class="calc-addons">
+            <h4 class="addons-title">Optional Add-ons</h4>
+            <div *ngFor="let svc of optionalServices" class="addon-card"
+              [class.selected]="isAddOnSelected(svc)"
+              (click)="toggleAddOn(svc)">
+              <div class="addon-info">
+                <span class="addon-name">{{ svc.name }}</span>
+                <span class="addon-detail">{{ svc.detail }}</span>
+              </div>
+              <span class="addon-price">+${{ svc.addOnPrice }}</span>
+            </div>
+          </div>
+
+          <!-- Total -->
+          <div class="calc-total">
+            <div class="total-label">
+              <span>Total estimate</span>
+              <span class="per-guest">${{ calcPerGuest }} per guest</span>
+            </div>
+            <span class="total-amount">${{ calcTotal }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!pkg" class="loading-state">Loading package details...</div>

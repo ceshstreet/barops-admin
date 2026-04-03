@@ -1,0 +1,57 @@
+<div class="table-card" *ngIf="!loading && !error">
+  <table *ngIf="filteredRequests.length > 0; else emptyState">
+    <thead>
+      <tr>
+        <th>Event</th>
+        <th>Phone</th>
+        <th>Type</th>
+        <th>Date</th>
+        <th>Received</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr
+        *ngFor="let request of filteredRequests; trackBy: trackByOdooId"
+        class="table-row"
+        (click)="viewRequest(request.odooId)"
+      >
+        <td class="primary-text">{{ request.eventName }}</td>
+
+        <td class="muted-text">{{ request.phone || 'N/A' }}</td>
+
+        <td>
+          <span class="tag">{{ request.eventType || 'N/A' }}</span>
+        </td>
+
+        <td class="muted-text">{{ request.eventDate || 'N/A' }}</td>
+
+        <td class="muted-text">{{ request.createdAt || 'N/A' }}</td>
+
+        <td>
+          <div class="actions-cell" (click)="$event.stopPropagation()">
+            <button class="icon-btn view-btn" (click)="viewRequest(request.odooId)" title="View request">
+              <span class="material-icons">visibility</span>
+            </button>
+
+            <button class="icon-btn client-btn" (click)="convertToClient(request, $event)" title="Convert to client">
+              <span class="material-icons">person_add</span>
+            </button>
+
+            <button class="icon-btn event-btn" (click)="convertToEvent(request, $event)" title="Convert to event">
+              <span class="material-icons">event_available</span>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <span class="material-icons">inbox</span>
+      <p>No requests found with the current filters.</p>
+    </div>
+  </ng-template>
+</div>

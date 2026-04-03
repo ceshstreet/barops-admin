@@ -1,0 +1,89 @@
+<div class="theme-detail-page" *ngIf="theme">
+
+  <!-- Back -->
+  <button class="back-btn" (click)="goBack()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
+    </svg>
+    Volver a Themes
+  </button>
+
+  <div class="detail-card">
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="detail-header">
+      <div class="header-info">
+        <div class="title-row">
+          <span class="color-dot" [style.background]="theme.color"></span>
+          <h2>{{ theme.name }}</h2>
+        </div>
+        <p class="theme-desc">{{ theme.description }}</p>
+        <div class="tag-row">
+          <span class="style-tag" [style.color]="theme.color"
+            [style.background]="theme.color + '12'"
+            [style.border-color]="theme.color + '25'">
+            {{ theme.style }}
+          </span>
+          <span class="event-tag">{{ theme.targetEvent }}</span>
+        </div>
+      </div>
+      <button class="edit-btn" (click)="editTheme()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+        Editar
+      </button>
+    </div>
+
+    <!-- ═══ STATS ═══ -->
+    <div class="detail-stats">
+      <div class="detail-stat">
+        <span class="detail-stat-value" [style.color]="theme.color">{{ themeDrinks.length }}</span>
+        <span class="detail-stat-label">Drinks</span>
+      </div>
+      <div class="detail-stat">
+        <span class="detail-stat-value">{{ totalIngredients }}</span>
+        <span class="detail-stat-label">Total Ingredients</span>
+      </div>
+    </div>
+
+    <!-- ═══ DRINKS LIST ═══ -->
+    <div class="drinks-section">
+      <h3 class="section-title">Drinks en este theme</h3>
+
+      <div class="drinks-grid">
+        <div *ngFor="let drink of themeDrinks"
+          class="drink-card"
+          (click)="viewDrink(drink._id)">
+
+          <div class="drink-card-top">
+            <div class="drink-card-info">
+              <span class="drink-dot" [attr.data-spirit]="drink.baseSpirit"></span>
+              <div>
+                <h4 class="drink-card-name">{{ drink.name }}</h4>
+                <span class="drink-card-meta">{{ drink.category }} · {{ drink.servingSize }}ml</span>
+              </div>
+            </div>
+            <span class="spirit-tag" [attr.data-spirit]="drink.baseSpirit">
+              {{ drink.baseSpirit }}
+            </span>
+          </div>
+
+          <div class="drink-card-ingredients">
+            <div *ngFor="let ing of drink.ingredients" class="ing-row">
+              <span class="ing-name">{{ ing.name }}</span>
+              <span class="ing-qty">{{ ing.quantity }} {{ ing.unit }}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div *ngIf="!theme" class="loading-state">Loading theme details...</div>

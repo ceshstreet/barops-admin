@@ -1,80 +1,140 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  THEME_STYLES, TARGET_EVENTS, THEME_COLORS,
+} from '../../models/drink-theme.model';
+import { MOCK_THEMES } from '../../models/drink-theme.mock';
+import { Drink, DRINK_TYPES } from '../../../drinks/models/drink.model';
+import { MOCK_DRINKS } from '../../../drinks/models/drink.mock';
 
 @Component({
   selector: 'app-drink-theme-form',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './drink-theme-form.component.html',
-  styleUrl: './drink-theme-form.component.scss'
+  styleUrl: './drink-theme-form.component.scss',
 })
-export class DrinkThemeFormComponent {
-  constructor(private router: Router) {}
+export class DrinkThemeFormComponent implements OnInit {
+  isEdit = false;
+  themeId: string | null = null;
 
-  drinkTheme = {
-    name: '',
-    category: '',
-    targetEventType: '',
-    selectedDrinks: [] as string[],
-    description: ''
-  };
+  themeName = '';
+  themeDescription = '';
+  themeStyle = '';
+  themeTargetEvent = '';
+  themeColor = '#a78bfa';
+  selectedIds: string[] = [];
 
-  categories = [
-    'Tropical',
-    'Seasonal / Party',
-    'Spirit-Based',
-    'Classic Cocktails',
-    'Holiday',
-    'Custom'
-  ];
+  styles = THEME_STYLES;
+  targetEvents = TARGET_EVENTS;
+  colors = THEME_COLORS;
+  drinkTypes = DRINK_TYPES;
 
-  targetEventTypes = [
-    'Weddings',
-    'Corporate Events',
-    'Private Parties',
-    'Pool Parties',
-    'Holiday Events',
-    'Outdoor Events',
-    'Indoor Events'
-  ];
+  allDrinks: Drink[] = [];
+  filteredItems: Drink[] = [];
+  activeType: string = 'cocktail';
+  searchTerm = '';
 
-  availableDrinks = [
-    'Cuban Mojito',
-    'Piña Colada',
-    'Margarita',
-    'Old Fashioned',
-    'Paloma',
-    'Tequila Sunrise',
-    'Mai Tai',
-    'Blue Hawaii',
-    'Grinch Punch'
-  ];
+  constructor(private router: Router, private route: ActivatedRoute) {}
 
-  toggleDrink(drink: string) {
-    const exists = this.drinkTheme.selectedDrinks.includes(drink);
+  ngOnInit(): void {
+    this.allDrinks = MOCK_DRINKS.filter(d => d.status);
+    this.applyFilter();
 
-    if (exists) {
-      this.drinkTheme.selectedDrinks = this.drinkTheme.selectedDrinks.filter(
-        (item) => item !== drink
-      );
-    } else {
-      this.drinkTheme.selectedDrinks = [...this.drinkTheme.selectedDrinks, drink];
+    this.themeId = this.route.snapshot.paramMap.get('id');
+    if (this.themeId) {
+      this.isEdit = true;
+      const found = MOCK_THEMES.find(t => t._id === this.themeId);
+      if (found) {
+        this.themeName = found.name;
+        this.themeDescription = found.description;
+        this.themeStyle = found.style;
+        this.themeTargetEvent = found.targetEvent;
+        this.themeColor = found.color;
+        this.selectedIds = [...found.drinkIds];
+      }
     }
   }
 
-  isSelected(drink: string): boolean {
-    return this.drinkTheme.selectedDrinks.includes(drink);
+  switchType(type: string): void {
+    this.activeType = type;
+    this.searchTerm = '';
+    this.applyFilter();
   }
 
-  saveDrinkTheme() {
-    console.log('Drink Theme data:', this.drinkTheme);
-    alert('Mock save: drink theme created successfully.');
+  getTypeCount(type: string): { total: number; selected: number } {
+    const items = this.allDrinks.filter(d => d.type === type);
+    return {
+      total: items.length,
+      selected: items.filter(d => this.selectedIds.includes(d._id)).length,
+    };
+  }
+
+  applyFilter(): void {
+    this.filteredItems = this.allDrinks.filter(d =>
+      d.type === this.activeType &&
+      d.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+
+  toggleItem(id: string): void {
+    this.selectedIds = this.isSelected(id)
+      ? this.selectedIds.filter(x => x !== id)
+      : [...this.selectedIds, id];
+  }
+
+  isSelected(id: string): boolean {
+    return this.selectedIds.includes(id);
+  }
+
+  removeSelected(id: string): void {
+    this.selectedIds = this.selectedIds.filter(x => x !== id);
+  }
+
+  getDrinkById(id: string): Drink | undefined {
+    return this.allDrinks.find(d => d._id === id);
+  }
+
+  get selectedByType(): { type: string; label: string; icon: string; color: string; items: Drink[] }[] {
+    return this.drinkTypes
+      .map(dt => ({
+        type: dt.value,
+        label: dt.label,
+        icon: dt.icon,
+        color: dt.color,
+        items: this.selectedIds
+          .map(id => this.getDrinkById(id))
+          .filter((d): d is Drink => !!d && d.type === dt.value),
+      }))
+      .filter(g => g.items.length > 0);
+  }
+
+  get totalSelected(): number {
+    return this.selectedIds.length;
+  }
+
+  selectColor(color: string): void {
+    this.themeColor = color;
+  }
+
+  saveTheme(): void {
+    const payload = {
+      name: this.themeName,
+      description: this.themeDescription,
+      style: this.themeStyle,
+      targetEvent: this.themeTargetEvent,
+      color: this.themeColor,
+      drinkIds: this.selectedIds,
+      status: true,
+    };
+    console.log('💾 Theme payload:', payload);
+    alert(`Mock ${this.isEdit ? 'update' : 'create'}: ${payload.name}`);
     this.router.navigate(['/drink-themes']);
   }
 
-  cancel() {
+  cancel(): void {
     this.router.navigate(['/drink-themes']);
   }
 }

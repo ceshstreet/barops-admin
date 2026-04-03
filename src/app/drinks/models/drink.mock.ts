@@ -1,10 +1,13 @@
-// drinks/models/drink.mock.ts
 import { Drink } from './drink.model';
 
 export const MOCK_DRINKS: Drink[] = [
+  // ═══════════════════════════════════════
+  // COCKTAILS
+  // ═══════════════════════════════════════
   {
     _id: '6650a1b2c3d4e5f6a7b8c901',
     name: 'Cuban Mojito',
+    type: 'cocktail',
     category: 'Classic Cocktail',
     baseSpirit: 'White Rum',
     glassware: 'Highball',
@@ -25,6 +28,7 @@ export const MOCK_DRINKS: Drink[] = [
   {
     _id: '6650a1b2c3d4e5f6a7b8c902',
     name: 'Piña Colada',
+    type: 'cocktail',
     category: 'Tropical',
     baseSpirit: 'White Rum',
     glassware: 'Hurricane Glass',
@@ -43,6 +47,7 @@ export const MOCK_DRINKS: Drink[] = [
   {
     _id: '6650a1b2c3d4e5f6a7b8c903',
     name: 'Margarita',
+    type: 'cocktail',
     category: 'Spirit-Based',
     baseSpirit: 'Tequila',
     glassware: 'Margarita Glass',
@@ -61,13 +66,14 @@ export const MOCK_DRINKS: Drink[] = [
   {
     _id: '6650a1b2c3d4e5f6a7b8c904',
     name: 'Old Fashioned',
+    type: 'cocktail',
     category: 'Classic Cocktail',
     baseSpirit: 'Whiskey',
     glassware: 'Rocks Glass',
     garnish: 'Orange Peel',
     servingSize: 120,
     status: true,
-    preparation: 'Muddle sugar with bitters, add whiskey and ice, stir gently. Garnish with orange peel.',
+    preparation: 'Muddle sugar with bitters, add whiskey and ice, stir gently.',
     notes: '',
     ingredients: [
       { name: 'Bourbon Whiskey', quantity: 60, unit: 'ml' },
@@ -79,6 +85,7 @@ export const MOCK_DRINKS: Drink[] = [
   {
     _id: '6650a1b2c3d4e5f6a7b8c905',
     name: 'Grinch Punch',
+    type: 'cocktail',
     category: 'Holiday',
     baseSpirit: 'Vodka',
     glassware: 'Punch Glass',
@@ -98,6 +105,7 @@ export const MOCK_DRINKS: Drink[] = [
   {
     _id: '6650a1b2c3d4e5f6a7b8c906',
     name: 'Virgin Sunrise',
+    type: 'cocktail',
     category: 'Mocktail',
     baseSpirit: 'None / Non-Alcoholic',
     glassware: 'Highball',
@@ -115,6 +123,7 @@ export const MOCK_DRINKS: Drink[] = [
   {
     _id: '6650a1b2c3d4e5f6a7b8c907',
     name: 'Daiquiri',
+    type: 'cocktail',
     category: 'Classic Cocktail',
     baseSpirit: 'White Rum',
     glassware: 'Coupe',
@@ -132,6 +141,7 @@ export const MOCK_DRINKS: Drink[] = [
   {
     _id: '6650a1b2c3d4e5f6a7b8c908',
     name: 'Moscow Mule',
+    type: 'cocktail',
     category: 'Spirit-Based',
     baseSpirit: 'Vodka',
     glassware: 'Copper Mug',
@@ -145,5 +155,176 @@ export const MOCK_DRINKS: Drink[] = [
       { name: 'Fresh Lime Juice', quantity: 20, unit: 'ml' },
       { name: 'Ginger Beer', quantity: 150, unit: 'ml' },
     ],
+  },
+
+  // ═══════════════════════════════════════
+  // BEERS
+  // ═══════════════════════════════════════
+  {
+    _id: 'beer-001',
+    name: 'Corona Extra',
+    type: 'beer',
+    subtype: 'Lager',
+    brand: 'Corona',
+    origin: 'Mexico',
+    size: '355ml',
+    status: true,
+    notes: 'Serve with lime wedge.',
+  },
+  {
+    _id: 'beer-002',
+    name: 'Heineken',
+    type: 'beer',
+    subtype: 'Lager',
+    brand: 'Heineken',
+    origin: 'Netherlands',
+    size: '330ml',
+    status: true,
+    notes: '',
+  },
+  {
+    _id: 'beer-003',
+    name: 'Modelo Especial',
+    type: 'beer',
+    subtype: 'Lager',
+    brand: 'Modelo',
+    origin: 'Mexico',
+    size: '355ml',
+    status: true,
+    notes: '',
+  },
+  {
+    _id: 'beer-004',
+    name: 'IPA Craft Local',
+    type: 'beer',
+    subtype: 'IPA',
+    brand: 'Local Brewery',
+    origin: 'El Salvador',
+    size: '473ml',
+    status: true,
+    notes: 'Seasonal availability.',
+  },
+  {
+    _id: 'beer-005',
+    name: 'Pilsener',
+    type: 'beer',
+    subtype: 'Pilsner',
+    brand: 'Pilsener',
+    origin: 'El Salvador',
+    size: '350ml',
+    status: true,
+    notes: 'Local favorite.',
+  },
+  {
+    _id: 'beer-006',
+    name: 'Stella Artois',
+    type: 'beer',
+    subtype: 'Lager',
+    brand: 'Stella Artois',
+    origin: 'Belgium',
+    size: '330ml',
+    status: true,
+    notes: '',
+  },
+
+  // ═══════════════════════════════════════
+  // BEVERAGES (Water, Soft Drinks, Juice)
+  // ═══════════════════════════════════════
+  {
+    _id: 'bev-001',
+    name: 'Agua Mineral',
+    type: 'beverage',
+    subtype: 'Water',
+    brand: 'Cristal',
+    size: '500ml',
+    status: true,
+    notes: '',
+  },
+  {
+    _id: 'bev-002',
+    name: 'Agua Pura',
+    type: 'beverage',
+    subtype: 'Water',
+    brand: 'Cristal',
+    size: '500ml',
+    status: true,
+    notes: '',
+  },
+  {
+    _id: 'bev-003',
+    name: 'Coca-Cola',
+    type: 'beverage',
+    subtype: 'Soft Drink',
+    brand: 'Coca-Cola',
+    size: '350ml',
+    status: true,
+    notes: '',
+  },
+  {
+    _id: 'bev-004',
+    name: 'Sprite',
+    type: 'beverage',
+    subtype: 'Soft Drink',
+    brand: 'Sprite',
+    size: '350ml',
+    status: true,
+    notes: '',
+  },
+  {
+    _id: 'bev-005',
+    name: 'Red Bull',
+    type: 'beverage',
+    subtype: 'Energy',
+    brand: 'Red Bull',
+    size: '250ml',
+    status: true,
+    notes: 'Popular mixer.',
+  },
+  {
+    _id: 'bev-006',
+    name: 'Jugo de Naranja Natural',
+    type: 'beverage',
+    subtype: 'Juice',
+    brand: 'Fresh',
+    size: '300ml',
+    status: true,
+    notes: 'Must be prepared fresh.',
+  },
+
+  // ═══════════════════════════════════════
+  // WINE
+  // ═══════════════════════════════════════
+  {
+    _id: 'wine-001',
+    name: 'Malbec Reserva',
+    type: 'wine',
+    subtype: 'Red',
+    brand: 'Catena Zapata',
+    origin: 'Argentina',
+    size: '750ml',
+    status: true,
+    notes: 'Premium option for weddings.',
+  },
+  {
+    _id: 'wine-002',
+    name: 'Sauvignon Blanc',
+    type: 'wine',
+    subtype: 'White',
+    brand: 'Casillero del Diablo',
+    origin: 'Chile',
+    size: '750ml',
+    status: true,
+    notes: '',
+  },
+  {
+    _id: 'wine-003',
+    name: 'Prosecco',
+    type: 'wine',
+    subtype: 'Sparkling',
+    brand: 'La Marca',
+    origin: 'Italy',
+    size: '750ml',
+    status: true,
+    notes: 'Great for toasts and celebrations.',
   },
 ];

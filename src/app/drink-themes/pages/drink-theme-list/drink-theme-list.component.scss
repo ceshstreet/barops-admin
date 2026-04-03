@@ -1,16 +1,17 @@
 .drink-theme-list-page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
   color: #eaf1ff;
 }
 
+// ═══════════════════════════════════════
+// HEADER
+// ═══════════════════════════════════════
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  align-items: flex-start;
 
   h2 {
     margin: 0;
@@ -20,89 +21,247 @@
 
   p {
     margin: 6px 0 0;
-    color: rgba(234, 241, 255, 0.68);
-    font-size: 14px;
-  }
-}
-
-.drink-theme-table-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 18px;
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th,
-  td {
-    text-align: left;
-    padding: 14px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    vertical-align: top;
-  }
-
-  th {
     color: rgba(234, 241, 255, 0.55);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  td {
-    color: #eaf1ff;
     font-size: 14px;
   }
-}
-
-.clickable-row {
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.clickable-row:hover {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.status-badge.active {
-  background: rgba(68, 224, 138, 0.14);
-  border: 1px solid rgba(68, 224, 138, 0.30);
-}
-
-.status-badge.inactive {
-  background: rgba(255, 107, 107, 0.14);
-  border: 1px solid rgba(255, 107, 107, 0.30);
 }
 
 .primary-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: linear-gradient(135deg, #7c5cff, #32d7a3);
   color: white;
   border: none;
   border-radius: 14px;
-  padding: 12px 18px;
+  padding: 12px 22px;
   font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
 }
 
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
+// ═══════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════
+.stats-row {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 160px;
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #eaf1ff;
   }
 
-  table {
-    min-width: 1100px;
+  .stat-label {
+    font-size: 11px;
+    color: rgba(234, 241, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+}
+
+// ═══════════════════════════════════════
+// THEME CARDS GRID
+// ═══════════════════════════════════════
+.themes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.theme-card {
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 22px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &:hover {
+    border-color: rgba(124, 92, 255, 0.2);
+    background: rgba(124, 92, 255, 0.03);
+  }
+}
+
+// ── Card Header ──
+.theme-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.theme-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.theme-icon-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 5px;
+}
+
+.theme-title-area {
+  .theme-name {
+    margin: 0 0 6px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #eaf1ff;
+  }
+
+  .theme-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.theme-style-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 5px;
+  border: 1px solid;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.meta-sep {
+  color: rgba(234, 241, 255, 0.2);
+  font-size: 12px;
+}
+
+.meta-text {
+  color: rgba(234, 241, 255, 0.4);
+  font-size: 12px;
+}
+
+// ── Description ──
+.theme-description {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(234, 241, 255, 0.45);
+  line-height: 1.55;
+}
+
+// ── Drink Chips ──
+.theme-drinks-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.drink-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(234, 241, 255, 0.65);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.drink-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+
+  &[data-spirit="White Rum"]              { background: #38bdf8; }
+  &[data-spirit="Dark Rum"],
+  &[data-spirit="Rum"]                    { background: #f59e0b; }
+  &[data-spirit="Tequila"]                { background: #a3e635; }
+  &[data-spirit="Whiskey"]                { background: #f97316; }
+  &[data-spirit="Vodka"]                  { background: #c4b5fd; }
+  &[data-spirit="Gin"]                    { background: #2dd4bf; }
+  &[data-spirit="Brandy"]                 { background: #fb923c; }
+  &[data-spirit="None / Non-Alcoholic"]   { background: #94a3b8; }
+}
+
+.no-drinks {
+  color: rgba(234, 241, 255, 0.3);
+  font-size: 12px;
+  font-style: italic;
+}
+
+// ── Card Footer ──
+.theme-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.drink-count {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.view-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(124, 92, 255, 0.1);
+  border: 1px solid rgba(124, 92, 255, 0.2);
+  color: #a78bfa;
+  border-radius: 8px;
+  padding: 5px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s;
+
+  &:hover {
+    background: rgba(124, 92, 255, 0.2);
+  }
+}
+
+// ═══════════════════════════════════════
+// RESPONSIVE
+// ═══════════════════════════════════════
+@media (max-width: 900px) {
+  .themes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .stats-row {
+    flex-direction: column;
   }
 }

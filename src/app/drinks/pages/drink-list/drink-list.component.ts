@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { Drink } from '../../models/drink.model';
+import { Drink, DRINK_TYPES } from '../../models/drink.model';
 import { MOCK_DRINKS } from '../../models/drink.mock';
 
 interface IngredientTotal {
@@ -21,15 +21,17 @@ interface IngredientTotal {
   styleUrl: './drink-list.component.scss',
 })
 export class DrinkListComponent implements OnInit {
-  drinks: Drink[] = [];
+  allDrinks: Drink[] = [];
+  drinkTypes = DRINK_TYPES;
 
-  // Tab control
+  // Main tabs
   activeTab: 'drinks' | 'calculator' = 'drinks';
 
-  // Filters
+  // Type filter within drinks tab
+  activeType: string = 'cocktail';
+
+  // Search
   searchTerm = '';
-  filterSpirit = '';
-  filterCategory = '';
   filterStatus = '';
 
   // Event Calculator
@@ -40,51 +42,42 @@ export class DrinkListComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    this.drinks = MOCK_DRINKS;
+    this.allDrinks = MOCK_DRINKS;
   }
 
-  // ── FILTRADO REACTIVO ──
+  // ── TYPE COUNTS ──
+  getTypeCount(type: string): number {
+    return this.allDrinks.filter(d => d.type === type).length;
+  }
+
+  getActiveTypeCount(type: string): number {
+    return this.allDrinks.filter(d => d.type === type && d.status).length;
+  }
+
+  // ── FILTERED BY TYPE + SEARCH ──
   get filteredDrinks(): Drink[] {
-    return this.drinks.filter(d => {
+    return this.allDrinks.filter(d => {
+      const matchType = d.type === this.activeType;
       const matchSearch = d.name.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchSpirit = !this.filterSpirit || d.baseSpirit === this.filterSpirit;
-      const matchCategory = !this.filterCategory || d.category === this.filterCategory;
       const matchStatus =
         !this.filterStatus ||
         (this.filterStatus === 'active' && d.status) ||
         (this.filterStatus === 'inactive' && !d.status);
-      return matchSearch && matchSpirit && matchCategory && matchStatus;
+      return matchType && matchSearch && matchStatus;
     });
   }
 
-  // ── OPTIONS DINÁMICOS ──
-  get spiritOptions(): string[] {
-    return [...new Set(this.drinks.map(d => d.baseSpirit))].sort();
+  // ── STATS for current type ──
+  get totalForType(): number {
+    return this.allDrinks.filter(d => d.type === this.activeType).length;
   }
 
-  get categoryOptions(): string[] {
-    return [...new Set(this.drinks.map(d => d.category))].sort();
+  get activeForType(): number {
+    return this.allDrinks.filter(d => d.type === this.activeType && d.status).length;
   }
 
-  // ── STATS ──
-  get activeDrinks(): number {
-    return this.drinks.filter(d => d.status).length;
-  }
-
-  get inactiveDrinks(): number {
-    return this.drinks.filter(d => !d.status).length;
-  }
-
-  get uniqueSpirits(): number {
-    return new Set(this.drinks.map(d => d.baseSpirit)).size;
-  }
-
-  get activeDrinksList(): Drink[] {
-    return this.drinks.filter(d => d.status);
-  }
-
-  get hasSelections(): boolean {
-    return Object.values(this.eventSelections).some(v => v > 0);
+  get inactiveForType(): number {
+    return this.allDrinks.filter(d => d.type === this.activeType && !d.status).length;
   }
 
   // ── NAV ──
@@ -96,30 +89,37 @@ export class DrinkListComponent implements OnInit {
     this.router.navigate(['/drinks', id, 'edit']);
   }
 
-  // ── EVENT CALCULATOR ──
-  isSelected(drinkId: string): boolean {
+  switchType(type: string): void {
+    this.activeType = type;
+    this.searchTerm = '';
+    this.filterStatus = '';
+  }
+
+  // ── CALCULATOR ──
+  get activeCocktails(): Drink[] {
+    return this.allDrinks.filter(d => d.type === 'cocktail' && d.status);
+  }
+
+  isCalcSelected(drinkId: string): boolean {
     return (this.eventSelections[drinkId] || 0) > 0;
+  }
+
+  get hasSelections(): boolean {
+    return Object.values(this.eventSelections).some(v => v > 0);
   }
 
   onSelectionChange(): void {
     const map: { [key: string]: IngredientTotal } = {};
-
     this.totalDrinksCount = 0;
 
-    this.activeDrinksList.forEach(drink => {
+    this.activeCocktails.forEach(drink => {
       const qty = this.eventSelections[drink._id] || 0;
       if (qty > 0) {
         this.totalDrinksCount += qty;
-        drink.ingredients.forEach(ing => {
+        (drink.ingredients || []).forEach(ing => {
           const key = `${ing.name}__${ing.unit}`;
           if (!map[key]) {
-            map[key] = {
-              name: ing.name,
-              unit: ing.unit,
-              total: 0,
-              displayTotal: '',
-              sources: [],
-            };
+            map[key] = { name: ing.name, unit: ing.unit, total: 0, displayTotal: '', sources: [] };
           }
           map[key].total += ing.quantity * qty;
           map[key].sources.push({ drink: drink.name, qty });
@@ -128,17 +128,12 @@ export class DrinkListComponent implements OnInit {
     });
 
     this.calculatedTotals = Object.values(map)
-      .map(t => ({
-        ...t,
-        displayTotal: this.formatTotal(t.total, t.unit),
-      }))
+      .map(t => ({ ...t, displayTotal: this.formatTotal(t.total, t.unit) }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   formatTotal(value: number, unit: string): string {
-    if (unit === 'ml' && value >= 1000) {
-      return `${(value / 1000).toFixed(2)} L`;
-    }
+    if (unit === 'ml' && value >= 1000) return `${(value / 1000).toFixed(2)} L`;
     return `${value} ${unit}`;
   }
 }
