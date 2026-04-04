@@ -2,10 +2,20 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { RequestsService, InboxResponse } from '../../services/request.service';
+import {
+  RequestsService,
+  InboxResponse,
+  ConvertClientResponse,
+  MarkAsReadResponse
+} from '../../services/request.service';
 import { QuoteRequest } from '../../models/request.model';
 
-type SortField = 'eventName' | 'fullName' | 'phone' | 'eventDate' | 'createdAt';
+type SortField =
+  | 'eventName'
+  | 'fullName'
+  | 'phone'
+  | 'eventDate'
+  | 'createdAtOdoo';
 
 @Component({
   selector: 'app-request-list',
@@ -25,10 +35,16 @@ export class RequestListComponent implements OnInit {
   error = '';
   searchTerm = '';
 
-  sortField: SortField = 'createdAt';
+  sortField: SortField = 'createdAtOdoo';
   sortDirection: 'asc' | 'desc' = 'desc';
 
   newCount = 0;
+
+  actionMessage = '';
+  actionMessageType: 'success' | 'error' | '' = '';
+
+  processingReadId: number | null = null;
+  processingClientId: number | null = null;
 
   ngOnInit(): void {
     this.loadRequests();
@@ -99,20 +115,75 @@ export class RequestListComponent implements OnInit {
     this.newCount = this.requests.filter(r => r.status === 'NEW').length;
   }
 
+  replaceRequest(updatedRequest: QuoteRequest): void {
+    this.requests = this.requests.map(item =>
+      item.odooId === updatedRequest.odooId ? updatedRequest : item
+    );
+
+    this.updateCounters();
+    this.applyFilters();
+  }
+
+  showMessage(message: string, type: 'success' | 'error'): void {
+    this.actionMessage = message;
+    this.actionMessageType = type;
+
+    setTimeout(() => {
+      this.actionMessage = '';
+      this.actionMessageType = '';
+    }, 2600);
+  }
+
   viewRequest(id: number): void {
     this.router.navigate(['/requests', id]);
   }
 
-  convertToClient(request: QuoteRequest, event?: MouseEvent): void {
+  markAsRead(request: QuoteRequest, event?: MouseEvent): void {
     event?.stopPropagation();
 
-    this.router.navigate(['/clients/new'], {
-      queryParams: {
-        fullName: request.fullName,
-        email: request.email,
-        phone: request.phone,
-        preferredContact: 'WhatsApp',
-        notes: `Client created from inbox request #${request.odooId}`
+    if (request.isRead || this.processingReadId === request.odooId) return;
+
+    this.processingReadId = request.odooId;
+
+    this.requestsService.markAsRead(request.odooId).subscribe({
+      next: (response: MarkAsReadResponse) => {
+        this.replaceRequest(response.data);
+        this.processingReadId = null;
+        this.showMessage('Request marked as reviewed.', 'success');
+      },
+      error: (err: any) => {
+        console.error('Error marking as read:', err);
+        this.processingReadId = null;
+        this.showMessage('Could not mark request as reviewed.', 'error');
+      }
+    });
+  }
+
+  addClient(request: QuoteRequest, event?: MouseEvent): void {
+    event?.stopPropagation();
+
+    if (request.convertedToClient || this.processingClientId === request.odooId) return;
+
+    this.processingClientId = request.odooId;
+
+    this.requestsService.convertToClient(request.odooId).subscribe({
+      next: (response: ConvertClientResponse) => {
+        this.replaceRequest(response.request);
+        this.processingClientId = null;
+
+        if (response.alreadyExists) {
+          this.showMessage('Client already existed. Request updated.', 'success');
+        } else {
+          this.showMessage('Client created successfully.', 'success');
+        }
+      },
+      error: (err: any) => {
+        console.error('Error converting to client:', err);
+        this.processingClientId = null;
+        this.showMessage(
+          err?.error?.message || 'Could not create client.',
+          'error'
+        );
       }
     });
   }

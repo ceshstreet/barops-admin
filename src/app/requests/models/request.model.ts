@@ -1,6 +1,7 @@
 export interface QuoteRequest {
-  odooId: number;
+  _id?: string;
 
+  odooId: number;
   eventName: string;
   fullName: string;
   email: string;
@@ -13,19 +14,14 @@ export interface QuoteRequest {
   budgetRange: string;
 
   rawDescription: string;
-
-  // 🔥 IMPORTANTE (esto faltaba)
   createdAtOdoo: string;
 
-  // 🔥 estados del sistema
   status: 'NEW' | 'REVIEWED' | 'CLIENT_CREATED';
-
   isRead: boolean;
-
   convertedToClient: boolean;
   convertedToEvent: boolean;
 
-  // timestamps Mongo
+  lastSyncedAt?: string;
   createdAt?: string;
   updatedAt?: string;
 }

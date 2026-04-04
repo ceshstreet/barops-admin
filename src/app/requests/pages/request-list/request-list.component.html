@@ -6,6 +6,18 @@
     </div>
   </div>
 
+  <div
+    class="feedback-banner"
+    *ngIf="actionMessage"
+    [class.success]="actionMessageType === 'success'"
+    [class.error]="actionMessageType === 'error'"
+  >
+    <span class="material-icons">
+      {{ actionMessageType === 'success' ? 'check_circle' : 'error' }}
+    </span>
+    <span>{{ actionMessage }}</span>
+  </div>
+
   <div class="filters-bar">
     <div class="field field-search">
       <label>Search</label>
@@ -59,9 +71,9 @@
             <span class="material-icons sort-icon">{{ getSortIcon('eventDate') }}</span>
           </th>
 
-          <th (click)="sort('createdAt')" class="sortable">
+          <th (click)="sort('createdAtOdoo')" class="sortable">
             <span>Received</span>
-            <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+            <span class="material-icons sort-icon">{{ getSortIcon('createdAtOdoo') }}</span>
           </th>
 
           <th>Status</th>
@@ -93,6 +105,17 @@
 
           <td>
             <div class="actions-cell" (click)="$event.stopPropagation()">
+
+              <button
+                class="icon-btn read-btn"
+                [disabled]="request.isRead || processingReadId === request.odooId"
+                (click)="markAsRead(request, $event)"
+                [title]="request.isRead ? 'Already reviewed' : 'Mark as reviewed'">
+                <span class="material-icons">
+                  {{ processingReadId === request.odooId ? 'hourglass_top' : 'drafts' }}
+                </span>
+              </button>
+
               <button
                 class="icon-btn view-btn"
                 (click)="viewRequest(request.odooId)"
@@ -102,11 +125,17 @@
 
               <button
                 class="icon-btn client-btn"
-                [disabled]="request.convertedToClient"
-                (click)="convertToClient(request, $event)"
+                [disabled]="request.convertedToClient || processingClientId === request.odooId"
+                (click)="addClient(request, $event)"
                 [title]="request.convertedToClient ? 'Client already created' : 'Add client'">
                 <span class="material-icons">
-                  {{ request.convertedToClient ? 'check_circle' : 'person_add' }}
+                  {{
+                    processingClientId === request.odooId
+                      ? 'hourglass_top'
+                      : request.convertedToClient
+                        ? 'check_circle'
+                        : 'person_add'
+                  }}
                 </span>
               </button>
 

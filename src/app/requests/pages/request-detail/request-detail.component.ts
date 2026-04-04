@@ -1,7 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { RequestsService, InboxDetailResponse } from '../../services/request.service';
+import {
+  RequestsService,
+  InboxDetailResponse,
+  ConvertClientResponse
+} from '../../services/request.service';
 import { QuoteRequest } from '../../models/request.model';
 
 @Component({
@@ -19,6 +23,10 @@ export class RequestDetailComponent implements OnInit {
   request: QuoteRequest | null = null;
   loading = false;
   error = '';
+
+  actionMessage = '';
+  actionMessageType: 'success' | 'error' | '' = '';
+  processingClient = false;
 
   ngOnInit(): void {
     this.loadRequest();
@@ -52,16 +60,39 @@ export class RequestDetailComponent implements OnInit {
     this.router.navigate(['/requests']);
   }
 
-  convertToClient(): void {
-    if (!this.request) return;
+  showMessage(message: string, type: 'success' | 'error'): void {
+    this.actionMessage = message;
+    this.actionMessageType = type;
 
-    this.router.navigate(['/clients/new'], {
-      queryParams: {
-        fullName: this.request.fullName,
-        email: this.request.email,
-        phone: this.request.phone,
-        preferredContact: 'WhatsApp',
-        notes: `Client created from inbox request #${this.request.odooId}`
+    setTimeout(() => {
+      this.actionMessage = '';
+      this.actionMessageType = '';
+    }, 2600);
+  }
+
+  addClientDirect(): void {
+    if (!this.request || this.request.convertedToClient || this.processingClient) return;
+
+    this.processingClient = true;
+
+    this.requestsService.convertToClient(this.request.odooId).subscribe({
+      next: (response: ConvertClientResponse) => {
+        this.request = response.request;
+        this.processingClient = false;
+
+        if (response.alreadyExists) {
+          this.showMessage('Client already existed. Request updated.', 'success');
+        } else {
+          this.showMessage('Client created successfully.', 'success');
+        }
+      },
+      error: (err: any) => {
+        console.error('Error converting to client:', err);
+        this.processingClient = false;
+        this.showMessage(
+          err?.error?.message || 'Could not create client.',
+          'error'
+        );
       }
     });
   }

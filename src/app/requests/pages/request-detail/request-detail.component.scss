@@ -332,3 +332,38 @@
     text-align: left;
   }
 }
+
+.feedback-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid transparent;
+
+  .material-icons {
+    font-size: 18px;
+  }
+
+  &.success {
+    background: rgba(50, 215, 163, 0.12);
+    color: #32d7a3;
+    border-color: rgba(50, 215, 163, 0.24);
+  }
+
+  &.error {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.24);
+  }
+}
+
+.action-btn:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+  transform: none;
+}
