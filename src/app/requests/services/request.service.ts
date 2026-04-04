@@ -19,13 +19,14 @@ export interface InboxDetailResponse {
 })
 export class RequestsService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:4000/api/odoo';
+
+    private apiUrl = 'http://localhost:4000/api/requests';
 
   getInbox(): Observable<InboxResponse> {
-    return this.http.get<InboxResponse>(`${this.apiUrl}/inbox`);
+    return this.http.get<InboxResponse>(this.apiUrl);
   }
 
   getInboxById(id: number): Observable<InboxDetailResponse> {
-    return this.http.get<InboxDetailResponse>(`${this.apiUrl}/inbox/${id}`);
+    return this.http.get<InboxDetailResponse>(`${this.apiUrl}/${id}`);
   }
 }

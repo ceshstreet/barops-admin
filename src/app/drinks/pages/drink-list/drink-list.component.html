@@ -1,6 +1,5 @@
 <div class="drink-list-page">
 
-  <!-- ═══ HEADER ═══ -->
   <div class="page-header">
     <div>
       <h2>Drinks</h2>
@@ -9,39 +8,29 @@
     <button class="primary-btn" routerLink="/drinks/new">+ New Drink</button>
   </div>
 
-  <!-- ═══ MAIN TAB SWITCHER ═══ -->
   <div class="tab-switcher">
     <button class="tab-btn" [class.active]="activeTab === 'drinks'" (click)="activeTab = 'drinks'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M8 2h8l-2 18H10L8 2z"/><path d="M6 2h12"/>
-      </svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2h8l-2 18H10L8 2z"/><path d="M6 2h12"/></svg>
       Catalog
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'calculator'" (click)="activeTab = 'calculator'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h8"/><path d="M8 14h2"/><path d="M14 14h2"/><path d="M8 18h2"/><path d="M14 18h2"/>
-      </svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h8"/></svg>
       Event Calculator
     </button>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- TAB 1: CATALOG                            -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- ══ TAB 1: CATALOG ══ -->
   <ng-container *ngIf="activeTab === 'drinks'">
 
-    <!-- TYPE TABS -->
     <div class="type-tabs">
       <button *ngFor="let dt of drinkTypes" class="type-tab"
-        [class.active]="activeType === dt.value"
-        (click)="switchType(dt.value)">
+        [class.active]="activeType === dt.value" (click)="switchType(dt.value)">
         <span class="type-icon">{{ dt.icon }}</span>
         <span class="type-label">{{ dt.label }}</span>
         <span class="type-count">{{ getTypeCount(dt.value) }}</span>
       </button>
     </div>
 
-    <!-- FILTERS -->
     <div class="filters-bar">
       <div class="search-box">
         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -56,7 +45,6 @@
       </select>
     </div>
 
-    <!-- STATS -->
     <div class="stats-row">
       <div class="stat-card">
         <span class="stat-value">{{ totalForType }}</span>
@@ -72,8 +60,11 @@
       </div>
     </div>
 
+    <!-- Loading -->
+    <div *ngIf="loading" class="empty-state">Loading...</div>
+
     <!-- ══ COCKTAILS TABLE ══ -->
-    <div class="table-card" *ngIf="activeType === 'cocktail'">
+    <div class="table-card" *ngIf="!loading && activeType === 'cocktail'">
       <div class="table-scroll">
         <table>
           <thead>
@@ -90,16 +81,16 @@
           <tbody>
             <tr *ngFor="let drink of filteredDrinks" class="table-row" (click)="viewDrink(drink._id)">
               <td class="drink-name">{{ drink.name }}</td>
-              <td class="text-muted">{{ drink.category }}</td>
+              <td class="text-muted">{{ getCategory(drink) }}</td>
               <td>
-                <span class="spirit-tag" [attr.data-spirit]="drink.baseSpirit">{{ drink.baseSpirit }}</span>
+                <span class="spirit-tag" [attr.data-spirit]="getSpirit(drink)">{{ getSpirit(drink) }}</span>
               </td>
-              <td class="text-muted hide-mobile">{{ drink.glassware }}</td>
-              <td class="text-muted hide-mobile">{{ (drink.ingredients?.length || 0) }} ing</td>
+              <td class="text-muted hide-mobile">{{ getGlassware(drink) }}</td>
+              <td class="text-muted hide-mobile">{{ getIngCount(drink) }} ing</td>
               <td>
-                <span class="status-badge" [class.active]="drink.status" [class.inactive]="!drink.status">
+                <span class="status-badge" [class.active]="drink.status === 'active'" [class.inactive]="drink.status !== 'active'">
                   <span class="status-dot"></span>
-                  {{ drink.status ? 'ACTIVE' : 'INACTIVE' }}
+                  {{ drink.status === 'active' ? 'ACTIVE' : 'INACTIVE' }}
                 </span>
               </td>
               <td>
@@ -113,7 +104,7 @@
     </div>
 
     <!-- ══ BEERS TABLE ══ -->
-    <div class="table-card" *ngIf="activeType === 'beer'">
+    <div class="table-card" *ngIf="!loading && activeType === 'beer'">
       <div class="table-scroll">
         <table>
           <thead>
@@ -130,14 +121,14 @@
           <tbody>
             <tr *ngFor="let drink of filteredDrinks" class="table-row" (click)="viewDrink(drink._id)">
               <td class="drink-name">{{ drink.name }}</td>
-              <td><span class="subtype-tag beer">{{ drink.subtype }}</span></td>
+              <td><span class="subtype-tag beer">{{ drink.drinkType }}</span></td>
               <td class="text-muted hide-mobile">{{ drink.brand }}</td>
               <td class="text-muted hide-mobile">{{ drink.origin }}</td>
               <td class="text-muted">{{ drink.size }}</td>
               <td>
-                <span class="status-badge" [class.active]="drink.status" [class.inactive]="!drink.status">
+                <span class="status-badge" [class.active]="drink.status === 'active'" [class.inactive]="drink.status !== 'active'">
                   <span class="status-dot"></span>
-                  {{ drink.status ? 'ACTIVE' : 'INACTIVE' }}
+                  {{ drink.status === 'active' ? 'ACTIVE' : 'INACTIVE' }}
                 </span>
               </td>
               <td>
@@ -151,7 +142,7 @@
     </div>
 
     <!-- ══ BEVERAGES TABLE ══ -->
-    <div class="table-card" *ngIf="activeType === 'beverage'">
+    <div class="table-card" *ngIf="!loading && activeType === 'beverage'">
       <div class="table-scroll">
         <table>
           <thead>
@@ -167,13 +158,13 @@
           <tbody>
             <tr *ngFor="let drink of filteredDrinks" class="table-row" (click)="viewDrink(drink._id)">
               <td class="drink-name">{{ drink.name }}</td>
-              <td><span class="subtype-tag beverage">{{ drink.subtype }}</span></td>
+              <td><span class="subtype-tag beverage">{{ drink.drinkType }}</span></td>
               <td class="text-muted hide-mobile">{{ drink.brand }}</td>
               <td class="text-muted">{{ drink.size }}</td>
               <td>
-                <span class="status-badge" [class.active]="drink.status" [class.inactive]="!drink.status">
+                <span class="status-badge" [class.active]="drink.status === 'active'" [class.inactive]="drink.status !== 'active'">
                   <span class="status-dot"></span>
-                  {{ drink.status ? 'ACTIVE' : 'INACTIVE' }}
+                  {{ drink.status === 'active' ? 'ACTIVE' : 'INACTIVE' }}
                 </span>
               </td>
               <td>
@@ -187,7 +178,7 @@
     </div>
 
     <!-- ══ WINE TABLE ══ -->
-    <div class="table-card" *ngIf="activeType === 'wine'">
+    <div class="table-card" *ngIf="!loading && activeType === 'wine'">
       <div class="table-scroll">
         <table>
           <thead>
@@ -204,14 +195,14 @@
           <tbody>
             <tr *ngFor="let drink of filteredDrinks" class="table-row" (click)="viewDrink(drink._id)">
               <td class="drink-name">{{ drink.name }}</td>
-              <td><span class="subtype-tag wine">{{ drink.subtype }}</span></td>
+              <td><span class="subtype-tag wine">{{ drink.drinkType }}</span></td>
               <td class="text-muted hide-mobile">{{ drink.brand }}</td>
               <td class="text-muted hide-mobile">{{ drink.origin }}</td>
               <td class="text-muted">{{ drink.size }}</td>
               <td>
-                <span class="status-badge" [class.active]="drink.status" [class.inactive]="!drink.status">
+                <span class="status-badge" [class.active]="drink.status === 'active'" [class.inactive]="drink.status !== 'active'">
                   <span class="status-dot"></span>
-                  {{ drink.status ? 'ACTIVE' : 'INACTIVE' }}
+                  {{ drink.status === 'active' ? 'ACTIVE' : 'INACTIVE' }}
                 </span>
               </td>
               <td>
@@ -226,36 +217,28 @@
 
   </ng-container>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- TAB 2: EVENT CALCULATOR                   -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- ══ TAB 2: CALCULATOR ══ -->
   <ng-container *ngIf="activeTab === 'calculator'">
     <div class="calc-card">
       <div class="calc-card-header">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h8"/><path d="M8 14h2"/><path d="M14 14h2"/><path d="M8 18h2"/><path d="M14 18h2"/>
-        </svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h8"/></svg>
         <div>
           <h3>Calculadora de Evento</h3>
           <p>Ingresá la cantidad de cada cocktail y calculá los insumos totales.</p>
         </div>
       </div>
-
       <div class="calc-drinks-grid">
-        <div *ngFor="let drink of activeCocktails" class="calc-drink-card"
-          [class.selected]="isCalcSelected(drink._id)">
+        <div *ngFor="let drink of activeCocktails" class="calc-drink-card" [class.selected]="isCalcSelected(drink._id)">
           <div class="calc-drink-info">
             <span class="calc-drink-name">{{ drink.name }}</span>
-            <span class="spirit-tag" [attr.data-spirit]="drink.baseSpirit">{{ drink.baseSpirit }}</span>
+            <span class="spirit-tag" [attr.data-spirit]="getSpirit(drink)">{{ getSpirit(drink) }}</span>
           </div>
-          <input type="number" class="calc-qty-input"
-            [class.has-value]="isCalcSelected(drink._id)"
+          <input type="number" class="calc-qty-input" [class.has-value]="isCalcSelected(drink._id)"
             [ngModel]="eventSelections[drink._id] || ''"
             (ngModelChange)="eventSelections[drink._id] = $event; onSelectionChange()"
             placeholder="0" min="0" />
         </div>
       </div>
-
       <div *ngIf="hasSelections" class="calc-results-section">
         <div class="calc-results-header">
           <h4>Insumos Totales Requeridos</h4>
@@ -273,10 +256,7 @@
           </div>
         </div>
       </div>
-
-      <div *ngIf="!hasSelections" class="calc-empty">
-        Ingresá cantidades arriba para ver el cálculo de insumos.
-      </div>
+      <div *ngIf="!hasSelections" class="calc-empty">Ingresá cantidades arriba para ver el cálculo de insumos.</div>
     </div>
   </ng-container>
 

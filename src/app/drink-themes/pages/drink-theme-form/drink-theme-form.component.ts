@@ -7,7 +7,7 @@ import {
 } from '../../models/drink-theme.model';
 import { MOCK_THEMES } from '../../models/drink-theme.mock';
 import { Drink, DRINK_TYPES } from '../../../drinks/models/drink.model';
-import { MOCK_DRINKS } from '../../../drinks/models/drink.mock';
+import { DrinkService } from '../../../drinks/services/drink.service';
 
 @Component({
   selector: 'app-drink-theme-form',
@@ -37,15 +37,26 @@ export class DrinkThemeFormComponent implements OnInit {
   activeType: string = 'cocktail';
   searchTerm = '';
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private drinkService: DrinkService,
+  ) {}
 
   ngOnInit(): void {
-    this.allDrinks = MOCK_DRINKS.filter(d => d.status);
-    this.applyFilter();
+    // Load drinks from API
+    this.drinkService.getAll().subscribe({
+      next: (drinks) => {
+        this.allDrinks = drinks.filter(d => d.status === 'active');
+        this.applyFilter();
+      },
+      error: (err) => console.error('Error loading drinks:', err),
+    });
 
     this.themeId = this.route.snapshot.paramMap.get('id');
     if (this.themeId) {
       this.isEdit = true;
+      // TODO: Replace with theme service
       const found = MOCK_THEMES.find(t => t._id === this.themeId);
       if (found) {
         this.themeName = found.name;
@@ -130,6 +141,7 @@ export class DrinkThemeFormComponent implements OnInit {
       status: true,
     };
     console.log('💾 Theme payload:', payload);
+    // TODO: Replace with theme service
     alert(`Mock ${this.isEdit ? 'update' : 'create'}: ${payload.name}`);
     this.router.navigate(['/drink-themes']);
   }

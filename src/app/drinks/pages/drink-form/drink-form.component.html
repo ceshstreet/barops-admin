@@ -6,7 +6,7 @@
 
   <div class="form-card">
 
-    <!-- ═══ TYPE SELECTOR ═══ -->
+    <!-- TYPE SELECTOR -->
     <div class="form-section" *ngIf="!isEdit">
       <h3 class="section-title">Item Type</h3>
       <div class="type-selector">
@@ -21,14 +21,13 @@
       </div>
     </div>
 
-    <!-- ═══ ITEM INFO ═══ -->
+    <!-- ITEM INFO -->
     <div class="form-section">
       <h3 class="section-title" [style.color]="activeType.color">
         {{ activeType.icon }} {{ activeType.label }} Info
       </h3>
 
       <div class="form-grid">
-        <!-- Name — always -->
         <div class="field">
           <label>Name</label>
           <input type="text" [(ngModel)]="name" name="name" required
@@ -37,7 +36,7 @@
               selectedType === 'beverage' ? 'E.g. Agua Mineral' : 'E.g. Malbec Reserva'" />
         </div>
 
-        <!-- ── COCKTAIL FIELDS ── -->
+        <!-- COCKTAIL -->
         <ng-container *ngIf="selectedType === 'cocktail'">
           <div class="field">
             <label>Category</label>
@@ -70,11 +69,11 @@
           </div>
         </ng-container>
 
-        <!-- ── BEER FIELDS ── -->
+        <!-- BEER -->
         <ng-container *ngIf="selectedType === 'beer'">
           <div class="field">
             <label>Beer Type</label>
-            <select [(ngModel)]="subtype" name="subtype">
+            <select [(ngModel)]="drinkType" name="drinkType">
               <option value="">Select type</option>
               <option *ngFor="let s of beerSubtypes" [value]="s">{{ s }}</option>
             </select>
@@ -96,11 +95,11 @@
           </div>
         </ng-container>
 
-        <!-- ── BEVERAGE FIELDS ── -->
+        <!-- BEVERAGE -->
         <ng-container *ngIf="selectedType === 'beverage'">
           <div class="field">
             <label>Beverage Type</label>
-            <select [(ngModel)]="subtype" name="subtype">
+            <select [(ngModel)]="drinkType" name="drinkType">
               <option value="">Select type</option>
               <option *ngFor="let s of bevSubtypes" [value]="s">{{ s }}</option>
             </select>
@@ -118,11 +117,11 @@
           </div>
         </ng-container>
 
-        <!-- ── WINE FIELDS ── -->
+        <!-- WINE -->
         <ng-container *ngIf="selectedType === 'wine'">
           <div class="field">
             <label>Wine Type</label>
-            <select [(ngModel)]="subtype" name="subtype">
+            <select [(ngModel)]="drinkType" name="drinkType">
               <option value="">Select type</option>
               <option *ngFor="let s of wineSubtypes" [value]="s">{{ s }}</option>
             </select>
@@ -144,7 +143,6 @@
           </div>
         </ng-container>
 
-        <!-- Status — always -->
         <div class="field">
           <label>Status</label>
           <select [(ngModel)]="status" name="status">
@@ -154,7 +152,7 @@
       </div>
     </div>
 
-    <!-- ═══ INGREDIENTS — COCKTAIL ONLY ═══ -->
+    <!-- INGREDIENTS — COCKTAIL ONLY -->
     <div class="form-section" *ngIf="selectedType === 'cocktail'">
       <div class="ingredients-header">
         <div>
@@ -163,40 +161,32 @@
         </div>
         <button type="button" class="add-btn" (click)="addIngredient()">+ Add</button>
       </div>
-
       <div class="ingredients-table">
         <div class="ing-table-header">
-          <span>Ingredient</span>
-          <span>Qty</span>
-          <span>Unit</span>
-          <span></span>
+          <span>Ingredient</span><span>Qty</span><span>Unit</span><span></span>
         </div>
         <div *ngFor="let ing of ingredients; let i = index" class="ingredient-row">
-          <input type="text" [(ngModel)]="ing.name" [name]="'ingName' + i"
-            placeholder="Ingredient name" class="ing-name" />
-          <input type="number" [(ngModel)]="ing.quantity" [name]="'ingQty' + i"
-            placeholder="0" class="ing-qty" min="0" />
+          <input type="text" [(ngModel)]="ing.name" [name]="'ingName' + i" placeholder="Ingredient name" class="ing-name"/>
+          <input type="number" [(ngModel)]="ing.quantity" [name]="'ingQty' + i" placeholder="0" class="ing-qty" min="0"/>
           <select [(ngModel)]="ing.unit" [name]="'ingUnit' + i" class="ing-unit">
             <option *ngFor="let u of units" [value]="u">{{ u }}</option>
           </select>
-          <button type="button" class="remove-btn" (click)="removeIngredient(i)"
-            [disabled]="ingredients.length === 1">✕</button>
+          <button type="button" class="remove-btn" (click)="removeIngredient(i)" [disabled]="ingredients.length === 1">✕</button>
         </div>
       </div>
     </div>
 
-    <!-- ═══ PREPARATION — COCKTAIL ONLY ═══ -->
+    <!-- PREPARATION — COCKTAIL ONLY -->
     <div class="form-section" *ngIf="selectedType === 'cocktail'">
       <div class="form-grid">
         <div class="field field-full">
           <label>Preparation</label>
-          <textarea [(ngModel)]="preparation" name="preparation" rows="4"
-            placeholder="Describe the recipe step by step"></textarea>
+          <textarea [(ngModel)]="preparation" name="preparation" rows="4" placeholder="Describe the recipe step by step"></textarea>
         </div>
       </div>
     </div>
 
-    <!-- ═══ NOTES — ALWAYS ═══ -->
+    <!-- NOTES — ALWAYS -->
     <div class="form-section">
       <div class="form-grid">
         <div class="field field-full">
@@ -210,10 +200,10 @@
       </div>
     </div>
 
-    <!-- ═══ ACTIONS ═══ -->
+    <!-- ACTIONS -->
     <div class="form-actions">
       <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
-      <button type="button" class="primary-btn" (click)="saveDrink()" [disabled]="!name">
+      <button type="button" class="primary-btn" (click)="saveDrink()" [disabled]="!name || saving">
         {{ isEdit ? 'Save Changes' : 'Save ' + activeType.label }}
       </button>
     </div>

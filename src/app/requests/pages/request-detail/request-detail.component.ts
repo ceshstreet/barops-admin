@@ -37,11 +37,7 @@ export class RequestDetailComponent implements OnInit {
 
     this.requestsService.getInboxById(id).subscribe({
       next: (response: InboxDetailResponse) => {
-        this.request = {
-          ...response.data,
-          status: response.data.status || 'REVIEWED',
-          isRead: response.data.isRead ?? true,
-        };
+        this.request = response.data;
         this.loading = false;
       },
       error: (err: any) => {
@@ -65,7 +61,7 @@ export class RequestDetailComponent implements OnInit {
         email: this.request.email,
         phone: this.request.phone,
         preferredContact: 'WhatsApp',
-        notes: `Client created from request #${this.request.odooId}`
+        notes: `Client created from inbox request #${this.request.odooId}`
       }
     });
   }

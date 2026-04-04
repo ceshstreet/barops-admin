@@ -1,29 +1,36 @@
+// Ingredient subdocument
 export interface DrinkIngredient {
   name: string;
   quantity: number;
   unit: string;
 }
 
-export interface Drink {
-  _id: string;
-  name: string;
-  type: 'cocktail' | 'beer' | 'beverage' | 'wine';
-  // Cocktail fields
+// Cocktail-specific fields (nested object in backend)
+export interface CocktailDetails {
   category?: string;
   baseSpirit?: string;
   glassware?: string;
   garnish?: string;
   servingSize?: number;
-  preparation?: string;
   ingredients?: DrinkIngredient[];
-  // Beer / Wine / Beverage fields
-  subtype?: string;
+  preparation?: string;
+}
+
+// Main Drink interface (matches backend schema exactly)
+export interface Drink {
+  _id: string;
+  type: 'cocktail' | 'beer' | 'beverage' | 'wine';
+  name: string;
+  status: string; // "active" | "inactive"
+  notes?: string;
+  // Beer / Beverage / Wine fields
+  drinkType?: string;  // backend uses drinkType, not subtype
   brand?: string;
-  origin?: string;
   size?: string;
-  // Common
-  notes: string;
-  status: boolean;
+  origin?: string;     // beer & wine only
+  // Cocktail fields (nested)
+  cocktailDetails?: CocktailDetails;
+  // Timestamps
   createdAt?: string;
   updatedAt?: string;
 }
@@ -63,3 +70,6 @@ export const BEVERAGE_SUBTYPES = ['Water', 'Soft Drink', 'Juice', 'Energy', 'Ton
 
 // ── Wine options ──
 export const WINE_SUBTYPES = ['Red', 'White', 'Rosé', 'Sparkling', 'Dessert'];
+
+// ── Sizes ──
+export const SIZE_OPTIONS = ['250ml', '300ml', '330ml', '350ml', '355ml', '473ml', '500ml', '750ml', '1L'];

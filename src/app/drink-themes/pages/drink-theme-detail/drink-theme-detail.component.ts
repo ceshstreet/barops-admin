@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DrinkTheme } from '../../models/drink-theme.model';
 import { MOCK_THEMES } from '../../models/drink-theme.mock';
 import { Drink } from '../../../drinks/models/drink.model';
-import { MOCK_DRINKS } from '../../../drinks/models/drink.mock';
+import { DrinkService } from '../../../drinks/services/drink.service';
 
 @Component({
   selector: 'app-drink-theme-detail',
@@ -20,30 +20,34 @@ export class DrinkThemeDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private drinkService: DrinkService,
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
 
-    // TODO: Replace with service call
+    // TODO: Replace with theme service when backend is ready
     this.theme = MOCK_THEMES.find(t => t._id === id) || null;
 
-    if (this.theme) {
-      this.themeDrinks = this.theme.drinkIds
-        .map(did => MOCK_DRINKS.find(d => d._id === did))
-        .filter((d): d is Drink => !!d);
+    if (this.theme && this.theme.drinkIds.length > 0) {
+      this.drinkService.getAll().subscribe({
+        next: (allDrinks) => {
+          this.themeDrinks = this.theme!.drinkIds
+            .map(did => allDrinks.find(d => d._id === did))
+            .filter((d): d is Drink => !!d);
 
-        this.totalIngredients = this.themeDrinks.reduce(
-          (sum, d) => sum + (d.ingredients?.length || 0), 0
-        );
+          this.totalIngredients = this.themeDrinks.reduce(
+            (sum, d) => sum + (d.cocktailDetails?.ingredients?.length || 0), 0
+          );
+        },
+        error: (err) => console.error('Error loading drinks:', err),
+      });
     }
   }
 
   editTheme(): void {
-    if (this.theme) {
-      this.router.navigate(['/drink-themes', this.theme._id, 'edit']);
-    }
+    if (this.theme) this.router.navigate(['/drink-themes', this.theme._id, 'edit']);
   }
 
   viewDrink(drinkId: string): void {

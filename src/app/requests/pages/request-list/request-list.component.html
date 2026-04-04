@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h2>Requests</h2>
-      <p>Review incoming quote requests from the website.</p>
+      <p>Review incoming quote requests stored in your inbox database.</p>
     </div>
   </div>
 
@@ -74,20 +74,19 @@
           *ngFor="let request of filteredRequests; trackBy: trackByOdooId"
           class="table-row"
           [class.unread-row]="!request.isRead"
-          (click)="viewRequest(request.odooId, request)"
+          (click)="viewRequest(request.odooId)"
         >
           <td class="primary-text">{{ request.eventName }}</td>
-
           <td class="muted-text">{{ request.fullName || 'N/A' }}</td>
-
           <td class="muted-text">{{ request.phone || 'N/A' }}</td>
-
           <td class="muted-text">{{ request.eventDate || 'N/A' }}</td>
-
-          <td class="muted-text">{{ request.createdAt || 'N/A' }}</td>
+          <td class="muted-text">{{ request.createdAtOdoo || 'N/A' }}</td>
 
           <td>
-            <span class="status-badge" [class.reviewed]="request.status === 'REVIEWED'">
+            <span
+              class="status-badge"
+              [class.reviewed]="request.status === 'REVIEWED'"
+              [class.created]="request.status === 'CLIENT_CREATED'">
               {{ request.status }}
             </span>
           </td>
@@ -95,34 +94,26 @@
           <td>
             <div class="actions-cell" (click)="$event.stopPropagation()">
               <button
-                class="icon-btn read-btn"
-                (click)="markAsRead(request, $event)"
-                title="Mark as read"
-              >
-                <span class="material-icons">drafts</span>
-              </button>
-
-              <button
                 class="icon-btn view-btn"
-                (click)="viewRequest(request.odooId, request)"
-                title="View request"
-              >
+                (click)="viewRequest(request.odooId)"
+                title="View request">
                 <span class="material-icons">visibility</span>
               </button>
 
               <button
                 class="icon-btn client-btn"
+                [disabled]="request.convertedToClient"
                 (click)="convertToClient(request, $event)"
-                title="Convert to client"
-              >
-                <span class="material-icons">person_add</span>
+                [title]="request.convertedToClient ? 'Client already created' : 'Add client'">
+                <span class="material-icons">
+                  {{ request.convertedToClient ? 'check_circle' : 'person_add' }}
+                </span>
               </button>
 
               <button
                 class="icon-btn event-btn"
                 (click)="convertToEvent(request, $event)"
-                title="Convert to event"
-              >
+                title="Convert to event">
                 <span class="material-icons">event_available</span>
               </button>
             </div>

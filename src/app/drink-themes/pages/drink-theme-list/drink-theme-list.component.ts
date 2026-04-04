@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { DrinkTheme } from '../../models/drink-theme.model';
 import { MOCK_THEMES } from '../../models/drink-theme.mock';
 import { Drink } from '../../../drinks/models/drink.model';
-import { MOCK_DRINKS } from '../../../drinks/models/drink.mock';
+import { DrinkService } from '../../../drinks/services/drink.service';
 
 @Component({
   selector: 'app-drink-theme-list',
@@ -17,12 +17,17 @@ export class DrinkThemeListComponent implements OnInit {
   themes: DrinkTheme[] = [];
   allDrinks: Drink[] = [];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private drinkService: DrinkService) {}
 
   ngOnInit(): void {
-    // TODO: Replace with service calls
+    // TODO: Replace with theme service when backend is ready
     this.themes = MOCK_THEMES;
-    this.allDrinks = MOCK_DRINKS;
+
+    // Load drinks from API
+    this.drinkService.getAll().subscribe({
+      next: (drinks) => this.allDrinks = drinks,
+      error: (err) => console.error('Error loading drinks:', err),
+    });
   }
 
   getDrinksForTheme(theme: DrinkTheme): Drink[] {

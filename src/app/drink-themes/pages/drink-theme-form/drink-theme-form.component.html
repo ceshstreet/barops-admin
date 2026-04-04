@@ -1,6 +1,5 @@
 <div class="theme-form-page">
 
-  <!-- ═══ HEADER ═══ -->
   <div class="page-header">
     <h2>{{ isEdit ? 'Edit Drink Theme' : 'Create Drink Theme' }}</h2>
     <p>{{ isEdit ? 'Modify theme details and item selection.' : 'Group items from your catalog into a themed collection.' }}</p>
@@ -8,7 +7,7 @@
 
   <div class="form-card">
 
-    <!-- ═══ THEME INFO ═══ -->
+    <!-- THEME INFO -->
     <div class="form-section">
       <h3 class="section-title">Theme Info</h3>
       <div class="form-grid">
@@ -33,12 +32,9 @@
         <div class="field">
           <label>Theme Color</label>
           <div class="color-picker">
-            <button *ngFor="let c of colors" type="button"
-              class="color-dot"
-              [style.background]="c.value"
-              [class.active]="themeColor === c.value"
-              [title]="c.name"
-              (click)="selectColor(c.value)">
+            <button *ngFor="let c of colors" type="button" class="color-dot"
+              [style.background]="c.value" [class.active]="themeColor === c.value"
+              [title]="c.name" (click)="selectColor(c.value)">
             </button>
           </div>
         </div>
@@ -50,13 +46,12 @@
       </div>
     </div>
 
-    <!-- ═══ SELECTED PREVIEW ═══ -->
+    <!-- SELECTED PREVIEW -->
     <div class="form-section" *ngIf="totalSelected > 0">
       <div class="section-header-row">
         <h3 class="section-title">Selected Items</h3>
         <span class="selected-count" [style.color]="themeColor">{{ totalSelected }} selected</span>
       </div>
-
       <div *ngFor="let group of selectedByType" class="selected-group">
         <div class="selected-group-label">
           <span class="group-icon">{{ group.icon }}</span>
@@ -65,9 +60,8 @@
         </div>
         <div class="selected-chips">
           <div *ngFor="let item of group.items" class="selected-chip"
-            [style.background]="themeColor + '08'"
-            [style.border-color]="themeColor + '25'">
-            <span class="chip-dot" *ngIf="item.type === 'cocktail'" [attr.data-spirit]="item.baseSpirit"></span>
+            [style.background]="themeColor + '08'" [style.border-color]="themeColor + '25'">
+            <span class="chip-dot" *ngIf="item.type === 'cocktail'" [attr.data-spirit]="item.cocktailDetails?.baseSpirit"></span>
             <span class="chip-name">{{ item.name }}</span>
             <span class="chip-size" *ngIf="item.size">{{ item.size }}</span>
             <button class="chip-remove" type="button" (click)="removeSelected(item._id)">✕</button>
@@ -76,21 +70,17 @@
       </div>
     </div>
 
-    <!-- ═══ CATALOG SELECTOR ═══ -->
+    <!-- CATALOG SELECTOR -->
     <div class="form-section selector-section">
       <h3 class="section-title">Choose from Catalog</h3>
 
-      <!-- Type Tabs -->
       <div class="type-tabs">
-        <button *ngFor="let dt of drinkTypes" type="button"
-          class="type-tab"
-          [class.active]="activeType === dt.value"
-          [style.--tab-color]="dt.color"
+        <button *ngFor="let dt of drinkTypes" type="button" class="type-tab"
+          [class.active]="activeType === dt.value" [style.--tab-color]="dt.color"
           (click)="switchType(dt.value)">
           <span class="tab-icon">{{ dt.icon }}</span>
           {{ dt.label }}
-          <span class="tab-badge"
-            [class.has-selected]="getTypeCount(dt.value).selected > 0">
+          <span class="tab-badge" [class.has-selected]="getTypeCount(dt.value).selected > 0">
             {{ getTypeCount(dt.value).selected > 0
               ? getTypeCount(dt.value).selected + '/' + getTypeCount(dt.value).total
               : getTypeCount(dt.value).total }}
@@ -98,24 +88,18 @@
         </button>
       </div>
 
-      <!-- Search -->
       <div class="catalog-search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path>
         </svg>
-        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()"
-          placeholder="Search..." />
+        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()" placeholder="Search..." />
       </div>
 
-      <!-- Items Grid -->
       <div class="items-grid">
-        <div *ngFor="let item of filteredItems"
-          class="item-card"
-          [class.selected]="isSelected(item._id)"
-          [style.--sel-color]="themeColor"
+        <div *ngFor="let item of filteredItems" class="item-card"
+          [class.selected]="isSelected(item._id)" [style.--sel-color]="themeColor"
           (click)="toggleItem(item._id)">
 
-          <!-- Checkbox -->
           <div class="item-checkbox" [class.checked]="isSelected(item._id)"
             [style.border-color]="isSelected(item._id) ? themeColor : ''"
             [style.background]="isSelected(item._id) ? themeColor : ''">
@@ -125,38 +109,33 @@
             </svg>
           </div>
 
-          <!-- Info -->
           <div class="item-info">
             <div class="item-name-row">
-              <span class="item-dot" *ngIf="item.type === 'cocktail'" [attr.data-spirit]="item.baseSpirit"></span>
+              <span class="item-dot" *ngIf="item.type === 'cocktail'" [attr.data-spirit]="item.cocktailDetails?.baseSpirit"></span>
               <span class="item-name">{{ item.name }}</span>
             </div>
             <div class="item-meta">
-              <!-- Cocktail meta -->
               <ng-container *ngIf="item.type === 'cocktail'">
-                <span class="meta-spirit" [attr.data-spirit]="item.baseSpirit">{{ item.baseSpirit }}</span>
+                <span class="meta-spirit" [attr.data-spirit]="item.cocktailDetails?.baseSpirit">{{ item.cocktailDetails?.baseSpirit }}</span>
                 <span class="meta-sep">·</span>
-                <span>{{ item.category }}</span>
+                <span>{{ item.cocktailDetails?.category }}</span>
                 <span class="meta-sep">·</span>
-                <span>{{ item.ingredients?.length || 0 }} ing</span>
+                <span>{{ item.cocktailDetails?.ingredients?.length || 0 }} ing</span>
               </ng-container>
-              <!-- Beer meta -->
               <ng-container *ngIf="item.type === 'beer'">
-                <span class="meta-highlight beer">{{ item.subtype }}</span>
+                <span class="meta-highlight beer">{{ item.drinkType }}</span>
                 <span class="meta-sep">·</span>
                 <span>{{ item.origin }}</span>
                 <span class="meta-sep">·</span>
                 <span>{{ item.size }}</span>
               </ng-container>
-              <!-- Beverage meta -->
               <ng-container *ngIf="item.type === 'beverage'">
-                <span class="meta-highlight beverage">{{ item.subtype }}</span>
+                <span class="meta-highlight beverage">{{ item.drinkType }}</span>
                 <span class="meta-sep">·</span>
                 <span>{{ item.size }}</span>
               </ng-container>
-              <!-- Wine meta -->
               <ng-container *ngIf="item.type === 'wine'">
-                <span class="meta-highlight wine">{{ item.subtype }}</span>
+                <span class="meta-highlight wine">{{ item.drinkType }}</span>
                 <span class="meta-sep">·</span>
                 <span>{{ item.origin }}</span>
                 <span class="meta-sep">·</span>
@@ -167,12 +146,10 @@
         </div>
       </div>
 
-      <div *ngIf="filteredItems.length === 0" class="empty-items">
-        No items found.
-      </div>
+      <div *ngIf="filteredItems.length === 0" class="empty-items">No items found.</div>
     </div>
 
-    <!-- ═══ ACTIONS ═══ -->
+    <!-- ACTIONS -->
     <div class="form-actions">
       <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
       <button type="button" class="primary-btn" (click)="saveTheme()"

@@ -53,8 +53,8 @@
       <!-- Drink chips -->
       <div class="theme-drinks-list">
         <div *ngFor="let drink of getDrinksForTheme(theme)" class="drink-chip">
-          <span class="drink-dot"
-            [attr.data-spirit]="drink.baseSpirit"></span>
+           <span class="drink-dot"
+           [attr.data-spirit]="drink.cocktailDetails?.baseSpirit"></span>
           {{ drink.name }}
         </div>
         <!-- If theme has IDs that don't match any drink -->

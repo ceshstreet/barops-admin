@@ -30,8 +30,6 @@ export class RequestListComponent implements OnInit {
 
   newCount = 0;
 
-  private readonly reviewedStorageKey = 'reviewedRequests';
-
   ngOnInit(): void {
     this.loadRequests();
   }
@@ -42,25 +40,14 @@ export class RequestListComponent implements OnInit {
 
     this.requestsService.getInbox().subscribe({
       next: (response: InboxResponse) => {
-        const reviewedIds = this.getReviewedIds();
-
-        this.requests = (response.data || []).map(item => {
-          const isReviewed = reviewedIds.includes(item.odooId);
-
-          return {
-            ...item,
-            status: isReviewed ? 'REVIEWED' : 'NEW',
-            isRead: isReviewed,
-          };
-        });
-
+        this.requests = response.data || [];
         this.updateCounters();
         this.applyFilters();
         this.loading = false;
       },
       error: (err: any) => {
         console.error('Error loading requests:', err);
-        this.error = 'Could not load requests from Odoo.';
+        this.error = 'Could not load requests from database.';
         this.loading = false;
       }
     });
@@ -112,58 +99,26 @@ export class RequestListComponent implements OnInit {
     this.newCount = this.requests.filter(r => r.status === 'NEW').length;
   }
 
-  private getReviewedIds(): number[] {
-    const raw = localStorage.getItem(this.reviewedStorageKey);
-    return raw ? JSON.parse(raw) : [];
-  }
-
-  private saveReviewedIds(ids: number[]): void {
-    localStorage.setItem(this.reviewedStorageKey, JSON.stringify(ids));
-  }
-
-  private markRequestAsReviewed(request: QuoteRequest): void {
-    request.isRead = true;
-    request.status = 'REVIEWED';
-
-    const reviewedIds = this.getReviewedIds();
-    if (!reviewedIds.includes(request.odooId)) {
-      reviewedIds.push(request.odooId);
-      this.saveReviewedIds(reviewedIds);
-    }
-
-    this.updateCounters();
-  }
-
-  markAsRead(request: QuoteRequest, event?: MouseEvent): void {
-    event?.stopPropagation();
-    this.markRequestAsReviewed(request);
-  }
-
-  viewRequest(id: number, request?: QuoteRequest): void {
-    if (request) {
-      this.markRequestAsReviewed(request);
-    }
-
+  viewRequest(id: number): void {
     this.router.navigate(['/requests', id]);
   }
 
   convertToClient(request: QuoteRequest, event?: MouseEvent): void {
     event?.stopPropagation();
-    this.markRequestAsReviewed(request);
 
     this.router.navigate(['/clients/new'], {
       queryParams: {
         fullName: request.fullName,
         email: request.email,
         phone: request.phone,
-        notes: `Imported from request #${request.odooId}`
+        preferredContact: 'WhatsApp',
+        notes: `Client created from inbox request #${request.odooId}`
       }
     });
   }
 
   convertToEvent(request: QuoteRequest, event?: MouseEvent): void {
     event?.stopPropagation();
-    this.markRequestAsReviewed(request);
 
     this.router.navigate(['/events/new'], {
       queryParams: {
