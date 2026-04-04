@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  DrinkTheme, getDrinkIds,
   THEME_STYLES, TARGET_EVENTS, THEME_COLORS,
 } from '../../models/drink-theme.model';
-import { MOCK_THEMES } from '../../models/drink-theme.mock';
+import { DrinkThemeService } from '../../services/drink-theme.service';
 import { Drink, DRINK_TYPES } from '../../../drinks/models/drink.model';
 import { DrinkService } from '../../../drinks/services/drink.service';
 
@@ -19,6 +20,7 @@ import { DrinkService } from '../../../drinks/services/drink.service';
 export class DrinkThemeFormComponent implements OnInit {
   isEdit = false;
   themeId: string | null = null;
+  saving = false;
 
   themeName = '';
   themeDescription = '';
@@ -41,6 +43,7 @@ export class DrinkThemeFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private drinkService: DrinkService,
+    private themeService: DrinkThemeService,
   ) {}
 
   ngOnInit(): void {
@@ -56,16 +59,17 @@ export class DrinkThemeFormComponent implements OnInit {
     this.themeId = this.route.snapshot.paramMap.get('id');
     if (this.themeId) {
       this.isEdit = true;
-      // TODO: Replace with theme service
-      const found = MOCK_THEMES.find(t => t._id === this.themeId);
-      if (found) {
-        this.themeName = found.name;
-        this.themeDescription = found.description;
-        this.themeStyle = found.style;
-        this.themeTargetEvent = found.targetEvent;
-        this.themeColor = found.color;
-        this.selectedIds = [...found.drinkIds];
-      }
+      this.themeService.getById(this.themeId).subscribe({
+        next: (theme) => {
+          this.themeName = theme.name;
+          this.themeDescription = theme.description || '';
+          this.themeStyle = theme.style || '';
+          this.themeTargetEvent = theme.targetEvent || '';
+          this.themeColor = theme.color || '#a78bfa';
+          this.selectedIds = getDrinkIds(theme);
+        },
+        error: (err) => console.error('Error loading theme:', err),
+      });
     }
   }
 
@@ -131,19 +135,32 @@ export class DrinkThemeFormComponent implements OnInit {
   }
 
   saveTheme(): void {
+    this.saving = true;
+
     const payload = {
       name: this.themeName,
       description: this.themeDescription,
       style: this.themeStyle,
       targetEvent: this.themeTargetEvent,
       color: this.themeColor,
-      drinkIds: this.selectedIds,
-      status: true,
+      drinksId: this.selectedIds,
+      status: 'active',
     };
-    console.log('💾 Theme payload:', payload);
-    // TODO: Replace with theme service
-    alert(`Mock ${this.isEdit ? 'update' : 'create'}: ${payload.name}`);
-    this.router.navigate(['/drink-themes']);
+
+    const request$ = this.isEdit && this.themeId
+      ? this.themeService.update(this.themeId, payload)
+      : this.themeService.create(payload);
+
+    request$.subscribe({
+      next: () => {
+        this.router.navigate(['/drink-themes']);
+      },
+      error: (err) => {
+        console.error('Error saving theme:', err);
+        alert(err.error?.message || 'Error al guardar');
+        this.saving = false;
+      },
+    });
   }
 
   cancel(): void {

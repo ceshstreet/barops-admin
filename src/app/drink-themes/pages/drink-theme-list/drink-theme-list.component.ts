@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DrinkTheme } from '../../models/drink-theme.model';
-import { MOCK_THEMES } from '../../models/drink-theme.mock';
+import { DrinkTheme, getPopulatedDrinks } from '../../models/drink-theme.model';
+import { DrinkThemeService } from '../../services/drink-theme.service';
 import { Drink } from '../../../drinks/models/drink.model';
-import { DrinkService } from '../../../drinks/services/drink.service';
 
 @Component({
   selector: 'app-drink-theme-list',
@@ -15,33 +14,31 @@ import { DrinkService } from '../../../drinks/services/drink.service';
 })
 export class DrinkThemeListComponent implements OnInit {
   themes: DrinkTheme[] = [];
-  allDrinks: Drink[] = [];
+  totalDrinks = 0;
+  loading = true;
 
-  constructor(private router: Router, private drinkService: DrinkService) {}
+  constructor(private router: Router, private themeService: DrinkThemeService) {}
 
   ngOnInit(): void {
-    // TODO: Replace with theme service when backend is ready
-    this.themes = MOCK_THEMES;
-
-    // Load drinks from API
-    this.drinkService.getAll().subscribe({
-      next: (drinks) => this.allDrinks = drinks,
-      error: (err) => console.error('Error loading drinks:', err),
+    this.themeService.getAll().subscribe({
+      next: (themes) => {
+        this.themes = themes;
+        // Count unique drinks across all themes
+        const allIds = new Set<string>();
+        themes.forEach(t => this.getDrinksForTheme(t).forEach(d => allIds.add(d._id)));
+        this.totalDrinks = allIds.size;
+        this.loading = false;
+      },
+      error: (err) => { console.error('Error loading themes:', err); this.loading = false; },
     });
   }
 
   getDrinksForTheme(theme: DrinkTheme): Drink[] {
-    return theme.drinkIds
-      .map(id => this.allDrinks.find(d => d._id === id))
-      .filter((d): d is Drink => !!d);
+    return getPopulatedDrinks(theme);
   }
 
   viewTheme(id: string): void {
     this.router.navigate(['/drink-themes', id]);
-  }
-
-  editTheme(id: string): void {
-    this.router.navigate(['/drink-themes', id, 'edit']);
   }
 
   createTheme(): void {

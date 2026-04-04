@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Package, PackageService } from '../../models/package.model';
 import { MOCK_PACKAGES } from '../../models/package.mock';
 import { DrinkTheme } from '../../../drink-themes/models/drink-theme.model';
-import { MOCK_THEMES } from '../../../drink-themes/models/drink-theme.mock';
+//import { MOCK_THEMES } from '../../../drink-themes/models/drink-theme.mock';
 import { Drink } from '../../../drinks/models/drink.model';
 import { MOCK_DRINKS } from '../../../drinks/models/drink.mock';
 
@@ -39,18 +39,18 @@ export class PackageDetailComponent implements OnInit {
     if (this.pkg) {
       this.calcGuests = this.pkg.minGuests;
 
-      this.themes = this.pkg.themeIds
-        .map(tid => MOCK_THEMES.find(t => t._id === tid))
-        .filter((t): t is DrinkTheme => !!t);
+     // this.themes = this.pkg.themeIds
+      //  .map(tid => MOCK_THEMES.find(t => t._id === tid))
+    //    .filter((t): t is DrinkTheme => !!t);
 
       // Get all cocktail names from themes + extras
-      const fromThemes = this.themes.flatMap(t =>
-        t.drinkIds.map(did => MOCK_DRINKS.find(d => d._id === did)?.name).filter(Boolean)
-      ) as string[];
-      const fromExtras = this.pkg.extraCocktailIds
-        .map(did => MOCK_DRINKS.find(d => d._id === did)?.name)
-        .filter(Boolean) as string[];
-      this.allCocktailNames = [...new Set([...fromThemes, ...fromExtras])];
+    //  const fromThemes = this.themes.flatMap(t =>
+    //    t.drinkIds.map(did => MOCK_DRINKS.find(d => d._id === did)?.name).filter(Boolean)
+     // ) as string[];
+    //  const fromExtras = this.pkg.extraCocktailIds
+   //     .map(did => MOCK_DRINKS.find(d => d._id === did)?.name)
+    //    .filter(Boolean) as string[];
+   //   this.allCocktailNames = [...new Set([...fromThemes, ...fromExtras])];
 
       this.includedServices = this.pkg.services.filter(s => s.included);
       this.optionalServices = this.pkg.services.filter(s => !s.included);

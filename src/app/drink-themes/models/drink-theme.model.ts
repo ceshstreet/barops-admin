@@ -1,3 +1,5 @@
+import { Drink } from '../../drinks/models/drink.model';
+
 export interface DrinkTheme {
   _id: string;
   name: string;
@@ -5,38 +7,44 @@ export interface DrinkTheme {
   style: string;
   targetEvent: string;
   color: string;
-  drinkIds: string[];
-  status: boolean;
+  drinksId: string[] | Drink[];
+  notes?: string;
+  status: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
+export function getDrinkIds(theme: DrinkTheme): string[] {
+  return (theme.drinksId || []).map((d: any) =>
+    typeof d === 'string' ? d : d._id
+  );
+}
+
+export function getPopulatedDrinks(theme: DrinkTheme): Drink[] {
+  return (theme.drinksId || []).filter(
+    (d: any) => typeof d !== 'string'
+  ) as Drink[];
+}
+
 export const THEME_STYLES = [
-  'Tropical',
-  'Classic Cocktails',
-  'Spirit-Based',
-  'Holiday',
-  'Mocktail',
-  'Custom',
+  'Tropical', 'Classic Cocktails', 'Holiday', 'Mocktail',
+  'Spirit-Based', 'Premium', 'Casual', 'Custom',
 ];
 
 export const TARGET_EVENTS = [
-  'Weddings / Corporate',
-  'Beach / Outdoor Events',
-  'Private Parties',
-  'Pool Parties',
-  'Holiday Events',
-  'Corporate / Family',
-  'Indoor Events',
+  'Beach / Outdoor Events', 'Weddings / Corporate',
+  'Holiday Events', 'Corporate / Family',
+  'Birthday Parties', 'Social Gatherings', 'Any Event',
 ];
 
 export const THEME_COLORS = [
   { name: 'Gold', value: '#f59e0b' },
   { name: 'Purple', value: '#a78bfa' },
-  { name: 'Red', value: '#ef4444' },
+  { name: 'Rose', value: '#f43f5e' },
   { name: 'Green', value: '#34d399' },
-  { name: 'Blue', value: '#38bdf8' },
+  { name: 'Emerald', value: '#10b981' },
+  { name: 'Teal', value: '#14b8a6' },
   { name: 'Orange', value: '#f97316' },
-  { name: 'Pink', value: '#f472b6' },
-  { name: 'Teal', value: '#2dd4bf' },
+  { name: 'Pink', value: '#ec4899' },
+  { name: 'Lime', value: '#84cc16' },
 ];

@@ -5,7 +5,6 @@ import { Router, RouterModule } from '@angular/router';
 import { Package } from '../../models/package.model';
 import { MOCK_PACKAGES } from '../../models/package.mock';
 import { DrinkTheme } from '../../../drink-themes/models/drink-theme.model';
-import { MOCK_THEMES } from '../../../drink-themes/models/drink-theme.mock';
 import { Drink } from '../../../drinks/models/drink.model';
 import { MOCK_DRINKS } from '../../../drinks/models/drink.mock';
 
@@ -26,7 +25,7 @@ export class PackageListComponent implements OnInit {
 
   ngOnInit(): void {
     this.packages = MOCK_PACKAGES;
-    this.allThemes = MOCK_THEMES;
+  //  this.allThemes = MOCK_THEMES;
     this.allDrinks = MOCK_DRINKS;
   }
 
@@ -56,12 +55,12 @@ export class PackageListComponent implements OnInit {
       .filter((t): t is DrinkTheme => !!t);
   }
 
-  getCocktailCount(pkg: Package): number {
-    const themes = this.getThemesForPackage(pkg);
-    const fromThemes = themes.flatMap(t => t.drinkIds);
-    const all = new Set([...fromThemes, ...pkg.extraCocktailIds]);
-    return all.size;
-  }
+ // getCocktailCount(pkg: Package): number {
+  //  const themes = this.getThemesForPackage(pkg);
+   // const fromThemes = themes.flatMap(t => t.drinksId);
+  //  const all = new Set([...fromThemes, ...pkg.extraCocktailIds]);
+ //   return all.size;
+ // }
 
   calcMinPrice(pkg: Package): number {
     return pkg.basePrice + (pkg.minGuests * pkg.pricePerGuest);

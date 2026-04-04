@@ -71,12 +71,7 @@
               <span class="theme-dot" [style.background]="theme.color"></span>
               {{ theme.name }}
             </span>
-            <span class="content-summary">
-              {{ getCocktailCount(pkg) }} cocktails ·
-              {{ pkg.beers.length }} beers ·
-              {{ pkg.beverages.length }} bev
-              <ng-container *ngIf="pkg.wines.length > 0"> · {{ pkg.wines.length }} wines</ng-container>
-            </span>
+
           </div>
         </div>
 

@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DrinkTheme } from '../../models/drink-theme.model';
-import { MOCK_THEMES } from '../../models/drink-theme.mock';
+import { DrinkTheme, getPopulatedDrinks } from '../../models/drink-theme.model';
+import { DrinkThemeService } from '../../services/drink-theme.service';
 import { Drink } from '../../../drinks/models/drink.model';
-import { DrinkService } from '../../../drinks/services/drink.service';
 
 @Component({
   selector: 'app-drink-theme-detail',
@@ -21,27 +20,21 @@ export class DrinkThemeDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private drinkService: DrinkService,
+    private themeService: DrinkThemeService,
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-
-    // TODO: Replace with theme service when backend is ready
-    this.theme = MOCK_THEMES.find(t => t._id === id) || null;
-
-    if (this.theme && this.theme.drinkIds.length > 0) {
-      this.drinkService.getAll().subscribe({
-        next: (allDrinks) => {
-          this.themeDrinks = this.theme!.drinkIds
-            .map(did => allDrinks.find(d => d._id === did))
-            .filter((d): d is Drink => !!d);
-
+    if (id) {
+      this.themeService.getById(id).subscribe({
+        next: (theme) => {
+          this.theme = theme;
+          this.themeDrinks = getPopulatedDrinks(theme);
           this.totalIngredients = this.themeDrinks.reduce(
             (sum, d) => sum + (d.cocktailDetails?.ingredients?.length || 0), 0
           );
         },
-        error: (err) => console.error('Error loading drinks:', err),
+        error: (err) => console.error('Error loading theme:', err),
       });
     }
   }
