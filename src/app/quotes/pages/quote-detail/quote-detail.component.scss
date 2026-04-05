@@ -1,0 +1,20 @@
+.quote-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: #eaf1ff;
+}
+
+.page-header {
+  h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: rgba(234, 241, 255, 0.68);
+    font-size: 14px;
+  }
+}

@@ -40,6 +40,10 @@ import { ReservationSummaryComponent } from './reservations/pages/reservation-su
 
 import { SupplierListComponent } from './suppliers/pages/supplier-list/supplier-list.component';
 
+import { QuoteListComponent } from './quotes/pages/quote-list/quote-list.component';
+import { QuoteFormComponent } from './quotes/pages/quote-form/quote-form.component';
+import { QuoteDetailComponent } from './quotes/pages/quote-detail/quote-detail.component';
+
 /* 🔥 NUEVOS IMPORTS */
 import { RequestListComponent } from './requests/pages/request-list/request-list.component';
 import { RequestDetailComponent } from './requests/pages/request-detail/request-detail.component';
@@ -118,7 +122,10 @@ export const routes: Routes = [
       // Suppliers
       { path: 'suppliers', component: SupplierListComponent },
 
-
+      // Quotes
+      { path: 'quotes', component: QuoteListComponent},
+      { path: 'quotes/new', component: QuoteFormComponent},
+      { path: 'quotes/:id', component: QuoteDetailComponent},
     ],
   },
 ];

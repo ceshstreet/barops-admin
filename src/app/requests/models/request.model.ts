@@ -1,3 +1,18 @@
+export interface LinkedClient {
+  _id: string;
+  name: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  status: boolean;
+  clientData?: {
+    preferredContact?: 'WHATSAPP' | 'EMAIL' | 'PHONE';
+    notes?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface QuoteRequest {
   _id?: string;
 
@@ -20,6 +35,8 @@ export interface QuoteRequest {
   isRead: boolean;
   convertedToClient: boolean;
   convertedToEvent: boolean;
+
+  clientId?: string | LinkedClient | null;
 
   lastSyncedAt?: string;
   createdAt?: string;

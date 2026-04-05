@@ -188,20 +188,45 @@ export class RequestListComponent implements OnInit {
     });
   }
 
-  convertToEvent(request: QuoteRequest, event?: MouseEvent): void {
+  viewClient(request: QuoteRequest, event?: MouseEvent): void {
     event?.stopPropagation();
 
-    this.router.navigate(['/events/new'], {
+    if (!request.clientId) return;
+
+    const clientId =
+      typeof request.clientId === 'string'
+        ? request.clientId
+        : request.clientId?._id;
+
+    if (!clientId) return;
+
+    this.router.navigate(['/clients', clientId]);
+  }
+
+
+
+  createQuote(request: QuoteRequest, event?: MouseEvent): void {
+    event?.stopPropagation();
+
+    const clientId =
+      typeof request.clientId === 'string'
+        ? request.clientId
+        : request.clientId?._id;
+
+    this.router.navigate(['/quotes/new'], {
       queryParams: {
-        name: request.eventName,
-        clientName: request.fullName,
-        clientEmail: request.email,
-        clientPhone: request.phone,
-        eventType: request.eventType,
-        eventDate: request.eventDate,
-        location: request.location,
-        guests: request.guests,
-        budgetRange: request.budgetRange
+        requestId: request._id || '',
+        odooId: request.odooId,
+        clientId: clientId || '',
+        fullName: request.fullName || '',
+        email: request.email || '',
+        phone: request.phone || '',
+        eventName: request.eventName || '',
+        eventType: request.eventType || '',
+        eventDate: request.eventDate || '',
+        location: request.location || '',
+        guests: request.guests || '',
+        budgetRange: request.budgetRange || ''
       }
     });
   }

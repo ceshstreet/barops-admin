@@ -140,12 +140,24 @@
               </button>
 
               <button
+                *ngIf="request.convertedToClient && request.clientId"
+                class="icon-btn linked-btn"
+                (click)="viewClient(request, $event)"
+                title="View client">
+                <span class="material-icons">open_in_new</span>
+              </button>
+
+
+
+              <button
                 class="icon-btn event-btn"
-                (click)="convertToEvent(request, $event)"
-                title="Convert to event">
-                <span class="material-icons">event_available</span>
+                (click)="createQuote(request, $event)"
+                title="Create quote">
+                <span class="material-icons">request_quote</span>
               </button>
             </div>
+
+
           </td>
         </tr>
       </tbody>

@@ -97,24 +97,31 @@ export class RequestDetailComponent implements OnInit {
     });
   }
 
-  convertToEvent(): void {
+  createQuote(): void {
     if (!this.request) return;
 
-    this.router.navigate(['/events/new'], {
+    const clientId =
+      typeof this.request.clientId === 'string'
+        ? this.request.clientId
+        : this.request.clientId?._id;
+
+    this.router.navigate(['/quotes/new'], {
       queryParams: {
-        name: this.request.eventName,
-        clientName: this.request.fullName,
-        clientEmail: this.request.email,
-        clientPhone: this.request.phone,
-        eventType: this.request.eventType,
-        eventDate: this.request.eventDate,
-        location: this.request.location,
-        guests: this.request.guests,
-        budgetRange: this.request.budgetRange
+        requestId: this.request._id || '',
+        odooId: this.request.odooId,
+        clientId: clientId || '',
+        fullName: this.request.fullName || '',
+        email: this.request.email || '',
+        phone: this.request.phone || '',
+        eventName: this.request.eventName || '',
+        eventType: this.request.eventType || '',
+        eventDate: this.request.eventDate || '',
+        location: this.request.location || '',
+        guests: this.request.guests || '',
+        budgetRange: this.request.budgetRange || ''
       }
     });
   }
-
   getInitials(name: string): string {
     if (!name) return 'NA';
 

@@ -1,0 +1,108 @@
+<div class="quote-form-page">
+  <div class="page-header">
+    <div>
+      <h2>New Quote</h2>
+      <p>Create a quote from an incoming request.</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-grid">
+
+      <div class="field">
+        <label>Client Name</label>
+        <input type="text" [(ngModel)]="quote.fullName" />
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="quote.email" />
+      </div>
+
+      <div class="field">
+        <label>Phone</label>
+        <input type="text" [(ngModel)]="quote.phone" />
+      </div>
+
+      <div class="field">
+        <label>Event Name</label>
+        <input type="text" [(ngModel)]="quote.eventName" />
+      </div>
+
+      <div class="field">
+        <label>Event Type</label>
+        <input type="text" [(ngModel)]="quote.eventType" />
+      </div>
+
+      <div class="field">
+        <label>Event Date</label>
+        <input type="text" [(ngModel)]="quote.eventDate" />
+      </div>
+
+      <div class="field">
+        <label>Location</label>
+        <input type="text" [(ngModel)]="quote.location" />
+      </div>
+
+      <div class="field">
+        <label>Guests</label>
+        <input type="text" [(ngModel)]="quote.guests" />
+      </div>
+
+      <div class="field">
+        <label>Budget Range</label>
+        <input type="text" [(ngModel)]="quote.budgetRange" />
+      </div>
+
+      <div class="field">
+        <label>Bar Type</label>
+        <input type="text" [(ngModel)]="quote.barTypeId" placeholder="Will connect to bar types later" />
+      </div>
+
+      <div class="field">
+        <label>Package</label>
+        <input type="text" [(ngModel)]="quote.packageId" placeholder="Will connect to packages later" />
+      </div>
+
+      <div class="field">
+        <label>Drink Theme</label>
+        <input type="text" [(ngModel)]="quote.drinkThemeId" placeholder="Will connect to drink themes later" />
+      </div>
+
+      <div class="field">
+        <label>Subtotal</label>
+        <input type="number" [(ngModel)]="quote.subtotal" (ngModelChange)="calculateTotal()" />
+      </div>
+
+      <div class="field">
+        <label>Discount</label>
+        <input type="number" [(ngModel)]="quote.discount" (ngModelChange)="calculateTotal()" />
+      </div>
+
+      <div class="field">
+        <label>Tax</label>
+        <input type="number" [(ngModel)]="quote.tax" (ngModelChange)="calculateTotal()" />
+      </div>
+
+      <div class="field">
+        <label>Total</label>
+        <input type="number" [value]="quote.total || 0" readonly />
+      </div>
+
+      <div class="field field-full">
+        <label>Notes for Client</label>
+        <textarea rows="4" [(ngModel)]="quote.notes"></textarea>
+      </div>
+
+      <div class="field field-full">
+        <label>Internal Notes</label>
+        <textarea rows="4" [(ngModel)]="quote.internalNotes"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="secondary-btn" (click)="goBack()">Cancel</button>
+      <button class="primary-btn" (click)="saveDraft()">Save Draft</button>
+    </div>
+  </div>
+</div>
