@@ -1,0 +1,68 @@
+<div class="add-on-form-page">
+  <div class="page-header">
+    <h2>{{ isEdit ? 'Edit Service' : 'New Service' }}</h2>
+    <p>{{ isEdit ? 'Update this service in the catalog.' : 'Add a new service to the catalog.' }}</p>
+  </div>
+
+  <div class="form-card">
+
+    <div class="form-grid">
+      <div class="field field-full">
+        <label>Service Name</label>
+        <input type="text" [(ngModel)]="name" placeholder="E.g. Servicio básico de bartending" />
+      </div>
+
+      <div class="field">
+        <label>Category</label>
+        <select [(ngModel)]="category">
+          <option *ngFor="let cat of categories" [value]="cat[0]">{{ cat[1] }}</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <select [(ngModel)]="active">
+          <option [ngValue]="true">Active</option>
+          <option [ngValue]="false">Inactive</option>
+        </select>
+      </div>
+
+      <div class="field field-full">
+        <label>Default Detail</label>
+        <input type="text" [(ngModel)]="defaultDetail" placeholder="E.g. 1 bartender por cada 50 personas" />
+      </div>
+
+      <div class="field field-full">
+        <label>Description</label>
+        <textarea [(ngModel)]="description" rows="3" placeholder="Optional description..."></textarea>
+      </div>
+
+      <div class="field field-full">
+        <label class="toggle-label">
+          <span>Type</span>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn" [class.active]="defaultIncluded" (click)="defaultIncluded = true">
+              Included
+            </button>
+            <button type="button" class="toggle-btn" [class.active]="!defaultIncluded" (click)="defaultIncluded = false">
+              Add-on (with price)
+            </button>
+          </div>
+        </label>
+      </div>
+
+      <div class="field" *ngIf="!defaultIncluded">
+        <label>Default Price ($)</label>
+        <input type="number" [(ngModel)]="defaultPrice" placeholder="0" min="0" />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
+      <button type="button" class="primary-btn" (click)="save()" [disabled]="!name || saving">
+        {{ isEdit ? 'Save Changes' : 'Create Service' }}
+      </button>
+    </div>
+
+  </div>
+</div>

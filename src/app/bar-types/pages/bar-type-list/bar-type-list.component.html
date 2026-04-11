@@ -7,8 +7,18 @@
     <button class="primary-btn" (click)="createBarType()">+ New Bar Type</button>
   </div>
 
-  <div class="bar-table-card">
-    <table>
+  <div class="status-card" *ngIf="loading">
+    <span class="material-icons">hourglass_top</span>
+    <p>Loading bar types...</p>
+  </div>
+
+  <div class="status-card error" *ngIf="error">
+    <span class="material-icons">error_outline</span>
+    <p>{{ error }}</p>
+  </div>
+
+  <div class="bar-table-card" *ngIf="!loading && !error">
+    <table *ngIf="barTypes.length > 0; else emptyState">
       <thead>
         <tr>
           <th>#</th>
@@ -16,6 +26,7 @@
           <th>Category</th>
           <th>Lighting</th>
           <th>Capacity</th>
+          <th>Setup</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
@@ -23,29 +34,41 @@
       <tbody>
         <tr *ngFor="let bar of barTypes; let i = index" class="clickable-row"
           (click)="openBarType(bar)">
-          <td>{{ i + 1 }}</td>
-          <td>{{ bar.name }}</td>
-          <td>{{ bar.category }}</td>
+          <td class="muted-text">{{ i + 1 }}</td>
+          <td class="primary-text">{{ bar.name }}</td>
+          <td class="muted-text">{{ bar.category }}</td>
           <td>
             <span class="lighting-tag" [class.has-lighting]="bar.lighting">
-              {{ bar.lighting ? 'Yes' : 'No' }}
+              {{ bar.lighting ? '💡 Yes' : 'No' }}
             </span>
           </td>
-          <td>{{ bar.capacity }} persons</td>
+          <td class="muted-text">{{ bar.capacity }} persons</td>
+          <td class="muted-text">{{ bar.setupType }}</td>
           <td>
             <span class="status-badge" [class.active]="bar.status" [class.inactive]="!bar.status">
               {{ bar.status ? 'Active' : 'Inactive' }}
             </span>
           </td>
           <td>
-            <div class="actions-cell">
-              <button class="btn-edit" (click)="editBarType($event, bar)">✏️</button>
-              <button class="btn-delete" (click)="confirmDelete($event, bar)">🗑️</button>
+            <div class="actions-cell" (click)="$event.stopPropagation()">
+              <button class="icon-btn" (click)="editBarType($event, bar)" title="Edit">
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="icon-btn delete-btn" (click)="confirmDelete($event, bar)" title="Delete">
+                <span class="material-icons">delete</span>
+              </button>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <span class="material-icons">view_module</span>
+        <p>No bar types created yet.</p>
+      </div>
+    </ng-template>
   </div>
 </div>
 

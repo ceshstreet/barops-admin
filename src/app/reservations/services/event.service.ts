@@ -7,12 +7,19 @@ export interface Event {
   eventCode?: string;
   status?: string;
   title: string;
-  clientId: string;
+  clientId?: string;
+  clientName?: string;
+  email?: string;
+  phone?: string;
+  eventType?: string;
   eventDate: string;
   location: string;
   guests?: string;
   notes?: string;
   bartenderId?: string;
+  quoteId?: string;
+  quotedTotal?: number;
+  packageName?: string;
 }
 
 @Injectable({ providedIn: 'root' })

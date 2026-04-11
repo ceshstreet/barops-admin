@@ -17,6 +17,10 @@ export class DrinkThemeDetailComponent implements OnInit {
   themeDrinks: Drink[] = [];
   totalIngredients = 0;
 
+  showDeleteModal = false;
+  deleting = false;
+  toast: { message: string; type: 'success' | 'error' } | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -49,5 +53,31 @@ export class DrinkThemeDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/drink-themes']);
+  }
+
+  openDeleteModal(): void { this.showDeleteModal = true; }
+  closeDeleteModal(): void { this.showDeleteModal = false; }
+
+  confirmDelete(): void {
+    if (!this.theme) return;
+    this.deleting = true;
+    this.themeService.delete(this.theme._id).subscribe({
+      next: () => {
+        this.showDeleteModal = false;
+        this.showToast('Theme eliminado exitosamente', 'success');
+        setTimeout(() => this.router.navigate(['/drink-themes']), 1200);
+      },
+      error: (err) => {
+        console.error('Error deleting:', err);
+        this.showDeleteModal = false;
+        this.deleting = false;
+        this.showToast('Error al eliminar el theme', 'error');
+      },
+    });
+  }
+
+  showToast(message: string, type: 'success' | 'error'): void {
+    this.toast = { message, type };
+    setTimeout(() => this.toast = null, 3500);
   }
 }

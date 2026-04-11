@@ -19,7 +19,7 @@ export interface CocktailDetails {
 // Main Drink interface (matches backend schema exactly)
 export interface Drink {
   _id: string;
-  type: 'cocktail' | 'beer' | 'beverage' | 'wine';
+  type: 'cocktail' | 'beer' | 'beverage' | 'wine' | 'mixer';
   name: string;
   status: string; // "active" | "inactive"
   notes?: string;
@@ -41,6 +41,7 @@ export const DRINK_TYPES = [
   { value: 'beer', label: 'Beers', icon: '🍺', color: '#f59e0b' },
   { value: 'beverage', label: 'Beverages', icon: '💧', color: '#38bdf8' },
   { value: 'wine', label: 'Wine', icon: '🍷', color: '#ef4444' },
+  { value: 'mixer', label: 'Mixers', icon: '🧃', color: '#34d399' },
 ] as const;
 
 // ── Cocktail options ──
@@ -66,7 +67,10 @@ export const INGREDIENT_UNITS = ['ml', 'oz', 'dash', 'splash', 'unit', 'leaves',
 export const BEER_SUBTYPES = ['Lager', 'Pilsner', 'IPA', 'Stout', 'Ale', 'Wheat', 'Porter', 'Amber'];
 
 // ── Beverage options ──
-export const BEVERAGE_SUBTYPES = ['Water', 'Soft Drink', 'Juice', 'Energy', 'Tonic', 'Mixer'];
+export const BEVERAGE_SUBTYPES = ['Water', 'Soft Drink', 'Juice', 'Energy', 'Tonic'];
+
+// ── Mixer options ──
+export const MIXER_SUBTYPES = ['Tonic Water', 'Soda Water', 'Ginger Beer', 'Ginger Ale', 'Club Soda', 'Cola', 'Lemon-Lime Soda', 'Coconut Water', 'Juice', 'Syrup', 'Other'];
 
 // ── Wine options ──
 export const WINE_SUBTYPES = ['Red', 'White', 'Rosé', 'Sparkling', 'Dessert'];

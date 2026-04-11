@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  Drink, DrinkIngredient, DRINK_TYPES,
+  DrinkIngredient, DRINK_TYPES,
   DRINK_CATEGORIES, BASE_SPIRITS, GLASSWARE_OPTIONS, INGREDIENT_UNITS,
-  BEER_SUBTYPES, BEVERAGE_SUBTYPES, WINE_SUBTYPES, SIZE_OPTIONS,
+  BEER_SUBTYPES, BEVERAGE_SUBTYPES, WINE_SUBTYPES, MIXER_SUBTYPES, SIZE_OPTIONS,
 } from '../../models/drink.model';
 import { DrinkService } from '../../services/drink.service';
 
@@ -52,6 +52,7 @@ export class DrinkFormComponent implements OnInit {
   beerSubtypes = BEER_SUBTYPES;
   bevSubtypes = BEVERAGE_SUBTYPES;
   wineSubtypes = WINE_SUBTYPES;
+  mixerSubtypes = MIXER_SUBTYPES;
   sizes = SIZE_OPTIONS;
   statuses = ['active', 'inactive'];
 

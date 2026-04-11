@@ -1,6 +1,263 @@
 <div class="quote-detail-page">
-  <div class="page-header">
-    <h2>Quote Detail</h2>
-    <p>Quote detail view will be available here.</p>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <span class="material-icons">autorenew</span>
+    <p>Loading quote...</p>
   </div>
+
+  <!-- Error -->
+  <div class="loading-state" *ngIf="!loading && error">
+    <span class="material-icons" style="color:#ef4444">error_outline</span>
+    <p style="color:#ef4444">{{ error }}</p>
+  </div>
+
+  <ng-container *ngIf="!loading && quote">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-icons">arrow_back</span> Back to Quotes
+      </button>
+      <div class="header-actions">
+        <button class="icon-action-btn no-print" (click)="copyShareLink()">
+          <span class="material-icons">link</span> Copy Link
+        </button>
+        <button class="icon-action-btn no-print" (click)="printQuote()">
+          <span class="material-icons">picture_as_pdf</span> Download PDF
+        </button>
+        <button class="icon-action-btn no-print" (click)="edit()">
+          <span class="material-icons">edit</span> Edit
+        </button>
+        <button class="icon-action-btn convert no-print" *ngIf="quote.status === 'APPROVED'"
+          (click)="convertToReservation()">
+          <span class="material-icons">event_available</span> Create Reservation
+        </button>
+      </div>
+    </div>
+
+    <!-- Document Card -->
+    <div class="doc-card">
+
+      <!-- Header band -->
+      <div class="doc-header">
+        <div class="doc-header-left">
+          <span class="doc-badge">
+            <span class="material-icons">request_quote</span>
+            QUOTE
+          </span>
+          <h2 class="doc-title">{{ quote.eventName }}</h2>
+          <p class="doc-subtitle">{{ quote.fullName }} &middot; {{ quote.eventType }}</p>
+        </div>
+        <div class="doc-meta">
+          <span class="doc-status-badge"
+            [style.background]="getStatusColor(quote.status) + '22'"
+            [style.color]="getStatusColor(quote.status)"
+            [style.borderColor]="getStatusColor(quote.status) + '44'">
+            {{ getStatusLabel(quote.status) }}
+          </span>
+          <span class="doc-date">
+            Created {{ quote.createdAt | date:'MMM d, yyyy' }}<br>
+            <span *ngIf="quote.eventDate">Event: {{ quote.eventDate | date:'MMM d, yyyy' }}</span>
+          </span>
+        </div>
+      </div>
+
+      <hr class="doc-divider">
+
+      <!-- Body -->
+      <div class="doc-body">
+
+        <!-- CLIENT -->
+        <div class="doc-section">
+          <p class="section-label">Client</p>
+          <div class="client-block">
+            <div class="client-avatar">{{ quote.fullName.charAt(0).toUpperCase() }}</div>
+            <div class="client-details">
+              <span class="client-name">{{ quote.fullName }}</span>
+              <div class="client-contact">
+                <span *ngIf="quote.email">
+                  <span class="material-icons">email</span>{{ quote.email }}
+                </span>
+                <span *ngIf="quote.phone">
+                  <span class="material-icons">phone</span>{{ quote.phone }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EVENT DETAILS -->
+        <div class="doc-section">
+          <p class="section-label">Event Details</p>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Event Type</span>
+              <span class="info-value" [class.muted]="!quote.eventType">
+                {{ quote.eventType || '—' }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Event Date</span>
+              <span class="info-value" [class.muted]="!quote.eventDate">
+                {{ quote.eventDate ? (quote.eventDate | date:'MMM d, yyyy') : '—' }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Location</span>
+              <span class="info-value" [class.muted]="!quote.location">{{ quote.location || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Guests</span>
+              <span class="info-value">{{ quote.guestCount || quote.guests || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Budget Range</span>
+              <span class="info-value" [class.muted]="!quote.budgetRange">{{ quote.budgetRange || '—' }}</span>
+            </div>
+            <div class="info-item" *ngIf="quote.barTypeName">
+              <span class="info-label">Bar Type</span>
+              <span class="info-value">{{ quote.barTypeName }}</span>
+            </div>
+            <div class="info-item" *ngIf="quote.drinkThemeName">
+              <span class="info-label">Drink Theme</span>
+              <span class="info-value">{{ quote.drinkThemeName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SERVICES -->
+        <div class="doc-section">
+          <p class="section-label">Services & Pricing</p>
+          <div class="doc-services">
+            <table class="services-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Type</th>
+                  <th class="text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Package base -->
+                <tr *ngIf="quote.packageName || quote.packageBasePrice">
+                  <td>
+                    <div class="item-name">{{ quote.packageName || 'Package' }}</div>
+                    <div class="item-detail">Base package</div>
+                  </td>
+                  <td><span class="addon-tag">Package</span></td>
+                  <td class="text-right">${{ quote.packageBasePrice || 0 | number:'1.0-0' }}</td>
+                </tr>
+                <!-- Per-guest -->
+                <tr *ngIf="quote.pricePerGuest && (quote.guestCount || quote.guests)">
+                  <td>
+                    <div class="item-name">Guest Rate</div>
+                    <div class="item-detail">
+                      {{ quote.guestCount || quote.guests }} guests × ${{ quote.pricePerGuest }}/guest
+                    </div>
+                  </td>
+                  <td></td>
+                  <td class="text-right">${{ (quote.guestCount || 0) * (quote.pricePerGuest || 0) | number:'1.0-0' }}</td>
+                </tr>
+                <!-- Subtotal from stored value if no package detail -->
+                <tr *ngIf="!quote.packageName && !quote.packageBasePrice && !quote.pricePerGuest && quote.subtotal">
+                  <td>
+                    <div class="item-name">Services</div>
+                    <div class="item-detail">Quote total</div>
+                  </td>
+                  <td></td>
+                  <td class="text-right">${{ quote.subtotal | number:'1.0-0' }}</td>
+                </tr>
+                <!-- Add-on lines -->
+                <tr *ngFor="let line of quote.addOnLines">
+                  <td>
+                    <div class="item-name">{{ line.name }}</div>
+                    <div class="item-detail" *ngIf="line.detail">{{ line.detail }}</div>
+                  </td>
+                  <td>
+                    <span class="included-tag" *ngIf="line.price === 0">Included</span>
+                    <span class="addon-tag" *ngIf="line.price > 0">Add-on</span>
+                  </td>
+                  <td class="text-right">
+                    {{ line.price === 0 ? 'Included' : ('$' + (line.price | number:'1.0-0')) }}
+                  </td>
+                </tr>
+                <!-- Empty state: solo cuando realmente no hay nada -->
+                <tr *ngIf="!quote.packageName && !quote.packageBasePrice && !quote.subtotal && (!quote.addOnLines || quote.addOnLines.length === 0)">
+                  <td colspan="3" style="color:rgba(234,241,255,0.3);font-style:italic;text-align:center;padding:24px">
+                    No services listed.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TOTALS -->
+        <div class="doc-totals">
+          <div class="totals-col">
+            <div class="total-row">
+              <span>Subtotal</span>
+              <span>${{ quote.subtotal | number:'1.0-0' }}</span>
+            </div>
+            <div class="total-row deduct" *ngIf="quote.discount">
+              <span>Discount</span>
+              <span>− ${{ quote.discount | number:'1.0-0' }}</span>
+            </div>
+            <div class="total-row" *ngIf="quote.tax">
+              <span>Tax</span>
+              <span>+ ${{ quote.tax | number:'1.0-0' }}</span>
+            </div>
+            <div class="total-row grand divider">
+              <span>TOTAL</span>
+              <span>${{ quote.total | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CLIENT NOTES -->
+        <div class="doc-section" *ngIf="quote.notes">
+          <p class="section-label">Notes for Client</p>
+          <div class="notes-block">
+            <div class="notes-label">
+              <span class="material-icons">description</span> Terms & Conditions
+            </div>
+            <p class="notes-text">{{ quote.notes }}</p>
+          </div>
+        </div>
+
+      </div><!-- /doc-body -->
+    </div><!-- /doc-card -->
+
+    <!-- STATUS ACTIONS -->
+    <div class="status-actions-card">
+      <span class="status-actions-label">Update Status</span>
+      <div class="status-actions-row">
+        <button
+          *ngFor="let s of statuses"
+          class="status-action-btn"
+          [class.active]="quote.status === s.value"
+          [style.--s-color]="s.color"
+          [disabled]="updatingStatus"
+          (click)="setStatus(s.value)">
+          {{ s.label }}
+        </button>
+      </div>
+    </div>
+
+    <!-- INTERNAL NOTES -->
+    <div class="internal-card" *ngIf="quote.internalNotes">
+      <div class="internal-label">
+        <span class="material-icons">lock</span> Internal Notes
+      </div>
+      <p class="internal-text">{{ quote.internalNotes }}</p>
+    </div>
+
+  </ng-container>
+
+  <!-- Toast -->
+  <div class="toast" *ngIf="toast" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+    {{ toast.message }}
+  </div>
+
 </div>

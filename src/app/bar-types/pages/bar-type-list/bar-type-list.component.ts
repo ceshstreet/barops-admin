@@ -13,8 +13,9 @@ import { ToastService } from '../../../shared/services/toast.service';
 })
 export class BarTypeListComponent implements OnInit {
   barTypes: BarType[] = [];
+  loading = false;
+  error = '';
 
-  // Variables para el modal de eliminación
   showDeleteModal = false;
   barToDelete: BarType | null = null;
 
@@ -29,12 +30,16 @@ export class BarTypeListComponent implements OnInit {
   }
 
   loadBarTypes() {
+    this.loading = true;
+    this.error = '';
     this.barTypeService.getBarTypes().subscribe({
       next: (data) => {
         this.barTypes = data;
+        this.loading = false;
       },
       error: (err) => {
-        this.toastService.show('Error loading bar types', 'error');
+        this.error = 'Could not load bar types. Check that the API is running.';
+        this.loading = false;
         console.error(err);
       }
     });

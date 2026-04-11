@@ -1,6 +1,141 @@
 <div class="quote-list-page">
+
   <div class="page-header">
-    <h2>Quotes</h2>
-    <p>Quote list will be available here.</p>
+    <div>
+      <h2>Quotes</h2>
+      <p>Manage proposals and cotizaciones sent to clients.</p>
+    </div>
+    <button class="primary-btn" routerLink="/quotes/new">
+      <span class="material-icons">add</span>
+      New Quote
+    </button>
   </div>
+
+  <!-- STATUS TABS -->
+  <div class="status-tabs">
+    <button class="status-tab" [class.active]="activeStatus === 'ALL'" (click)="activeStatus = 'ALL'">
+      All <span class="tab-count">{{ quotes.length }}</span>
+    </button>
+    <button *ngFor="let s of statuses"
+      class="status-tab"
+      [class.active]="activeStatus === s.value"
+      [style.--tab-color]="s.color"
+      (click)="activeStatus = s.value">
+      {{ s.label }}
+      <span class="tab-count" *ngIf="countByStatus(s.value) > 0">{{ countByStatus(s.value) }}</span>
+    </button>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Search by client, event, location..." />
+    </div>
+  </div>
+
+  <!-- LOADING / ERROR -->
+  <div class="status-card" *ngIf="loading">
+    <span class="material-icons">hourglass_top</span>
+    <p>Loading quotes...</p>
+  </div>
+  <div class="status-card error" *ngIf="error">
+    <span class="material-icons">error_outline</span>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card" *ngIf="!loading && !error">
+    <table *ngIf="filtered.length > 0; else emptyState">
+      <thead>
+        <tr>
+          <th (click)="sort('eventName')" class="sortable">
+            Event <span class="material-icons sort-icon">{{ getSortIcon('eventName') }}</span>
+          </th>
+          <th (click)="sort('fullName')" class="sortable">
+            Client <span class="material-icons sort-icon">{{ getSortIcon('fullName') }}</span>
+          </th>
+          <th (click)="sort('eventDate')" class="sortable">
+            Date <span class="material-icons sort-icon">{{ getSortIcon('eventDate') }}</span>
+          </th>
+          <th>Package</th>
+          <th (click)="sort('total')" class="sortable">
+            Total <span class="material-icons sort-icon">{{ getSortIcon('total') }}</span>
+          </th>
+          <th (click)="sort('status')" class="sortable">
+            Status <span class="material-icons sort-icon">{{ getSortIcon('status') }}</span>
+          </th>
+          <th (click)="sort('createdAt')" class="sortable">
+            Created <span class="material-icons sort-icon">{{ getSortIcon('createdAt') }}</span>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let q of filtered; trackBy: trackByQuote" class="table-row" (click)="viewQuote(q._id)">
+          <td>
+            <div class="event-cell">
+              <span class="event-name">{{ q.eventName || 'Untitled' }}</span>
+              <span class="event-type">{{ q.eventType }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="client-cell">
+              <span class="client-name">{{ q.fullName || 'N/A' }}</span>
+              <span class="client-email">{{ q.email }}</span>
+            </div>
+          </td>
+          <td class="muted-text">{{ q.eventDate | date:'mediumDate' }}</td>
+          <td class="muted-text">{{ q.packageName || '—' }}</td>
+          <td class="total-cell">${{ (q.total || 0) | number:'1.0-0' }}</td>
+          <td>
+            <span class="status-badge" [style.color]="getStatusColor(q.status)"
+              [style.background]="getStatusColor(q.status) + '18'"
+              [style.border-color]="getStatusColor(q.status) + '40'">
+              {{ q.status }}
+            </span>
+          </td>
+          <td class="muted-text">{{ q.createdAt | date:'MMM d, y' }}</td>
+          <td>
+            <div class="actions-cell" (click)="$event.stopPropagation()">
+              <button class="icon-btn" (click)="viewQuote(q._id)" title="View">
+                <span class="material-icons">visibility</span>
+              </button>
+              <button class="icon-btn" (click)="editQuote(q._id)" title="Edit">
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="icon-btn danger" *ngIf="q.status === 'DRAFT'"
+                (click)="confirmDelete(q._id!)" title="Delete draft">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <span class="material-icons">request_quote</span>
+        <p>No quotes found.</p>
+        <button class="primary-btn" routerLink="/quotes/new">Create your first quote</button>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div class="modal-overlay" *ngIf="deleteId" (click)="cancelDelete()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-icon"><span class="material-icons">delete_forever</span></div>
+      <h3>Delete Draft Quote</h3>
+      <p>This quote will be permanently deleted. This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="modal-cancel" (click)="cancelDelete()" [disabled]="deleting">Cancel</button>
+        <button class="modal-confirm" (click)="doDelete()" [disabled]="deleting">
+          {{ deleting ? 'Deleting...' : 'Yes, Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>

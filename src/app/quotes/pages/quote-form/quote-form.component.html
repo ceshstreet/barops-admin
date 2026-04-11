@@ -1,108 +1,285 @@
 <div class="quote-form-page">
+
   <div class="page-header">
     <div>
-      <h2>New Quote</h2>
-      <p>Create a quote from an incoming request.</p>
+      <h2>{{ isEdit ? 'Edit Quote' : 'New Quote' }}</h2>
+      <p>{{ isEdit ? 'Update quote details.' : 'Build a professional proposal for the client.' }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="secondary-btn" (click)="cancel()">Cancel</button>
+      <button class="outline-btn" (click)="save(true)" [disabled]="saving">Save Draft</button>
+      <button class="primary-btn" (click)="save(false)" [disabled]="!fullName || !eventName || saving">
+        {{ saving ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Quote') }}
+      </button>
     </div>
   </div>
 
-  <div class="form-card">
-    <div class="form-grid">
+  <div class="form-layout">
 
-      <div class="field">
-        <label>Client Name</label>
-        <input type="text" [(ngModel)]="quote.fullName" />
+    <!-- ══ LEFT COLUMN ══ -->
+    <div class="left-col">
+
+      <!-- CLIENT & EVENT -->
+      <div class="form-card">
+        <h3 class="card-title">
+          <span class="material-icons">person</span> Client & Event
+        </h3>
+        <div class="form-grid">
+          <div class="field">
+            <label>Client Name *</label>
+            <input type="text" [(ngModel)]="fullName" placeholder="Full name" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="email" placeholder="client@email.com" />
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input type="tel" [(ngModel)]="phone" placeholder="+1 (555) 000-0000" />
+          </div>
+          <div class="field">
+            <label>Event Name *</label>
+            <input type="text" [(ngModel)]="eventName" placeholder="E.g. Smith Wedding" />
+          </div>
+          <div class="field">
+            <label>Event Type</label>
+            <select [(ngModel)]="eventType">
+              <option value="">Select type</option>
+              <option *ngFor="let t of eventTypes" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Event Date</label>
+            <input type="date" [(ngModel)]="eventDate" />
+          </div>
+          <div class="field field-full">
+            <label>Location / Venue</label>
+            <input type="text" [(ngModel)]="location" placeholder="Address or venue name" />
+          </div>
+          <div class="field">
+            <label>Number of Guests</label>
+            <input type="number" [(ngModel)]="guestCount" min="1" />
+          </div>
+          <div class="field">
+            <label>Budget Range</label>
+            <input type="text" [(ngModel)]="budgetRange" placeholder="E.g. $2,000 – $3,500" />
+          </div>
+        </div>
       </div>
 
-      <div class="field">
-        <label>Email</label>
-        <input type="email" [(ngModel)]="quote.email" />
+      <!-- PACKAGE SELECTION -->
+      <div class="form-card">
+        <h3 class="card-title">
+          <span class="material-icons">inventory</span> Package
+        </h3>
+        <p class="card-hint">Select a base package. Pricing will calculate automatically.</p>
+
+        <div *ngIf="allPackages.length === 0" class="empty-hint">
+          No active packages. <a routerLink="/packages/new">Create one first.</a>
+        </div>
+
+        <div class="package-grid">
+          <div *ngFor="let pkg of allPackages"
+            class="package-card"
+            [class.selected]="selectedPackageId === pkg._id"
+            (click)="selectPackage(pkg)">
+            <div class="pkg-check" [class.checked]="selectedPackageId === pkg._id">
+              <svg *ngIf="selectedPackageId === pkg._id" width="11" height="11" viewBox="0 0 24 24"
+                fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="pkg-info">
+              <span class="pkg-name">{{ pkg.name }}</span>
+              <span class="pkg-meta">{{ pkg.duration }} · {{ pkg.barType }}</span>
+            </div>
+            <div class="pkg-price">
+              <span class="pkg-base">${{ pkg.basePrice }}</span>
+              <span class="pkg-per">+${{ pkg.pricePerGuest }}/guest</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Package preview -->
+        <div class="package-preview" *ngIf="selectedPackage">
+          <div class="preview-row">
+            <span>Base price</span><span>${{ selectedPackage.basePrice }}</span>
+          </div>
+          <div class="preview-row">
+            <span>{{ guestCount }} guests × ${{ selectedPackage.pricePerGuest }}</span>
+            <span>${{ packageGuestPrice }}</span>
+          </div>
+          <div class="preview-row muted" *ngIf="selectedPackage.minGuests">
+            <span>Capacity</span>
+            <span>{{ selectedPackage.minGuests }}–{{ selectedPackage.maxGuests }} guests</span>
+          </div>
+        </div>
       </div>
 
-      <div class="field">
-        <label>Phone</label>
-        <input type="text" [(ngModel)]="quote.phone" />
+      <!-- BAR TYPE & THEME -->
+      <div class="form-card">
+        <h3 class="card-title">
+          <span class="material-icons">local_bar</span> Bar & Theme
+        </h3>
+        <div class="form-grid">
+          <div class="field">
+            <label>Bar Type</label>
+            <select [(ngModel)]="selectedBarTypeId">
+              <option value="">Select bar type</option>
+              <option *ngFor="let b of allBarTypes" [value]="b._id">
+                {{ b.name }} · {{ b.category }} · Cap. {{ b.capacity }}
+              </option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Drink Theme</label>
+            <select [(ngModel)]="selectedThemeId">
+              <option value="">Select theme</option>
+              <option *ngFor="let t of allThemes" [value]="t._id">
+                {{ t.name }} — {{ t.style }}
+              </option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div class="field">
-        <label>Event Name</label>
-        <input type="text" [(ngModel)]="quote.eventName" />
+      <!-- ADD-ONS -->
+      <div class="form-card">
+        <div class="card-title-row">
+          <h3 class="card-title">
+            <span class="material-icons">add_circle_outline</span> Add-ons & Extras
+          </h3>
+          <button type="button" class="add-btn" (click)="showAddOnPicker = !showAddOnPicker">
+            + Add Service
+          </button>
+        </div>
+
+        <!-- Picker -->
+        <div class="addon-picker" *ngIf="showAddOnPicker">
+          <div *ngIf="allAddOns.length === 0" class="picker-empty">No add-ons in catalog.</div>
+          <button type="button" class="addon-picker-item"
+            *ngFor="let a of allAddOns"
+            [class.selected]="isAddOnSelected(a)"
+            (click)="toggleAddOn(a)">
+            <span class="addon-picker-name">{{ a.name }}</span>
+            <span class="addon-picker-detail">{{ a.defaultDetail }}</span>
+            <span class="addon-picker-price" [class.included]="a.defaultIncluded">
+              {{ a.defaultIncluded ? 'Included' : ('$' + a.defaultPrice) }}
+            </span>
+            <span class="material-icons check-icon" *ngIf="isAddOnSelected(a)">check_circle</span>
+          </button>
+        </div>
+
+        <!-- Selected add-on lines -->
+        <div *ngIf="selectedAddOnLines.length > 0" class="addon-lines">
+          <div *ngFor="let line of selectedAddOnLines; let i = index" class="addon-line">
+            <div class="addon-line-info">
+              <span class="addon-line-name">{{ line.name }}</span>
+              <span class="addon-line-detail">{{ line.detail }}</span>
+            </div>
+            <input type="number" class="addon-price-input" [(ngModel)]="line.price" min="0" />
+            <button type="button" class="remove-btn" (click)="removeAddOnLine(i)">✕</button>
+          </div>
+        </div>
+        <div *ngIf="selectedAddOnLines.length === 0 && !showAddOnPicker" class="empty-hint">
+          No add-ons selected.
+        </div>
       </div>
 
-      <div class="field">
-        <label>Event Type</label>
-        <input type="text" [(ngModel)]="quote.eventType" />
+      <!-- NOTES -->
+      <div class="form-card">
+        <h3 class="card-title">
+          <span class="material-icons">notes</span> Notes
+        </h3>
+        <div class="form-grid">
+          <div class="field field-full">
+            <label>Notes for Client</label>
+            <textarea [(ngModel)]="notes" rows="4"
+              placeholder="Terms, inclusions, special conditions visible to the client..."></textarea>
+          </div>
+          <div class="field field-full">
+            <label>Internal Notes</label>
+            <textarea [(ngModel)]="internalNotes" rows="3"
+              placeholder="Internal comments — not visible to the client..."></textarea>
+          </div>
+        </div>
       </div>
 
-      <div class="field">
-        <label>Event Date</label>
-        <input type="text" [(ngModel)]="quote.eventDate" />
-      </div>
+    </div>
 
-      <div class="field">
-        <label>Location</label>
-        <input type="text" [(ngModel)]="quote.location" />
-      </div>
+    <!-- ══ RIGHT COLUMN — PRICING SUMMARY ══ -->
+    <div class="right-col">
+      <div class="pricing-card">
+        <h3 class="pricing-title">
+          <span class="material-icons">calculate</span> Pricing Summary
+        </h3>
 
-      <div class="field">
-        <label>Guests</label>
-        <input type="text" [(ngModel)]="quote.guests" />
-      </div>
+        <div class="pricing-section" *ngIf="selectedPackage || storedPackageName">
+          <div class="pricing-label">Package</div>
+          <div class="pricing-row">
+            <span>{{ effectivePackageName }}</span>
+            <span>${{ packageBasePrice }}</span>
+          </div>
+          <div class="pricing-row">
+            <span>{{ guestCount }} guests × ${{ effectivePricePerGuest }}</span>
+            <span>${{ packageGuestPrice }}</span>
+          </div>
+        </div>
 
-      <div class="field">
-        <label>Budget Range</label>
-        <input type="text" [(ngModel)]="quote.budgetRange" />
-      </div>
+        <div class="pricing-section" *ngIf="selectedAddOnLines.length > 0">
+          <div class="pricing-label">Add-ons</div>
+          <div class="pricing-row" *ngFor="let line of selectedAddOnLines">
+            <span>{{ line.name }}</span>
+            <span>${{ line.price }}</span>
+          </div>
+        </div>
 
-      <div class="field">
-        <label>Bar Type</label>
-        <input type="text" [(ngModel)]="quote.barTypeId" placeholder="Will connect to bar types later" />
-      </div>
+        <div class="pricing-divider"></div>
 
-      <div class="field">
-        <label>Package</label>
-        <input type="text" [(ngModel)]="quote.packageId" placeholder="Will connect to packages later" />
-      </div>
+        <div class="pricing-row subtotal-row">
+          <span>Subtotal</span>
+          <span>${{ subtotal | number:'1.0-0' }}</span>
+        </div>
 
-      <div class="field">
-        <label>Drink Theme</label>
-        <input type="text" [(ngModel)]="quote.drinkThemeId" placeholder="Will connect to drink themes later" />
-      </div>
+        <div class="pricing-row">
+          <span>Discount ($)</span>
+          <div class="inline-input-wrap">
+            <input type="number" [(ngModel)]="discount" min="0" class="inline-input" />
+          </div>
+        </div>
 
-      <div class="field">
-        <label>Subtotal</label>
-        <input type="number" [(ngModel)]="quote.subtotal" (ngModelChange)="calculateTotal()" />
-      </div>
+        <div class="pricing-row">
+          <span>Tax ($)</span>
+          <div class="inline-input-wrap">
+            <input type="number" [(ngModel)]="tax" min="0" class="inline-input" />
+          </div>
+        </div>
 
-      <div class="field">
-        <label>Discount</label>
-        <input type="number" [(ngModel)]="quote.discount" (ngModelChange)="calculateTotal()" />
-      </div>
+        <div class="pricing-divider"></div>
 
-      <div class="field">
-        <label>Tax</label>
-        <input type="number" [(ngModel)]="quote.tax" (ngModelChange)="calculateTotal()" />
-      </div>
+        <div class="pricing-total-row">
+          <span>TOTAL</span>
+          <span class="total-amount">${{ total | number:'1.0-0' }}</span>
+        </div>
 
-      <div class="field">
-        <label>Total</label>
-        <input type="number" [value]="quote.total || 0" readonly />
-      </div>
+        <!-- Status -->
+        <div class="status-section">
+          <label class="status-label">Quote Status</label>
+          <select [(ngModel)]="status" class="status-select">
+            <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+          </select>
+        </div>
 
-      <div class="field field-full">
-        <label>Notes for Client</label>
-        <textarea rows="4" [(ngModel)]="quote.notes"></textarea>
-      </div>
-
-      <div class="field field-full">
-        <label>Internal Notes</label>
-        <textarea rows="4" [(ngModel)]="quote.internalNotes"></textarea>
+        <!-- Actions -->
+        <div class="pricing-actions">
+          <button class="action-save-draft" (click)="save(true)" [disabled]="saving">
+            <span class="material-icons">save</span> Save Draft
+          </button>
+          <button class="action-save-primary" (click)="save(false)"
+            [disabled]="!fullName || !eventName || saving">
+            {{ saving ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Quote') }}
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="form-actions">
-      <button class="secondary-btn" (click)="goBack()">Cancel</button>
-      <button class="primary-btn" (click)="saveDraft()">Save Draft</button>
-    </div>
   </div>
 </div>

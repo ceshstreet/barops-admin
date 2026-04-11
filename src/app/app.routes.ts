@@ -48,9 +48,17 @@ import { QuoteDetailComponent } from './quotes/pages/quote-detail/quote-detail.c
 import { RequestListComponent } from './requests/pages/request-list/request-list.component';
 import { RequestDetailComponent } from './requests/pages/request-detail/request-detail.component';
 
+import { AddOnListComponent } from './add-ons/pages/add-on-list/add-on-list.component';
+import { AddOnFormComponent } from './add-ons/pages/add-on-form/add-on-form.component';
+
+import { QuotePublicComponent } from './quotes/pages/quote-public/quote-public.component';
+
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  // ── Public (no auth, client-facing) ──
+  { path: 'q/:token', component: QuotePublicComponent },
+
   {
     path: '',
     component: AdminLayoutComponent,
@@ -122,9 +130,15 @@ export const routes: Routes = [
       // Suppliers
       { path: 'suppliers', component: SupplierListComponent },
 
+      // Add-ons / Services
+      { path: 'add-ons', component: AddOnListComponent },
+      { path: 'add-ons/new', component: AddOnFormComponent },
+      { path: 'add-ons/:id/edit', component: AddOnFormComponent },
+
       // Quotes
       { path: 'quotes', component: QuoteListComponent},
       { path: 'quotes/new', component: QuoteFormComponent},
+      { path: 'quotes/:id/edit', component: QuoteFormComponent},
       { path: 'quotes/:id', component: QuoteDetailComponent},
     ],
   },

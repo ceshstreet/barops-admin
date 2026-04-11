@@ -1,83 +1,168 @@
-<div class="reservation-form-page">
+<div class="res-form-page">
+
+  <!-- Page Header -->
   <div class="page-header">
     <div>
-      <h2>{{ isEditMode ? 'Edit Reservation' : 'Create Reservation' }}</h2>
-      <p>{{ isEditMode ? 'Update the booking details.' : 'Capture the initial booking request before moving it into operations.' }}</p>
+      <h2>{{ isEditMode ? 'Edit Reservation' : 'New Reservation' }}</h2>
+      <p>{{ fromQuoteId ? 'Created from approved quote — details pre-filled.' : (isEditMode ? 'Update booking details.' : 'Capture a new booking.') }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="secondary-btn" (click)="cancel()">Cancel</button>
+      <button class="primary-btn" (click)="save()" [disabled]="!title || !eventDate || saving">
+        {{ saving ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create Reservation') }}
+      </button>
     </div>
   </div>
 
-  <div class="form-card">
-    <form (ngSubmit)="saveReservation()" #reservationForm="ngForm">
+  <!-- From-Quote Banner -->
+  <div class="quote-banner" *ngIf="fromQuoteId">
+    <span class="material-icons">task_alt</span>
+    <div class="quote-banner-body">
+      <strong>From Approved Quote</strong>
+      <span>All client and event details have been pre-filled from the approved quote.</span>
+    </div>
+    <a class="quote-banner-link" [routerLink]="['/quotes', fromQuoteId]">
+      <span class="material-icons">open_in_new</span> View Quote
+    </a>
+  </div>
 
-      <div class="stage-banner">
-        <strong>Stage:</strong> Pending
-      </div>
+  <div class="form-layout">
 
-      <div class="form-grid">
-        <div class="field">
-          <label>Client</label>
-          <select [(ngModel)]="reservation.clientId" name="clientId" required>
-            <option value="">Select client</option>
-            <option *ngFor="let client of clients" [value]="client._id">
-              {{ getFullName(client) }}
-            </option>
-          </select>
-        </div>
+    <!-- ══ LEFT ══ -->
+    <div class="left-col">
 
-        <div class="field">
-          <label>Event Name</label>
-          <input
-            type="text"
-            [(ngModel)]="reservation.title"
-            name="title"
-            placeholder="Enter event name"
-            required />
-        </div>
-
-        <div class="field">
-          <label>Event Date</label>
-          <input
-            type="date"
-            [(ngModel)]="reservation.eventDate"
-            name="eventDate"
-            required />
-        </div>
-
-        <div class="field">
-          <label>Location</label>
-          <input
-            type="text"
-            [(ngModel)]="reservation.location"
-            name="location"
-            placeholder="City, venue, or address"
-            required />
-        </div>
-
-        <div class="field">
-          <label>Guests</label>
-          <select [(ngModel)]="reservation.guests" name="guests">
-            <option value="">Select guest range</option>
-            <option *ngFor="let guest of guestOptions" [value]="guest">{{ guest }}</option>
-          </select>
-        </div>
-
-        <div class="field field-full">
-          <label>Notes</label>
-          <textarea
-            [(ngModel)]="reservation.notes"
-            name="notes"
-            rows="5"
-            placeholder="Additional booking notes, client requests, or initial comments"></textarea>
+      <!-- CLIENT -->
+      <div class="form-card">
+        <h3 class="card-title"><span class="material-icons">person</span> Client Information</h3>
+        <div class="form-grid">
+          <div class="field field-full">
+            <label>Full Name *</label>
+            <input type="text" [(ngModel)]="clientName" placeholder="Client full name" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="email" placeholder="client@email.com" />
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input type="tel" [(ngModel)]="phone" placeholder="+1 (555) 000-0000" />
+          </div>
+          <div class="field field-full">
+            <label>
+              Link to existing client
+              <span class="label-hint">— optional, for CRM tracking</span>
+            </label>
+            <select [(ngModel)]="clientId">
+              <option value="">None — use name above</option>
+              <option *ngFor="let c of clients" [value]="c._id">
+                {{ c.name }} {{ c.lastName }}
+              </option>
+            </select>
+            <span class="field-hint" *ngIf="clientId">
+              <span class="material-icons">check_circle</span>
+              Linked to: {{ clientLabel }}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div class="form-actions">
-        <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
-        <button type="submit" class="primary-btn">
-          {{ isEditMode ? 'Update Reservation' : 'Save Reservation' }}
-        </button>
+      <!-- EVENT DETAILS -->
+      <div class="form-card">
+        <h3 class="card-title"><span class="material-icons">event</span> Event Details</h3>
+        <div class="form-grid">
+          <div class="field field-full">
+            <label>Event Name *</label>
+            <input type="text" [(ngModel)]="title" placeholder="e.g. Smith Wedding Reception" />
+          </div>
+          <div class="field">
+            <label>Event Type</label>
+            <select [(ngModel)]="eventType">
+              <option value="">Select type</option>
+              <option *ngFor="let t of eventTypes" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Event Date *</label>
+            <input type="date" [(ngModel)]="eventDate" />
+          </div>
+          <div class="field field-full">
+            <label>Location / Venue</label>
+            <input type="text" [(ngModel)]="location" placeholder="Address or venue name" />
+          </div>
+          <div class="field">
+            <label>Number of Guests</label>
+            <select [(ngModel)]="guests">
+              <option value="">Select range</option>
+              <option *ngFor="let g of guestOptions" [value]="g">{{ g }}</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-    </form>
+      <!-- NOTES -->
+      <div class="form-card">
+        <h3 class="card-title"><span class="material-icons">notes</span> Notes</h3>
+        <div class="field">
+          <label>Booking Notes</label>
+          <textarea [(ngModel)]="notes" rows="5"
+            placeholder="Client requests, special conditions, internal notes..."></textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══ RIGHT ══ -->
+    <div class="right-col">
+
+      <!-- Summary Card -->
+      <div class="summary-card">
+        <h3 class="summary-title">
+          <span class="material-icons">summarize</span> Reservation Summary
+        </h3>
+
+        <!-- Quote origin info -->
+        <div class="summary-section" *ngIf="fromQuoteId || packageName">
+          <div class="summary-label">Services</div>
+          <div class="summary-row" *ngIf="packageName">
+            <span class="material-icons summary-row-icon">inventory_2</span>
+            <span>{{ packageName }}</span>
+          </div>
+          <div class="summary-total" *ngIf="quotedTotal">
+            <span>Quoted Total</span>
+            <span class="total-amount">${{ quotedTotal | number:'1.0-0' }}</span>
+          </div>
+        </div>
+
+        <div class="summary-divider" *ngIf="fromQuoteId || packageName"></div>
+
+        <!-- Status -->
+        <div class="summary-section">
+          <div class="summary-label">Status</div>
+          <div class="status-pills">
+            <button *ngFor="let s of statusOptions"
+              class="status-pill"
+              [class.active]="status === s.value"
+              [style.--s-color]="s.color"
+              (click)="status = s.value">
+              {{ s.label }}
+            </button>
+          </div>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <!-- Actions -->
+        <div class="summary-actions">
+          <button class="action-primary" (click)="save()" [disabled]="!title || !eventDate || saving">
+            <span class="material-icons">{{ isEditMode ? 'save' : 'add_circle' }}</span>
+            {{ saving ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create Reservation') }}
+          </button>
+          <button class="action-secondary" (click)="cancel()">Cancel</button>
+        </div>
+
+      </div>
+
+    </div>
+
   </div>
 </div>

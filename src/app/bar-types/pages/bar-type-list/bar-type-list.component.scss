@@ -141,28 +141,38 @@ table {
   }
 }
 
+.primary-text { font-weight: 600; }
+.muted-text { color: rgba(234, 241, 255, 0.55); }
+
 .actions-cell {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
+}
 
-  .btn-edit, .btn-delete {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 15px;
-    padding: 6px 8px;
-    border-radius: 8px;
-    transition: background 0.2s ease;
+.icon-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 6px; border-radius: 8px;
+  color: rgba(234, 241, 255, 0.5); transition: all 0.15s;
+  display: flex; align-items: center;
+  .material-icons { font-size: 18px; }
+  &:hover { background: rgba(255, 255, 255, 0.08); color: #eaf1ff; }
+  &.delete-btn:hover { color: #ef4444; }
+}
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-  }
+.status-card {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; padding: 40px; color: rgba(234, 241, 255, 0.4);
+  .material-icons { font-size: 32px; }
+  p { margin: 0; font-size: 14px; }
+  &.error { color: #ef4444; }
+}
 
-  .btn-delete:hover {
-    background: rgba(255, 80, 80, 0.15);
-  }
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; padding: 60px 20px; color: rgba(234, 241, 255, 0.3);
+  .material-icons { font-size: 40px; }
+  p { margin: 0; font-size: 14px; }
 }
 
 .modal-overlay {

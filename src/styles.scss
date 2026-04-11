@@ -36,3 +36,37 @@
 .iti__divider {
   border-color: rgba(255, 255, 255, 0.08) !important;
 }
+
+// ── GLOBAL PRINT STYLES ────────────────────────────────
+@media print {
+  // Ocultar sidebar, topbar y elementos marcados con no-print
+  app-sidebar,
+  app-topbar,
+  .no-print { display: none !important; }
+
+  // Reset del shell del admin
+  body, html {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  .admin-shell {
+    display: block !important;
+    background: #fff !important;
+  }
+
+  .admin-main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    background: #fff !important;
+  }
+
+  .admin-content {
+    padding: 0 !important;
+    background: #fff !important;
+    width: 100% !important;
+  }
+}

@@ -1,79 +1,200 @@
-<div class="reservation-detail-page">
-  <div class="page-header">
-    <button class="back-btn" (click)="goBack()">← Back</button>
+<div class="res-detail-page">
+
+  <!-- ── LOADING ── -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Loading reservation…</span>
   </div>
 
-  @if (reservation) {
-    <div class="detail-card">
-      <div class="detail-top">
-        <div>
-          <span class="reservation-code">{{ reservation.eventCode }}</span>
-          <h3>{{ reservation.title }}</h3>
-          <p>{{ getClientName() }}</p>
-        </div>
-        <span class="status-badge pending">{{ reservation.status }}</span>
-      </div>
+  <ng-container *ngIf="!loading && reservation">
 
-      <!-- CONTACT CARD -->
-      <div class="contact-card">
-        <div class="contact-avatar">
-          {{ getClientInitials() }}
-        </div>
-        <div class="contact-info">
-          <div class="contact-name">{{ getClientName() }}</div>
-          <div class="contact-actions">
-            <a [href]="'mailto:' + getClientEmail()" class="contact-btn email">
-              <span class="material-icons">email</span>
-              {{ getClientEmail() }}
-            </a>
-            <a [href]="'https://wa.me/' + getClientPhone()" target="_blank" class="contact-btn whatsapp">
-              <span class="material-icons">phone</span>
-              {{ getClientPhone() }}
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="detail-grid">
-        <div class="detail-item">
-          <label>Event Date</label>
-          <div>{{ reservation.eventDate }}</div>
-        </div>
-        <div class="detail-item">
-          <label>Location</label>
-          <div>{{ reservation.location }}</div>
-        </div>
-        <div class="detail-item">
-          <label>Guests</label>
-          <div>{{ reservation.guests || '—' }}</div>
-        </div>
-        <div class="detail-item full-width">
-          <label>Notes</label>
-          <div>{{ reservation.notes || '—' }}</div>
-        </div>
+    <!-- ── PAGE HEADER ── -->
+    <div class="page-header">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-icons">arrow_back</span> Reservations
+      </button>
+      <div class="header-right">
+        <span class="event-code" *ngIf="reservation.eventCode">{{ reservation.eventCode }}</span>
+        <a [routerLink]="['/reservations', reservation._id, 'edit']" class="edit-btn">
+          <span class="material-icons">edit</span> Edit
+        </a>
       </div>
     </div>
 
-    @if (reservation.status === 'PENDIENTE') {
-      <div class="action-card">
-        <h3>Process Reservation</h3>
-        <div class="field">
-          <label>Assign Bartender</label>
-          <select [(ngModel)]="selectedBartenderId">
-            <option value="">Select available bartender</option>
-            <option *ngFor="let b of bartenders" [value]="b._id">
-              {{ b.name }} {{ b.lastName }} — {{ b.bartenderData?.specialty }}
-            </option>
-          </select>
-        </div>
-        <div class="action-buttons">
-          <button class="danger-btn" (click)="rejectReservation()">✗ Reject</button>
-          <button class="approve-btn" (click)="approveReservation()">✓ Approve</button>
-        </div>
+    <!-- ── TITLE ROW ── -->
+    <div class="title-row">
+      <div class="title-main">
+        <h2>{{ reservation.title }}</h2>
+        <p *ngIf="reservation.eventType">{{ reservation.eventType }}</p>
       </div>
-    }
+      <span class="status-badge"
+        [style.color]="statusInfo(reservation.status).color"
+        [style.background]="statusInfo(reservation.status).bg"
+        [style.border-color]="statusInfo(reservation.status).color + '44'">
+        {{ statusInfo(reservation.status).label }}
+      </span>
+    </div>
 
-  } @else {
-    <div class="loading">Loading reservation...</div>
-  }
+    <!-- ── TWO-COLUMN LAYOUT ── -->
+    <div class="detail-layout">
+
+      <!-- ══ LEFT ══ -->
+      <div class="left-col">
+
+        <!-- Event Info -->
+        <div class="detail-card">
+          <h3 class="card-title"><span class="material-icons">event</span> Event Details</h3>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="reservation.eventDate">
+              <span class="info-icon material-icons">calendar_today</span>
+              <div>
+                <span class="info-label">Date</span>
+                <span class="info-value">{{ reservation.eventDate | date:'EEEE, MMMM d, y' }}</span>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="reservation.location">
+              <span class="info-icon material-icons">place</span>
+              <div>
+                <span class="info-label">Location / Venue</span>
+                <span class="info-value">{{ reservation.location }}</span>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="reservation.guests">
+              <span class="info-icon material-icons">group</span>
+              <div>
+                <span class="info-label">Guests</span>
+                <span class="info-value">{{ reservation.guests }}</span>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="reservation.eventType">
+              <span class="info-icon material-icons">celebration</span>
+              <div>
+                <span class="info-label">Event Type</span>
+                <span class="info-value">{{ reservation.eventType }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Services / Package -->
+        <div class="detail-card" *ngIf="reservation.packageName || reservation.quotedTotal">
+          <h3 class="card-title"><span class="material-icons">inventory_2</span> Services & Pricing</h3>
+          <div class="services-block">
+            <div class="service-row" *ngIf="reservation.packageName">
+              <span class="material-icons">check_circle</span>
+              <span>{{ reservation.packageName }}</span>
+            </div>
+            <div class="price-row" *ngIf="reservation.quotedTotal">
+              <span class="price-label">Quoted Total</span>
+              <span class="price-value">${{ reservation.quotedTotal | number:'1.0-0' }}</span>
+            </div>
+            <a class="quote-link" *ngIf="reservation.quoteId" [routerLink]="['/quotes', reservation.quoteId]">
+              <span class="material-icons">receipt_long</span>
+              View Original Quote
+              <span class="material-icons arrow">open_in_new</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="detail-card" *ngIf="reservation.notes">
+          <h3 class="card-title"><span class="material-icons">notes</span> Notes</h3>
+          <p class="notes-text">{{ reservation.notes }}</p>
+        </div>
+
+        <!-- Confirm/Cancel Actions (pending only) -->
+        <div class="action-card" *ngIf="isPending()">
+          <h3 class="card-title"><span class="material-icons">assignment_turned_in</span> Process Reservation</h3>
+          <div class="field">
+            <label>Assign Bartender</label>
+            <select [(ngModel)]="selectedBartenderId">
+              <option value="">Select an available bartender</option>
+              <option *ngFor="let b of bartenders" [value]="b._id">
+                {{ b.name }} {{ b.lastName }} — {{ b.bartenderData?.specialty || 'Bartender' }}
+              </option>
+            </select>
+          </div>
+          <div class="action-row">
+            <button class="cancel-res-btn" (click)="cancel()" [disabled]="saving">
+              <span class="material-icons">cancel</span> Cancel Reservation
+            </button>
+            <button class="confirm-btn" (click)="confirm()" [disabled]="saving || !selectedBartenderId">
+              <span class="material-icons">check_circle</span>
+              {{ saving ? 'Saving…' : 'Confirm Reservation' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ RIGHT ══ -->
+      <div class="right-col">
+
+        <!-- Client Card -->
+        <div class="client-card">
+          <div class="client-avatar">{{ clientInitials() }}</div>
+          <div class="client-name">{{ clientName() }}</div>
+          <div class="client-links">
+            <a [href]="'mailto:' + clientEmail()" class="client-link email"
+               *ngIf="clientEmail() !== '—'">
+              <span class="material-icons">email</span>
+              {{ clientEmail() }}
+            </a>
+            <a [href]="'https://wa.me/' + clientPhone()" target="_blank" class="client-link phone"
+               *ngIf="clientPhone() !== '—'">
+              <span class="material-icons">whatsapp</span>
+              {{ clientPhone() }}
+            </a>
+          </div>
+        </div>
+
+        <!-- Status Card -->
+        <div class="side-card">
+          <div class="side-card-label">Status</div>
+          <div class="status-display"
+            [style.color]="statusInfo(reservation.status).color"
+            [style.background]="statusInfo(reservation.status).bg"
+            [style.border-color]="statusInfo(reservation.status).color + '33'">
+            <span class="material-icons status-dot">fiber_manual_record</span>
+            {{ statusInfo(reservation.status).label }}
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="side-card stats-side">
+          <div class="side-stat" *ngIf="reservation.eventDate">
+            <span class="material-icons">schedule</span>
+            <div>
+              <span class="side-stat-label">Event Date</span>
+              <span class="side-stat-val">{{ reservation.eventDate | date:'MMM d, y' }}</span>
+            </div>
+          </div>
+          <div class="side-stat" *ngIf="reservation.guests">
+            <span class="material-icons">people</span>
+            <div>
+              <span class="side-stat-label">Guests</span>
+              <span class="side-stat-val">{{ reservation.guests }}</span>
+            </div>
+          </div>
+          <div class="side-stat" *ngIf="reservation.quotedTotal">
+            <span class="material-icons">paid</span>
+            <div>
+              <span class="side-stat-label">Quoted Total</span>
+              <span class="side-stat-val green">${{ reservation.quotedTotal | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ── NOT FOUND ── -->
+  <div class="empty-state" *ngIf="!loading && !reservation">
+    <span class="material-icons">event_busy</span>
+    <p>Reservation not found.</p>
+    <button class="back-btn" (click)="goBack()">Go back</button>
+  </div>
+
 </div>

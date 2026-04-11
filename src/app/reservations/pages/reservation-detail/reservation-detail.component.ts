@@ -1,111 +1,119 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { EventService, Event } from '../../../reservations/services/event.service';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { EventService, Event as ReservationEvent } from '../../services/event.service';
 import { BartenderService, Bartender } from '../../../bartenders/services/bartender.service';
 import { ToastService } from '../../../shared/services/toast.service';
+
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
+  pending:   { label: 'Pending',   color: '#f59e0b', bg: 'rgba(245,158,11,0.12)'  },
+  confirmed: { label: 'Confirmed', color: '#34d399', bg: 'rgba(52,211,153,0.12)'  },
+  cancelled: { label: 'Cancelled', color: '#ef4444', bg: 'rgba(239,68,68,0.12)'   },
+  completed: { label: 'Completed', color: '#60a5fa', bg: 'rgba(96,165,250,0.12)'  },
+  PENDIENTE: { label: 'Pending',   color: '#f59e0b', bg: 'rgba(245,158,11,0.12)'  },
+  APROBADO:  { label: 'Confirmed', color: '#34d399', bg: 'rgba(52,211,153,0.12)'  },
+  RECHAZADO: { label: 'Cancelled', color: '#ef4444', bg: 'rgba(239,68,68,0.12)'   },
+};
 
 @Component({
   selector: 'app-reservation-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './reservation-detail.component.html',
-  styleUrl: './reservation-detail.component.scss'
+  styleUrl: './reservation-detail.component.scss',
 })
 export class ReservationDetailComponent implements OnInit {
-  reservation: Event | null = null;
+  private route           = inject(ActivatedRoute);
+  private router          = inject(Router);
+  private eventService    = inject(EventService);
+  private bartenderService = inject(BartenderService);
+  private toastService    = inject(ToastService);
+
+  reservation: ReservationEvent | null = null;
   bartenders: Bartender[] = [];
   selectedBartenderId = '';
-  showApproveModal = false;
+  loading = true;
+  saving  = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private eventService: EventService,
-    private bartenderService: BartenderService,
-    private toastService: ToastService
-  ) {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.eventService.getEvents().subscribe({
-        next: (data) => {
-          this.reservation = data.find(e => e._id === id) || null;
-        },
-        error: (err) => console.error(err)
+      this.eventService.getEventById(id).subscribe({
+        next: (data) => { this.reservation = data; this.loading = false; },
+        error: () => { this.loading = false; },
       });
     }
-
     this.bartenderService.getBartenders().subscribe({
-      next: (data) => this.bartenders = data.filter(b => b.status === 'AVAILABLE'),
-      error: (err) => console.error(err)
+      next: (data) => this.bartenders = data.filter((b: Bartender) => b.status === 'AVAILABLE'),
+      error: (err) => console.error(err),
     });
   }
 
-  getClientName(): string {
-    const client = this.reservation?.clientId as any;
-    if (client && client.name) return `${client.name} ${client.lastName}`;
-    return '—';
+  statusInfo(status: string | undefined) {
+    return STATUS_MAP[status ?? 'pending'] ?? STATUS_MAP['pending'];
   }
 
-
-  getClientInitials(): string {
-    const client = this.reservation?.clientId as any;
-    if (client && client.name) {
-      return `${client.name[0]}${client.lastName[0]}`.toUpperCase();
-    }
-    return '?';
+  clientName(): string {
+    const c = this.reservation?.clientId as any;
+    if (c?.name) return `${c.name} ${c.lastName ?? ''}`.trim();
+    return (this.reservation as any)?.clientName || '—';
   }
 
-  getClientEmail(): string {
-    const client = this.reservation?.clientId as any;
-    return client?.email || '—';
+  clientInitials(): string {
+    const name = this.clientName();
+    if (name === '—') return '?';
+    const parts = name.split(' ').filter(Boolean);
+    return parts.length >= 2
+      ? (parts[0][0] + parts[1][0]).toUpperCase()
+      : name.slice(0, 2).toUpperCase();
   }
 
-  getClientPhone(): string {
-    const client = this.reservation?.clientId as any;
-    return client?.phone || '—';
+  clientEmail(): string {
+    const c = this.reservation?.clientId as any;
+    return c?.email || (this.reservation as any)?.email || '—';
   }
 
+  clientPhone(): string {
+    const c = this.reservation?.clientId as any;
+    return c?.phone || (this.reservation as any)?.phone || '—';
+  }
 
-  approveReservation() {
+  isPending(): boolean {
+    const s = this.reservation?.status ?? '';
+    return s === 'pending' || s === 'PENDIENTE';
+  }
+
+  confirm(): void {
     if (!this.selectedBartenderId) {
-      this.toastService.show('Please select a bartender.', 'warning');
+      this.toastService.show('Please select a bartender first.', 'warning');
       return;
     }
+    this.saving = true;
     this.eventService.updateEvent(this.reservation!._id!, {
       status: 'APROBADO',
-      bartenderId: this.selectedBartenderId
+      assignedBartenders: [this.selectedBartenderId],
     }).subscribe({
       next: () => {
-        this.toastService.show('Reservation approved successfully.', 'success');
-        setTimeout(() => this.router.navigate(['/reservations']), 1500);
+        this.toastService.show('Reservation confirmed!', 'success');
+        this.reservation = { ...this.reservation!, status: 'APROBADO' };
+        this.saving = false;
       },
-      error: (err) => {
-        this.toastService.show('Error approving reservation.', 'error');
-        console.error(err);
-      }
+      error: () => { this.toastService.show('Error confirming reservation.', 'error'); this.saving = false; },
     });
   }
 
-  rejectReservation() {
-    this.eventService.updateEvent(this.reservation!._id!, {
-      status: 'RECHAZADO'
-    }).subscribe({
+  cancel(): void {
+    this.saving = true;
+    this.eventService.updateEvent(this.reservation!._id!, { status: 'RECHAZADO' }).subscribe({
       next: () => {
-        this.toastService.show('Reservation rejected.', 'warning');
-        setTimeout(() => this.router.navigate(['/reservations']), 1500);
+        this.toastService.show('Reservation cancelled.', 'warning');
+        this.reservation = { ...this.reservation!, status: 'RECHAZADO' };
+        this.saving = false;
       },
-      error: (err) => {
-        this.toastService.show('Error rejecting reservation.', 'error');
-        console.error(err);
-      }
+      error: () => { this.toastService.show('Error cancelling reservation.', 'error'); this.saving = false; },
     });
   }
 
-  goBack() {
-    this.router.navigate(['/reservations']);
-  }
+  goBack(): void { this.router.navigate(['/reservations']); }
 }

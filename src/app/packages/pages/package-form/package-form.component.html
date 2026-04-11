@@ -1,1 +1,341 @@
-<p>package-form works!</p>
+<div class="package-form-page">
+  <div class="page-header">
+    <h2>{{ isEdit ? 'Edit Package' : 'Create Package' }}</h2>
+    <p>{{ isEdit ? 'Modify package details.' : 'Build a new package template for events.' }}</p>
+  </div>
+
+  <div class="form-card">
+
+    <!-- ═══ BASIC INFO ═══ -->
+    <div class="form-section">
+      <h3 class="section-title">Package Info</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>Package Name</label>
+          <input type="text" [(ngModel)]="name" placeholder="E.g. Corporate Premium, Basic Social..." />
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select [(ngModel)]="status">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="seasonal">Seasonal</option>
+          </select>
+        </div>
+        <div class="field field-full">
+          <label>Description</label>
+          <textarea [(ngModel)]="description" rows="3" placeholder="Describe this package..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PRICING ═══ -->
+    <div class="form-section">
+      <h3 class="section-title pricing">💰 Pricing & Capacity</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>Base Price ($)</label>
+          <input type="number" [(ngModel)]="basePrice" placeholder="450" min="0" />
+        </div>
+        <div class="field">
+          <label>Price Per Guest ($)</label>
+          <input type="number" [(ngModel)]="pricePerGuest" placeholder="8" min="0" />
+        </div>
+        <div class="field">
+          <label>Min Guests</label>
+          <input type="number" [(ngModel)]="minGuests" placeholder="15" min="1" />
+        </div>
+        <div class="field">
+          <label>Max Guests</label>
+          <input type="number" [(ngModel)]="maxGuests" placeholder="100" min="1" />
+        </div>
+        <div class="field">
+          <label>Duration</label>
+          <select [(ngModel)]="duration">
+            <option value="">Select duration</option>
+            <option *ngFor="let d of durationOptions" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+        <div class="field field-full">
+          <label>Bar Type</label>
+          <div *ngIf="allBarTypes.length > 0; else noBarTypes" class="bartype-selector">
+            <div *ngFor="let bt of allBarTypes"
+              class="bartype-card"
+              [class.selected]="selectedBarTypeId === bt._id"
+              (click)="selectedBarTypeId = bt._id!">
+              <div class="bartype-check" [class.checked]="selectedBarTypeId === bt._id">
+                <svg *ngIf="selectedBarTypeId === bt._id" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="bartype-info">
+                <span class="bartype-name">{{ bt.name }}</span>
+                <span class="bartype-meta">{{ bt.category }} · Cap. {{ bt.capacity }}</span>
+              </div>
+              <div class="bartype-tags">
+                <span class="bartype-tag">{{ bt.setupType }}</span>
+                <span *ngIf="bt.lighting" class="bartype-tag lighting">💡 Lighting</span>
+              </div>
+            </div>
+          </div>
+          <ng-template #noBarTypes>
+            <p class="empty-hint">No bar types available. <a routerLink="/bar-types">Create one first.</a></p>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Price preview -->
+      <div class="price-preview" *ngIf="basePrice > 0">
+        <span class="preview-label">Price range:</span>
+        <span class="preview-value">${{ calcMinPrice }} – ${{ calcMaxPrice }}</span>
+        <span class="preview-hint">({{ minGuests }}–{{ maxGuests }} guests)</span>
+      </div>
+    </div>
+
+    <!-- ═══ THEMES ═══ -->
+    <div class="form-section">
+      <h3 class="section-title themes">🎨 Package Themes</h3>
+      <p class="section-desc">Select themes to include in this package. Each theme brings its drinks.</p>
+
+      <div class="themes-selector">
+        <div *ngFor="let theme of allThemes" class="theme-option"
+          [class.selected]="isThemeSelected(theme._id)"
+          (click)="toggleTheme(theme._id)">
+          <div class="theme-check" [class.checked]="isThemeSelected(theme._id)"
+            [style.border-color]="isThemeSelected(theme._id) ? theme.color : ''"
+            [style.background]="isThemeSelected(theme._id) ? theme.color : ''">
+            <svg *ngIf="isThemeSelected(theme._id)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <span class="theme-dot" [style.background]="theme.color"></span>
+          <div class="theme-option-info">
+            <span class="theme-option-name">{{ theme.name }}</span>
+            <span class="theme-option-style">{{ theme.style }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="allThemes.length === 0" class="empty-hint">No themes available. Create themes first.</div>
+    </div>
+
+    <!-- ═══ BEERS ═══ -->
+    <div class="form-section">
+      <div class="section-header-row">
+        <h3 class="section-title beer">🍺 Beers</h3>
+        <div class="drink-picker-anchor">
+          <button type="button" class="add-btn" (click)="toggleBeerPicker()">+ Add Beer</button>
+          <div class="drink-picker-panel" *ngIf="showBeerPicker">
+            <div class="picker-header">
+              <span>Select from catalog</span>
+              <button type="button" class="picker-close" (click)="closeBeerPicker()">✕</button>
+            </div>
+            <div *ngIf="catalogBeers.length === 0" class="picker-empty">No beers in catalog.</div>
+            <button type="button" class="picker-item" *ngFor="let d of catalogBeers"
+              [class.already-added]="isDrinkAdded(beers, d.name)"
+              [disabled]="isDrinkAdded(beers, d.name)"
+              (click)="selectBeer(d)">
+              <span class="picker-item-name">{{ d.name }}</span>
+              <span class="picker-item-detail">{{ d.brand }}</span>
+              <span *ngIf="isDrinkAdded(beers, d.name)" class="picker-item-check material-icons">check_circle</span>
+            </button>
+            <div class="picker-divider"></div>
+            <button type="button" class="picker-custom-btn" (click)="addCustomBeer()">
+              <span class="material-icons">add</span> Add custom beer
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="picker-overlay" *ngIf="showBeerPicker" (click)="closeBeerPicker()"></div>
+      <div *ngFor="let beer of beers; let i = index" class="inline-row">
+        <input type="text" [(ngModel)]="beer.name" [name]="'beerName' + i" placeholder="Beer name" class="inline-name" />
+        <select [(ngModel)]="beer.availability" [name]="'beerAvail' + i" class="inline-select">
+          <option *ngFor="let opt of availabilityOptions" [value]="opt">{{ opt }}</option>
+        </select>
+        <button type="button" class="remove-btn" (click)="removeBeer(i)">✕</button>
+      </div>
+      <div *ngIf="beers.length === 0" class="empty-hint">No beers added.</div>
+    </div>
+
+    <!-- ═══ BEVERAGES ═══ -->
+    <div class="form-section">
+      <div class="section-header-row">
+        <h3 class="section-title beverage">💧 Beverages</h3>
+        <div class="drink-picker-anchor">
+          <button type="button" class="add-btn" (click)="toggleBeveragePicker()">+ Add Beverage</button>
+          <div class="drink-picker-panel" *ngIf="showBeveragePicker">
+            <div class="picker-header">
+              <span>Select from catalog</span>
+              <button type="button" class="picker-close" (click)="closeBeveragePicker()">✕</button>
+            </div>
+            <div *ngIf="catalogBeverages.length === 0" class="picker-empty">No beverages in catalog.</div>
+            <button type="button" class="picker-item" *ngFor="let d of catalogBeverages"
+              [class.already-added]="isDrinkAdded(beverages, d.name)"
+              [disabled]="isDrinkAdded(beverages, d.name)"
+              (click)="selectBeverage(d)">
+              <span class="picker-item-name">{{ d.name }}</span>
+              <span class="picker-item-detail">{{ d.drinkType }}</span>
+              <span *ngIf="isDrinkAdded(beverages, d.name)" class="picker-item-check material-icons">check_circle</span>
+            </button>
+            <div class="picker-divider"></div>
+            <button type="button" class="picker-custom-btn" (click)="addCustomBeverage()">
+              <span class="material-icons">add</span> Add custom beverage
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="picker-overlay" *ngIf="showBeveragePicker" (click)="closeBeveragePicker()"></div>
+      <div *ngFor="let bev of beverages; let i = index" class="inline-row">
+        <input type="text" [(ngModel)]="bev.name" [name]="'bevName' + i" placeholder="Beverage name" class="inline-name" />
+        <select [(ngModel)]="bev.availability" [name]="'bevAvail' + i" class="inline-select">
+          <option *ngFor="let opt of availabilityOptions" [value]="opt">{{ opt }}</option>
+        </select>
+        <button type="button" class="remove-btn" (click)="removeBeverage(i)">✕</button>
+      </div>
+      <div *ngIf="beverages.length === 0" class="empty-hint">No beverages added.</div>
+    </div>
+
+    <!-- ═══ WINES ═══ -->
+    <div class="form-section">
+      <div class="section-header-row">
+        <h3 class="section-title wine">🍷 Wines</h3>
+        <div class="drink-picker-anchor">
+          <button type="button" class="add-btn" (click)="toggleWinePicker()">+ Add Wine</button>
+          <div class="drink-picker-panel" *ngIf="showWinePicker">
+            <div class="picker-header">
+              <span>Select from catalog</span>
+              <button type="button" class="picker-close" (click)="closeWinePicker()">✕</button>
+            </div>
+            <div *ngIf="catalogWines.length === 0" class="picker-empty">No wines in catalog.</div>
+            <button type="button" class="picker-item" *ngFor="let d of catalogWines"
+              [class.already-added]="isDrinkAdded(wines, d.name)"
+              [disabled]="isDrinkAdded(wines, d.name)"
+              (click)="selectWine(d)">
+              <span class="picker-item-name">{{ d.name }}</span>
+              <span class="picker-item-detail">{{ d.drinkType }}</span>
+              <span *ngIf="isDrinkAdded(wines, d.name)" class="picker-item-check material-icons">check_circle</span>
+            </button>
+            <div class="picker-divider"></div>
+            <button type="button" class="picker-custom-btn" (click)="addCustomWine()">
+              <span class="material-icons">add</span> Add custom wine
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="picker-overlay" *ngIf="showWinePicker" (click)="closeWinePicker()"></div>
+      <div *ngFor="let wine of wines; let i = index" class="inline-row">
+        <input type="text" [(ngModel)]="wine.name" [name]="'wineName' + i" placeholder="Wine name" class="inline-name" />
+        <input type="text" [(ngModel)]="wine.detail" [name]="'wineDetail' + i" placeholder="E.g. 3 bottles" class="inline-detail" />
+        <button type="button" class="remove-btn" (click)="removeWine(i)">✕</button>
+      </div>
+      <div *ngIf="wines.length === 0" class="empty-hint">No wines added.</div>
+    </div>
+
+    <!-- ═══ MIXERS ═══ -->
+    <div class="form-section">
+      <div class="section-header-row">
+        <h3 class="section-title mixer">🧃 Mixers</h3>
+        <div class="drink-picker-anchor">
+          <button type="button" class="add-btn" (click)="toggleMixerPicker()">+ Add Mixer</button>
+          <div class="drink-picker-panel" *ngIf="showMixerPicker">
+            <div class="picker-header">
+              <span>Select from catalog</span>
+              <button type="button" class="picker-close" (click)="closeMixerPicker()">✕</button>
+            </div>
+            <div *ngIf="catalogMixers.length === 0" class="picker-empty">No mixers in catalog. Add beverages with type "Mixer" in Drinks.</div>
+            <button type="button" class="picker-item" *ngFor="let d of catalogMixers"
+              [class.already-added]="isDrinkAdded(mixers, d.name)"
+              [disabled]="isDrinkAdded(mixers, d.name)"
+              (click)="selectMixer(d)">
+              <span class="picker-item-name">{{ d.name }}</span>
+              <span class="picker-item-detail">{{ d.brand }}</span>
+              <span *ngIf="isDrinkAdded(mixers, d.name)" class="picker-item-check material-icons">check_circle</span>
+            </button>
+            <div class="picker-divider"></div>
+            <button type="button" class="picker-custom-btn" (click)="addCustomMixer()">
+              <span class="material-icons">add</span> Add custom mixer
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="picker-overlay" *ngIf="showMixerPicker" (click)="closeMixerPicker()"></div>
+      <div *ngFor="let mix of mixers; let i = index" class="inline-row">
+        <input type="text" [(ngModel)]="mix.name" [name]="'mixName' + i" placeholder="Mixer name" class="inline-name" />
+        <select [(ngModel)]="mix.availability" [name]="'mixAvail' + i" class="inline-select">
+          <option *ngFor="let opt of availabilityOptions" [value]="opt">{{ opt }}</option>
+        </select>
+        <button type="button" class="remove-btn" (click)="removeMixer(i)">✕</button>
+      </div>
+      <div *ngIf="mixers.length === 0" class="empty-hint">No mixers added.</div>
+    </div>
+
+    <!-- ═══ SERVICES ═══ -->
+    <div class="form-section">
+      <div class="section-header-row">
+        <h3 class="section-title service">⚙ Services</h3>
+        <div class="service-picker-anchor">
+          <button type="button" class="add-btn" (click)="toggleServicePicker()">+ Add Service</button>
+
+          <!-- Picker dropdown -->
+          <div class="service-picker-panel" *ngIf="showServicePicker">
+            <div class="picker-header">
+              <span>Select from catalog</span>
+              <button type="button" class="picker-close" (click)="closeServicePicker()">✕</button>
+            </div>
+
+            <div *ngIf="allAddOns.length === 0" class="picker-empty">
+              No services in catalog yet.
+            </div>
+
+            <ng-container *ngFor="let cat of addOnCategories">
+              <ng-container *ngIf="getAddOnsByCategory(cat).length > 0">
+                <div class="picker-category">{{ categoryLabels[cat] }}</div>
+                <button
+                  type="button"
+                  class="picker-item"
+                  *ngFor="let addOn of getAddOnsByCategory(cat)"
+                  [class.already-added]="isAddOnAlreadyAdded(addOn)"
+                  [disabled]="isAddOnAlreadyAdded(addOn)"
+                  (click)="selectAddOn(addOn)">
+                  <span class="picker-item-name">{{ addOn.name }}</span>
+                  <span class="picker-item-detail">{{ addOn.defaultDetail }}</span>
+                  <span class="picker-item-badge" [class.included]="addOn.defaultIncluded">
+                    {{ addOn.defaultIncluded ? 'Included' : ('$' + addOn.defaultPrice) }}
+                  </span>
+                  <span *ngIf="isAddOnAlreadyAdded(addOn)" class="picker-item-check material-icons">check_circle</span>
+                </button>
+              </ng-container>
+            </ng-container>
+
+            <div class="picker-divider"></div>
+            <button type="button" class="picker-custom-btn" (click)="addCustomService()">
+              <span class="material-icons">add</span>
+              Add custom service
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlay to close picker on outside click -->
+      <div class="picker-overlay" *ngIf="showServicePicker" (click)="closeServicePicker()"></div>
+
+      <div *ngFor="let svc of services; let i = index" class="service-form-row">
+        <input type="text" [(ngModel)]="svc.name" [name]="'svcName' + i" placeholder="Service name" class="svc-name" />
+        <input type="text" [(ngModel)]="svc.detail" [name]="'svcDetail' + i" placeholder="Detail" class="svc-detail" />
+        <label class="svc-toggle">
+          <input type="checkbox" [(ngModel)]="svc.included" [name]="'svcInc' + i" />
+          <span>{{ svc.included ? 'Included' : 'Add-on' }}</span>
+        </label>
+        <input *ngIf="!svc.included" type="number" [(ngModel)]="svc.addOnPrice" [name]="'svcPrice' + i" placeholder="$" class="svc-price" min="0" />
+        <button type="button" class="remove-btn" (click)="removeService(i)">✕</button>
+      </div>
+
+      <div *ngIf="services.length === 0" class="empty-hint">No services added. Use the catalog or add a custom one.</div>
+    </div>
+
+    <!-- ═══ ACTIONS ═══ -->
+    <div class="form-actions">
+      <button type="button" class="secondary-btn" (click)="cancel()">Cancel</button>
+      <button type="button" class="primary-btn" (click)="savePackage()" [disabled]="!name || saving">
+        {{ isEdit ? 'Save Changes' : 'Create Package' }}
+      </button>
+    </div>
+
+  </div>
+</div>

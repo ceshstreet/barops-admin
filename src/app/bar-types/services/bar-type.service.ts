@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface BarType {
   _id?: string;
@@ -14,7 +15,7 @@ export interface BarType {
 
 @Injectable({ providedIn: 'root' })
 export class BarTypeService {
-  private apiUrl = 'http://localhost:4000/api/barTypes';
+  private apiUrl = `${environment.apiUrl}/barTypes`;
 
   constructor(private http: HttpClient) {}
 

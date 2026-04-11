@@ -1,0 +1,77 @@
+.add-on-form-page {
+  display: flex; flex-direction: column; gap: 20px; color: #eaf1ff;
+}
+
+.page-header {
+  h2 { margin: 0; font-size: 28px; font-weight: 700; }
+  p { margin: 6px 0 0; color: rgba(234,241,255,0.55); font-size: 14px; }
+}
+
+.form-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; padding: 28px 32px;
+}
+
+.form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px;
+}
+
+.field-full { grid-column: 1 / -1; }
+
+.field {
+  display: flex; flex-direction: column; gap: 7px;
+  label { font-size: 13px; font-weight: 600; color: rgba(234,241,255,0.7); }
+  input, select, textarea {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 10px 14px; color: #eaf1ff; font-size: 14px;
+    outline: none; resize: vertical;
+    &:focus { border-color: rgba(124,92,255,0.5); }
+  }
+}
+
+.toggle-label {
+  display: flex; flex-direction: column; gap: 10px;
+  span { font-size: 13px; font-weight: 600; color: rgba(234,241,255,0.7); }
+}
+
+.toggle-group {
+  display: flex; gap: 0;
+}
+
+.toggle-btn {
+  padding: 9px 18px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04); color: rgba(234,241,255,0.55);
+  cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.15s;
+  &:first-child { border-radius: 10px 0 0 10px; }
+  &:last-child { border-radius: 0 10px 10px 0; border-left: none; }
+  &.active {
+    background: rgba(124,92,255,0.2); color: #a78bfa;
+    border-color: rgba(124,92,255,0.4);
+  }
+}
+
+.form-actions {
+  display: flex; justify-content: flex-end; gap: 12px;
+  padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.primary-btn {
+  background: #7c5cff; color: #fff; border: none;
+  padding: 10px 24px; border-radius: 10px; font-size: 14px;
+  font-weight: 600; cursor: pointer;
+  &:hover:not(:disabled) { background: #6a4de0; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.secondary-btn {
+  background: rgba(255,255,255,0.06); color: #eaf1ff;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 24px; border-radius: 10px; font-size: 14px;
+  font-weight: 600; cursor: pointer;
+  &:hover { background: rgba(255,255,255,0.1); }
+}
+
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .field-full { grid-column: auto; }
+}

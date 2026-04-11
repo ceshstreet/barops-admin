@@ -7,46 +7,39 @@ export interface PackageService {
 
 export interface PackageBevItem {
   name: string;
-  availability: string; // 'included', 'unlimited', 'limited (50 units)', etc.
+  availability: string;
 }
 
 export interface PackageWineItem {
   name: string;
-  detail: string; // '3 bottles', '2 bottles (toast)', etc.
+  detail: string;
 }
 
 export interface Package {
   _id: string;
   name: string;
   description: string;
-  status: boolean;
-  // Pricing
+  status: string;
   basePrice: number;
   pricePerGuest: number;
-  // Capacity
   minGuests: number;
   maxGuests: number;
   duration: string;
   barType: string;
-  // Content
+  barTypeId?: string;
   themeIds: string[];
   extraCocktailIds: string[];
   beers: PackageBevItem[];
   beverages: PackageBevItem[];
   wines: PackageWineItem[];
-  // Services
+  mixers: PackageBevItem[];
   services: PackageService[];
-  // Meta
   createdAt?: string;
   updatedAt?: string;
 }
 
 export const AVAILABILITY_OPTIONS = [
-  'included',
-  'unlimited',
-  'limited (50 units)',
-  'limited (100 units)',
-  'on request',
+  'included', 'unlimited', 'limited (50 units)', 'limited (100 units)', 'on request',
 ];
 
 export const DURATION_OPTIONS = [

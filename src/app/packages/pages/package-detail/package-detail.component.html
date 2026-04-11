@@ -9,42 +9,37 @@
 
   <div class="detail-card">
 
-    <!-- ═══ HEADER ═══ -->
     <div class="detail-header">
       <div class="header-info">
         <div class="title-row">
           <h2>{{ pkg.name }}</h2>
-          <span class="status-badge" [class.active]="pkg.status" [class.inactive]="!pkg.status">
+          <span class="status-badge" [class.active]="pkg.status === 'active'" [class.inactive]="pkg.status !== 'active'">
             <span class="status-dot"></span>
-            {{ pkg.status ? 'Active' : 'Seasonal' }}
+            {{ pkg.status === 'active' ? 'Active' : 'Seasonal' }}
           </span>
         </div>
         <p class="pkg-desc">{{ pkg.description }}</p>
         <div class="meta-row">
           <span>👥 {{ pkg.minGuests }}–{{ pkg.maxGuests }} guests</span>
           <span>⏱ {{ pkg.duration }}</span>
-          <span>🍸 {{ pkg.barType }}</span>
+          <span *ngIf="barType">🍹 {{ barType.name }} · {{ barType.category }} · Cap. {{ barType.capacity }}</span>
+          <span *ngIf="!barType && pkg.barType">🍹 {{ pkg.barType }}</span>
         </div>
       </div>
       <div class="header-actions">
         <button class="edit-btn" (click)="editPackage()">✏️ Edit</button>
+        <button class="delete-btn" (click)="openDeleteModal()">🗑 Eliminar</button>
       </div>
     </div>
 
-    <!-- ═══ CONTENT ═══ -->
     <div class="detail-body">
-
-      <!-- LEFT: What's included -->
       <div class="body-left">
 
-        <!-- Cocktails -->
-        <div class="content-section">
+        <div class="content-section" *ngIf="allCocktailNames.length > 0">
           <h3 class="section-title cocktail">🍸 Cocktails ({{ allCocktailNames.length }})</h3>
-          <div class="theme-chips">
+          <div class="theme-chips" *ngIf="themes.length > 0">
             <span *ngFor="let theme of themes" class="theme-chip"
-              [style.color]="theme.color"
-              [style.background]="theme.color + '12'"
-              [style.border-color]="theme.color + '25'">
+              [style.color]="theme.color" [style.background]="theme.color + '12'" [style.border-color]="theme.color + '25'">
               <span class="chip-dot" [style.background]="theme.color"></span>
               {{ theme.name }}
             </span>
@@ -57,8 +52,7 @@
           </div>
         </div>
 
-        <!-- Beers -->
-        <div class="content-section" *ngIf="pkg.beers.length > 0">
+        <div class="content-section" *ngIf="pkg.beers && pkg.beers.length > 0">
           <h3 class="section-title beer">🍺 Beers ({{ pkg.beers.length }})</h3>
           <div class="items-grid">
             <div *ngFor="let beer of pkg.beers" class="item-pill with-tag">
@@ -68,8 +62,7 @@
           </div>
         </div>
 
-        <!-- Beverages -->
-        <div class="content-section" *ngIf="pkg.beverages.length > 0">
+        <div class="content-section" *ngIf="pkg.beverages && pkg.beverages.length > 0">
           <h3 class="section-title beverage">💧 Beverages ({{ pkg.beverages.length }})</h3>
           <div class="items-grid">
             <div *ngFor="let bev of pkg.beverages" class="item-pill with-tag">
@@ -79,8 +72,7 @@
           </div>
         </div>
 
-        <!-- Wines -->
-        <div class="content-section" *ngIf="pkg.wines.length > 0">
+        <div class="content-section" *ngIf="pkg.wines && pkg.wines.length > 0">
           <h3 class="section-title wine">🍷 Wine ({{ pkg.wines.length }})</h3>
           <div class="items-grid">
             <div *ngFor="let wine of pkg.wines" class="item-pill with-tag">
@@ -90,8 +82,17 @@
           </div>
         </div>
 
-        <!-- Services -->
-        <div class="content-section">
+        <div class="content-section" *ngIf="pkg.mixers && pkg.mixers.length > 0">
+          <h3 class="section-title mixer">🧃 Mixers ({{ pkg.mixers.length }})</h3>
+          <div class="items-grid">
+            <div *ngFor="let mix of pkg.mixers" class="item-pill with-tag">
+              <span>{{ mix.name }}</span>
+              <span class="avail-tag beverage">{{ mix.availability }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section" *ngIf="includedServices.length > 0">
           <h3 class="section-title service">✓ Included Services</h3>
           <div class="services-list">
             <div *ngFor="let svc of includedServices" class="service-row">
@@ -101,9 +102,12 @@
           </div>
         </div>
 
+        <div *ngIf="allCocktailNames.length === 0 && (!pkg.beers || pkg.beers.length === 0)" class="empty-hint">
+          No content added yet. Edit this package to add themes, drinks, and services.
+        </div>
+
       </div>
 
-      <!-- RIGHT: Price Calculator -->
       <div class="body-right">
         <div class="calc-card">
           <div class="calc-header">
@@ -113,42 +117,35 @@
             <h3>Price Calculator</h3>
           </div>
 
-          <!-- Guest slider -->
           <div class="calc-slider">
             <div class="slider-header">
               <span class="slider-label">Guests</span>
               <span class="slider-value">{{ calcGuests }}</span>
             </div>
-            <input type="range" [min]="pkg.minGuests" [max]="pkg.maxGuests"
-              [(ngModel)]="calcGuests" />
+            <input type="range" [min]="pkg.minGuests" [max]="pkg.maxGuests" [(ngModel)]="calcGuests" />
             <div class="slider-range">
               <span>{{ pkg.minGuests }} min</span>
               <span>{{ pkg.maxGuests }} max</span>
             </div>
           </div>
 
-          <!-- Breakdown -->
           <div class="calc-breakdown">
             <div class="breakdown-row">
-              <span>Base price</span>
-              <span>${{ pkg.basePrice }}</span>
+              <span>Base price</span><span>${{ pkg.basePrice }}</span>
             </div>
             <div class="breakdown-row">
               <span>{{ calcGuests }} guests × ${{ pkg.pricePerGuest }}</span>
               <span>${{ calcGuests * pkg.pricePerGuest }}</span>
             </div>
             <div *ngFor="let addon of selectedAddOns" class="breakdown-row addon">
-              <span>+ {{ addon.name }}</span>
-              <span>+${{ addon.addOnPrice }}</span>
+              <span>+ {{ addon.name }}</span><span>+${{ addon.addOnPrice }}</span>
             </div>
           </div>
 
-          <!-- Add-ons -->
           <div *ngIf="optionalServices.length > 0" class="calc-addons">
             <h4 class="addons-title">Optional Add-ons</h4>
             <div *ngFor="let svc of optionalServices" class="addon-card"
-              [class.selected]="isAddOnSelected(svc)"
-              (click)="toggleAddOn(svc)">
+              [class.selected]="isAddOnSelected(svc)" (click)="toggleAddOn(svc)">
               <div class="addon-info">
                 <span class="addon-name">{{ svc.name }}</span>
                 <span class="addon-detail">{{ svc.detail }}</span>
@@ -157,7 +154,6 @@
             </div>
           </div>
 
-          <!-- Total -->
           <div class="calc-total">
             <div class="total-label">
               <span>Total estimate</span>
@@ -167,9 +163,32 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 
 <div *ngIf="!pkg" class="loading-state">Loading package details...</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </svg>
+    </div>
+    <h3 class="modal-title">Delete Package</h3>
+    <p class="modal-text">Are you sure you want to delete <strong>{{ pkg?.name }}</strong>? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" (click)="closeDeleteModal()" [disabled]="deleting">Cancel</button>
+      <button class="modal-btn delete" (click)="confirmDelete()" [disabled]="deleting">{{ deleting ? 'Deleting...' : 'Delete' }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" *ngIf="toast" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+  <svg *ngIf="toast.type === 'success'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+  <svg *ngIf="toast.type === 'error'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  {{ toast.message }}
+</div>

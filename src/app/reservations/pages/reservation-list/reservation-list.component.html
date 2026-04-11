@@ -1,81 +1,190 @@
-<div class="reservation-list-page">
+<div class="res-list-page">
+
+  <!-- ── PAGE HEADER ── -->
   <div class="page-header">
     <div>
       <h2>Reservations</h2>
-      <p>Pending booking requests awaiting approval.</p>
+      <p>Manage and track all your event bookings.</p>
     </div>
-    <button class="primary-btn" (click)="createReservation()">+ New Reservation</button>
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button [class.active]="currentView === 'list'" (click)="currentView = 'list'">
+          <span class="material-icons">view_agenda</span> List
+        </button>
+        <button [class.active]="currentView === 'calendar'" (click)="currentView = 'calendar'">
+          <span class="material-icons">calendar_month</span> Calendar
+        </button>
+      </div>
+      <a routerLink="/reservations/new" class="new-btn">
+        <span class="material-icons">add</span> New Reservation
+      </a>
+    </div>
   </div>
 
-  <div class="view-switcher-card">
-    <div class="view-switcher">
-      <button [class.active]="currentView === 'list'" (click)="setView('list')">
-        List View
-      </button>
-      <button [class.active]="currentView === 'calendar'" (click)="setView('calendar')">
-        Calendar View
-      </button>
+  <!-- ── STATS ROW ── -->
+  <div class="stats-row">
+    <div class="stat-card" [class.active]="filterStatus === 'ALL'" (click)="filterStatus = 'ALL'">
+      <div class="stat-icon purple"><span class="material-icons">event_note</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ count('ALL') }}</span>
+        <span class="stat-label">Total</span>
+      </div>
     </div>
-  </div>
-
-  @if (currentView === 'list') {
-    <div class="reservation-table-card">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Code</th>
-            <th>Event</th>
-            <th>Client</th>
-            <th>Date</th>
-            <th>Location</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            *ngFor="let reservation of reservations; let i = index"
-            (click)="openReservation(reservation)"
-            class="clickable-row">
-            <td>{{ i + 1 }}</td>
-            <td>{{ reservation.eventCode }}</td>
-            <td>{{ reservation.title }}</td>
-            <td>{{ getClientName(reservation) }}</td>
-            <td>{{ reservation.eventDate }}</td>
-            <td>{{ reservation.location }}</td>
-            <td>
-              <span class="status-badge pending">{{ reservation.status }}</span>
-            </td>
-            <td>
-              <div class="actions-cell">
-                <button class="btn-edit" (click)="editReservation($event, reservation)">✏️</button>
-                <button class="btn-delete" (click)="confirmDelete($event, reservation)">🗑️</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="stat-card" [class.active]="filterStatus === 'confirmed'" (click)="filterStatus = 'confirmed'">
+      <div class="stat-icon green"><span class="material-icons">check_circle</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ count('confirmed') }}</span>
+        <span class="stat-label">Confirmed</span>
+      </div>
     </div>
-  }
-
-  @if (currentView === 'calendar') {
-    <div class="calendar-card">
-      <full-calendar [options]="calendarOptions"></full-calendar>
+    <div class="stat-card" [class.active]="filterStatus === 'pending'" (click)="filterStatus = 'pending'">
+      <div class="stat-icon amber"><span class="material-icons">schedule</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ count('pending') }}</span>
+        <span class="stat-label">Pending</span>
+      </div>
     </div>
-  }
-</div>
-
-@if (showDeleteModal && reservationToDelete) {
-  <div class="modal-overlay" (click)="cancelDelete()">
-    <div class="modal-card" (click)="$event.stopPropagation()">
-      <div class="modal-icon">🗑️</div>
-      <h3>Delete Reservation</h3>
-      <p>Are you sure you want to delete <strong>{{ reservationToDelete.title }}</strong>? This action cannot be undone.</p>
-      <div class="modal-actions">
-        <button class="secondary-btn" (click)="cancelDelete()">Cancel</button>
-        <button class="danger-btn" (click)="confirmDeleteAction()">Delete</button>
+    <div class="stat-card" [class.active]="filterStatus === 'completed'" (click)="filterStatus = 'completed'">
+      <div class="stat-icon blue"><span class="material-icons">celebration</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ count('completed') }}</span>
+        <span class="stat-label">Completed</span>
+      </div>
+    </div>
+    <div class="stat-card no-hover">
+      <div class="stat-icon teal"><span class="material-icons">today</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ thisMonth() }}</span>
+        <span class="stat-label">This Month</span>
       </div>
     </div>
   </div>
-}
+
+  <!-- ── SEARCH + FILTERS ── -->
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Search by event, client, location…" />
+    </div>
+    <div class="filter-chips">
+      <button *ngFor="let opt of statusOptions"
+        class="chip"
+        [class.active]="filterStatus === opt.value"
+        (click)="filterStatus = opt.value">
+        {{ opt.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════ LIST VIEW ════════════════════════════════ -->
+  <ng-container *ngIf="currentView === 'list'">
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <span>Loading reservations…</span>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="!loading && filtered.length === 0">
+      <span class="material-icons">event_busy</span>
+      <p>No reservations found.</p>
+      <a routerLink="/reservations/new" class="new-btn small">
+        <span class="material-icons">add</span> Create one
+      </a>
+    </div>
+
+    <!-- Card Grid -->
+    <div class="card-grid" *ngIf="!loading && filtered.length > 0">
+      <div class="res-card" *ngFor="let r of filtered"
+        [style.--status-color]="statusInfo(r.status).color"
+        (click)="open(r)">
+
+        <!-- Left accent bar -->
+        <div class="card-accent"></div>
+
+        <!-- Main content -->
+        <div class="card-body">
+          <div class="card-top">
+            <div class="card-title-row">
+              <span class="card-title">{{ r.title }}</span>
+              <span class="status-chip"
+                [style.color]="statusInfo(r.status).color"
+                [style.background]="statusInfo(r.status).bg">
+                {{ statusInfo(r.status).label }}
+              </span>
+            </div>
+            <div class="card-client">
+              <span class="material-icons">person</span>
+              {{ clientName(r) }}
+            </div>
+          </div>
+
+          <div class="card-meta">
+            <div class="meta-item" *ngIf="r.eventDate">
+              <span class="material-icons">event</span>
+              {{ r.eventDate | date:'MMM d, y' }}
+            </div>
+            <div class="meta-item" *ngIf="r.location">
+              <span class="material-icons">place</span>
+              {{ r.location }}
+            </div>
+            <div class="meta-item" *ngIf="r.guests">
+              <span class="material-icons">group</span>
+              {{ r.guests }} guests
+            </div>
+            <div class="meta-item" *ngIf="r.packageName">
+              <span class="material-icons">inventory_2</span>
+              {{ r.packageName }}
+            </div>
+          </div>
+
+          <div class="card-footer" *ngIf="r.quotedTotal">
+            <span class="quoted-total">
+              <span class="material-icons">attach_money</span>
+              ${{ r.quotedTotal | number:'1.0-0' }} quoted
+            </span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card-actions" (click)="$event.stopPropagation()">
+          <button class="icon-btn view" (click)="open(r)" title="View">
+            <span class="material-icons">visibility</span>
+          </button>
+          <button class="icon-btn edit" (click)="edit($event, r)" title="Edit">
+            <span class="material-icons">edit</span>
+          </button>
+          <button class="icon-btn del" (click)="askDelete($event, r)" title="Delete">
+            <span class="material-icons">delete_outline</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ════════════════════════════════ CALENDAR VIEW ════════════════════════════════ -->
+  <div class="calendar-wrap" *ngIf="currentView === 'calendar'">
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
+
+</div>
+
+<!-- ── DELETE MODAL ── -->
+<div class="modal-overlay" *ngIf="deleteTarget" (click)="cancelDelete()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-icon">
+      <span class="material-icons">delete_forever</span>
+    </div>
+    <h3>Delete Reservation</h3>
+    <p>Are you sure you want to delete <strong>{{ deleteTarget.title }}</strong>? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" (click)="cancelDelete()">Cancel</button>
+      <button class="modal-confirm" (click)="doDelete()" [disabled]="deleting">
+        {{ deleting ? 'Deleting…' : 'Yes, Delete' }}
+      </button>
+    </div>
+  </div>
+</div>

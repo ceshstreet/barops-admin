@@ -4,281 +4,170 @@
   color: #eaf1ff;
 }
 
-// ── Back ──
 .back-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: none;
-  border: none;
-  color: rgba(234, 241, 255, 0.45);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 0;
-  margin-bottom: 22px;
-  transition: color 0.2s;
+  display: flex; align-items: center; gap: 8px;
+  background: none; border: none; color: rgba(234, 241, 255, 0.45);
+  cursor: pointer; font-size: 13px; font-weight: 500;
+  padding: 0; margin-bottom: 22px;
   &:hover { color: #eaf1ff; }
 }
 
-// ── Main Card ──
 .detail-card {
   background: rgba(255, 255, 255, 0.04);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 
-// ── Header ──
 .detail-header {
   padding: 28px 32px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  display: flex; justify-content: space-between; align-items: flex-start;
 }
 
 .header-info {
   .title-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 10px;
-
-    h2 {
-      margin: 0;
-      font-size: 26px;
-      font-weight: 700;
-      color: #eaf1ff;
-    }
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+    h2 { margin: 0; font-size: 26px; font-weight: 700; color: #eaf1ff; }
   }
-
-  .theme-desc {
-    margin: 0 0 14px;
-    color: rgba(234, 241, 255, 0.5);
-    font-size: 14px;
-    line-height: 1.6;
-    max-width: 500px;
-  }
-
-  .tag-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .theme-desc { margin: 0 0 14px; color: rgba(234, 241, 255, 0.5); font-size: 14px; line-height: 1.6; max-width: 500px; }
+  .tag-row { display: flex; align-items: center; gap: 10px; }
 }
 
-.color-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 5px;
-  flex-shrink: 0;
-}
+.color-dot { width: 14px; height: 14px; border-radius: 5px; flex-shrink: 0; }
+.style-tag { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 6px; border: 1px solid; text-transform: uppercase; letter-spacing: 0.8px; }
+.event-tag { font-size: 12px; color: rgba(234, 241, 255, 0.4); background: rgba(255, 255, 255, 0.04); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); }
 
-.style-tag {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 6px;
-  border: 1px solid;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-}
-
-.event-tag {
-  font-size: 12px;
-  color: rgba(234, 241, 255, 0.4);
-  background: rgba(255, 255, 255, 0.04);
-  padding: 3px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
+.header-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
 .edit-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(124, 92, 255, 0.12);
-  border: 1px solid rgba(124, 92, 255, 0.25);
-  color: #a78bfa;
-  padding: 8px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  transition: background 0.2s;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(124, 92, 255, 0.12); border: 1px solid rgba(124, 92, 255, 0.25);
+  color: #a78bfa; padding: 8px 20px; border-radius: 10px;
+  cursor: pointer; font-size: 13px; font-weight: 600;
   &:hover { background: rgba(124, 92, 255, 0.2); }
 }
 
-// ── Stats ──
+.delete-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444; padding: 8px 20px; border-radius: 10px;
+  cursor: pointer; font-size: 13px; font-weight: 600;
+  &:hover { background: rgba(239, 68, 68, 0.15); }
+}
+
 .detail-stats {
-  display: flex;
-  gap: 32px;
-  padding: 20px 32px;
+  display: flex; gap: 32px; padding: 20px 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .detail-stat {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-
-  .detail-stat-value {
-    font-size: 28px;
-    font-weight: 800;
-    color: #eaf1ff;
-  }
-
-  .detail-stat-label {
-    font-size: 12px;
-    color: rgba(234, 241, 255, 0.4);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    font-weight: 600;
-  }
+  display: flex; align-items: baseline; gap: 8px;
+  .detail-stat-value { font-size: 28px; font-weight: 800; color: #eaf1ff; }
+  .detail-stat-label { font-size: 12px; color: rgba(234, 241, 255, 0.4); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
 }
 
-// ── Drinks Section ──
-.drinks-section {
-  padding: 24px 32px;
-}
+.drinks-section { padding: 24px 32px; }
+.section-title { margin: 0 0 18px; font-size: 12px; font-weight: 800; color: #7c5cff; text-transform: uppercase; letter-spacing: 1.8px; }
+.empty-hint { color: rgba(234, 241, 255, 0.35); font-size: 13px; padding: 20px 0; }
 
-.section-title {
-  margin: 0 0 18px;
-  font-size: 12px;
-  font-weight: 800;
-  color: #7c5cff;
-  text-transform: uppercase;
-  letter-spacing: 1.8px;
-}
+.drinks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
 
-.drinks-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 12px;
-}
-
-// ── Drink Card ──
 .drink-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 14px;
-  padding: 18px 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    border-color: rgba(124, 92, 255, 0.2);
-    background: rgba(124, 92, 255, 0.03);
-  }
+  background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px; padding: 18px 20px; cursor: pointer; transition: all 0.2s;
+  &:hover { border-color: rgba(124, 92, 255, 0.2); background: rgba(124, 92, 255, 0.03); }
 }
 
-.drink-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 14px;
-}
+.drink-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
 
 .drink-card-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  .drink-card-name {
-    margin: 0 0 2px;
-    font-size: 15px;
-    font-weight: 700;
-    color: #eaf1ff;
-  }
-
-  .drink-card-meta {
-    font-size: 12px;
-    color: rgba(234, 241, 255, 0.4);
-  }
+  display: flex; align-items: center; gap: 10px;
+  .drink-card-name { margin: 0 0 2px; font-size: 15px; font-weight: 700; color: #eaf1ff; }
+  .drink-card-meta { font-size: 12px; color: rgba(234, 241, 255, 0.4); }
 }
 
 .drink-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-
-  &[data-spirit="White Rum"]              { background: #38bdf8; }
-  &[data-spirit="Dark Rum"],
-  &[data-spirit="Rum"]                    { background: #f59e0b; }
-  &[data-spirit="Tequila"]                { background: #a3e635; }
-  &[data-spirit="Whiskey"]                { background: #f97316; }
-  &[data-spirit="Vodka"]                  { background: #c4b5fd; }
-  &[data-spirit="Gin"]                    { background: #2dd4bf; }
-  &[data-spirit="Brandy"]                 { background: #fb923c; }
-  &[data-spirit="None / Non-Alcoholic"]   { background: #94a3b8; }
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  &[data-spirit="White Rum"]            { background: #38bdf8; }
+  &[data-spirit="Dark Rum"], &[data-spirit="Rum"] { background: #f59e0b; }
+  &[data-spirit="Tequila"]              { background: #a3e635; }
+  &[data-spirit="Whiskey"]              { background: #f97316; }
+  &[data-spirit="Vodka"]                { background: #c4b5fd; }
+  &[data-spirit="Gin"]                  { background: #2dd4bf; }
+  &[data-spirit="Brandy"]               { background: #fb923c; }
+  &[data-spirit="None / Non-Alcoholic"] { background: #94a3b8; }
 }
 
 .spirit-tag {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 5px;
-  flex-shrink: 0;
-
-  &[data-spirit="White Rum"]              { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); }
-  &[data-spirit="Dark Rum"],
-  &[data-spirit="Rum"]                    { color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); }
-  &[data-spirit="Tequila"]                { color: #a3e635; background: rgba(163, 230, 53, 0.1); border: 1px solid rgba(163, 230, 53, 0.2); }
-  &[data-spirit="Whiskey"]                { color: #f97316; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.2); }
-  &[data-spirit="Vodka"]                  { color: #c4b5fd; background: rgba(196, 181, 253, 0.1); border: 1px solid rgba(196, 181, 253, 0.2); }
-  &[data-spirit="Gin"]                    { color: #2dd4bf; background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.2); }
-  &[data-spirit="Brandy"]                 { color: #fb923c; background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.2); }
-  &[data-spirit="None / Non-Alcoholic"]   { color: #94a3b8; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.2); }
+  display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 5px; flex-shrink: 0;
+  &[data-spirit="White Rum"]            { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); }
+  &[data-spirit="Dark Rum"], &[data-spirit="Rum"] { color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); }
+  &[data-spirit="Tequila"]              { color: #a3e635; background: rgba(163, 230, 53, 0.1); border: 1px solid rgba(163, 230, 53, 0.2); }
+  &[data-spirit="Whiskey"]              { color: #f97316; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.2); }
+  &[data-spirit="Vodka"]                { color: #c4b5fd; background: rgba(196, 181, 253, 0.1); border: 1px solid rgba(196, 181, 253, 0.2); }
+  &[data-spirit="Gin"]                  { color: #2dd4bf; background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.2); }
+  &[data-spirit="Brandy"]               { color: #fb923c; background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.2); }
+  &[data-spirit="None / Non-Alcoholic"] { color: #94a3b8; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.2); }
 }
 
-// ── Ingredients in card ──
-.drink-card-ingredients {
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  padding-top: 10px;
-}
-
+.drink-card-ingredients { border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 10px; }
 .ing-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-
-  .ing-name {
-    font-size: 12px;
-    color: rgba(234, 241, 255, 0.5);
-  }
-
-  .ing-qty {
-    font-size: 12px;
-    color: rgba(234, 241, 255, 0.7);
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
+  display: flex; justify-content: space-between; padding: 4px 0;
+  .ing-name { font-size: 12px; color: rgba(234, 241, 255, 0.5); }
+  .ing-qty { font-size: 12px; color: rgba(234, 241, 255, 0.7); font-weight: 600; font-variant-numeric: tabular-nums; }
 }
 
-// ── Loading ──
-.loading-state {
-  text-align: center;
-  color: rgba(234, 241, 255, 0.4);
-  padding: 60px;
-  font-size: 14px;
+// ═══ MODAL ═══
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; animation: fadeIn 0.2s ease;
+}
+.modal-card {
+  background: #1a2236; border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px; padding: 36px 40px; max-width: 420px; width: 90%;
+  text-align: center; animation: slideUp 0.25s ease;
+}
+.modal-icon { margin-bottom: 16px; }
+.modal-title { margin: 0 0 8px; font-size: 20px; font-weight: 700; color: #eaf1ff; }
+.modal-text { margin: 0 0 24px; color: rgba(234, 241, 255, 0.5); font-size: 14px; line-height: 1.6;
+  strong { color: #eaf1ff; }
+}
+.modal-actions { display: flex; gap: 12px; justify-content: center; }
+.modal-btn {
+  padding: 10px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer;
+  &.cancel { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); color: #eaf1ff;
+    &:hover { background: rgba(255, 255, 255, 0.1); }
+  }
+  &.delete { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444;
+    &:hover { background: rgba(239, 68, 68, 0.25); }
+  }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
-// ── Responsive ──
+// ═══ TOAST ═══
+.toast {
+  position: fixed; bottom: 28px; right: 28px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 22px; border-radius: 14px;
+  font-size: 14px; font-weight: 600;
+  z-index: 2000; animation: slideInRight 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  &.success { background: rgba(16, 50, 36, 0.95); border: 1px solid rgba(52, 211, 153, 0.3); color: #34d399; }
+  &.error { background: rgba(50, 16, 16, 0.95); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+.loading-state { text-align: center; color: rgba(234, 241, 255, 0.4); padding: 60px; font-size: 14px; }
+
 @media (max-width: 900px) {
-  .detail-header {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .drinks-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .detail-stats {
-    flex-direction: column;
-    gap: 16px;
-  }
+  .detail-header { flex-direction: column; gap: 16px; }
+  .header-actions { width: 100%; }
+  .drinks-grid { grid-template-columns: 1fr; }
+  .detail-stats { flex-direction: column; gap: 16px; }
+  .modal-card { padding: 28px 24px; }
 }

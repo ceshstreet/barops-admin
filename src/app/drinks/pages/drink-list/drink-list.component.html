@@ -215,6 +215,42 @@
       <div *ngIf="filteredDrinks.length === 0" class="empty-state">No wines found.</div>
     </div>
 
+    <!-- ══ MIXERS TABLE ══ -->
+    <div class="table-card" *ngIf="!loading && activeType === 'mixer'">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>NAME</th>
+              <th>TYPE</th>
+              <th class="hide-mobile">BRAND</th>
+              <th>SIZE</th>
+              <th>STATUS</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let drink of filteredDrinks" class="table-row" (click)="viewDrink(drink._id)">
+              <td class="drink-name">{{ drink.name }}</td>
+              <td><span class="subtype-tag mixer">{{ drink.drinkType }}</span></td>
+              <td class="text-muted hide-mobile">{{ drink.brand }}</td>
+              <td class="text-muted">{{ drink.size }}</td>
+              <td>
+                <span class="status-badge" [class.active]="drink.status === 'active'" [class.inactive]="drink.status !== 'active'">
+                  <span class="status-dot"></span>
+                  {{ drink.status === 'active' ? 'ACTIVE' : 'INACTIVE' }}
+                </span>
+              </td>
+              <td>
+                <button class="action-btn view-btn" (click)="$event.stopPropagation(); viewDrink(drink._id)">Ver</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="filteredDrinks.length === 0" class="empty-state">No mixers found.</div>
+    </div>
+
   </ng-container>
 
   <!-- ══ TAB 2: CALCULATOR ══ -->

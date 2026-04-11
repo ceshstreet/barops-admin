@@ -1,0 +1,94 @@
+<div class="add-on-list-page">
+  <div class="page-header">
+    <div>
+      <h2>Services & Add-ons</h2>
+      <p>Manage the catalog of services available for packages.</p>
+    </div>
+    <button class="primary-btn" routerLink="/add-ons/new">
+      <span class="material-icons">add</span>
+      <span>New Service</span>
+    </button>
+  </div>
+
+  <div class="table-card" *ngIf="!loading && !error">
+    <table *ngIf="addOns.length > 0; else emptyState">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Default Detail</th>
+          <th>Type</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let addOn of addOns; trackBy: trackById">
+          <td class="primary-text">{{ addOn.name }}</td>
+          <td class="muted-text">{{ categoryLabels[addOn.category] }}</td>
+          <td class="muted-text">{{ addOn.defaultDetail || '—' }}</td>
+          <td>
+            <span class="type-badge" [class.included]="addOn.defaultIncluded">
+              {{ addOn.defaultIncluded ? 'Included' : 'Add-on' }}
+            </span>
+          </td>
+          <td class="muted-text">
+            {{ addOn.defaultIncluded ? '—' : ('$' + addOn.defaultPrice) }}
+          </td>
+          <td>
+            <span class="status-dot" [class.active]="addOn.active" [class.inactive]="!addOn.active">
+              {{ addOn.active ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <div class="actions-cell">
+              <button class="icon-btn edit-btn" (click)="edit(addOn._id)" title="Edit">
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="icon-btn delete-btn" (click)="openDelete(addOn)" title="Delete">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <span class="material-icons">add_circle_outline</span>
+        <p>No services created yet.</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="status-card" *ngIf="loading">
+    <span class="material-icons">hourglass_top</span>
+    <p>Loading services...</p>
+  </div>
+
+  <div class="status-card error" *ngIf="error">
+    <span class="material-icons">error</span>
+    <p>{{ error }}</p>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDelete()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <h3>Delete Service</h3>
+    <p>Are you sure you want to delete <strong>{{ selectedName }}</strong>?</p>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" (click)="closeDelete()" [disabled]="deleting">Cancel</button>
+      <button class="modal-btn delete" (click)="confirmDelete()" [disabled]="deleting">
+        {{ deleting ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" *ngIf="toast" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+  {{ toast.message }}
+</div>
