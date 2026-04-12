@@ -37,6 +37,7 @@ export interface QuoteRequest {
   convertedToEvent: boolean;
 
   clientId?: string | LinkedClient | null;
+  quoteId?:  string | null;
 
   lastSyncedAt?: string;
   createdAt?: string;

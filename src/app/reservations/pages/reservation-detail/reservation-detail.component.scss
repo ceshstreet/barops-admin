@@ -42,6 +42,15 @@
   border-radius: 6px; padding: 4px 10px;
 }
 
+.view-event-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3);
+  border-radius: 10px; padding: 9px 16px; color: #34d399;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.14s;
+  .material-icons { font-size: 16px; }
+  &:hover { background: rgba(52,211,153,0.18); }
+}
+
 .edit-btn {
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(124,92,255,0.12); border: 1px solid rgba(124,92,255,0.3);
@@ -141,6 +150,42 @@
 .notes-text {
   margin: 0; font-size: 14px; color: rgba(234,241,255,0.65); line-height: 1.7;
   white-space: pre-wrap;
+}
+
+// ── EVENT CREATED CARD ──
+.event-created-card {
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(52,211,153,0.07); border: 1px solid rgba(52,211,153,0.28);
+  border-radius: 16px; padding: 16px 18px;
+}
+
+.event-created-icon {
+  width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+  background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3);
+  display: flex; align-items: center; justify-content: center;
+  .material-icons { font-size: 22px; color: #34d399; }
+}
+
+.event-created-body { flex: 1; }
+.event-created-title { display: block; font-size: 14px; font-weight: 700; color: #34d399; }
+.event-created-sub   { display: block; font-size: 12px; color: rgba(52,211,153,0.6); margin-top: 3px; line-height: 1.4; }
+
+.go-event-btn {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.35);
+  color: #34d399; border-radius: 10px; padding: 9px 14px;
+  font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.14s;
+  .material-icons { font-size: 15px; }
+  &:hover { background: rgba(52,211,153,0.25); }
+}
+
+.reservation-blocked-card {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 14px; padding: 14px 16px;
+  font-size: 13px; color: rgba(248,113,113,0.8);
+  .material-icons { font-size: 18px; color: #ef4444; flex-shrink: 0; }
+  strong { color: #f87171; }
 }
 
 // ── ACTION CARD (Confirm/Cancel) ──

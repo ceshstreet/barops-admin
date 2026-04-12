@@ -15,6 +15,9 @@
       </button>
       <div class="header-right">
         <span class="event-code" *ngIf="reservation.eventCode">{{ reservation.eventCode }}</span>
+        <button class="view-event-btn" *ngIf="isConfirmed()" (click)="goToEvent()">
+          <span class="material-icons">celebration</span> View as Event
+        </button>
         <a [routerLink]="['/reservations', reservation._id, 'edit']" class="edit-btn">
           <span class="material-icons">edit</span> Edit
         </a>
@@ -100,6 +103,25 @@
         <div class="detail-card" *ngIf="reservation.notes">
           <h3 class="card-title"><span class="material-icons">notes</span> Notes</h3>
           <p class="notes-text">{{ reservation.notes }}</p>
+        </div>
+
+        <!-- ── EVENT CREATED BLOCK (confirmed/cancelled) ── -->
+        <div class="event-created-card" *ngIf="isConfirmed()">
+          <div class="event-created-icon">
+            <span class="material-icons">celebration</span>
+          </div>
+          <div class="event-created-body">
+            <span class="event-created-title">Converted to Event</span>
+            <span class="event-created-sub">This reservation was confirmed and is now an active event.</span>
+          </div>
+          <button class="go-event-btn" (click)="goToEvent()">
+            <span class="material-icons">open_in_new</span> View Event
+          </button>
+        </div>
+
+        <div class="reservation-blocked-card" *ngIf="!isPending() && !isConfirmed()">
+          <span class="material-icons">block</span>
+          <span>This reservation is <strong>{{ reservation.status }}</strong> and cannot be processed.</span>
         </div>
 
         <!-- Confirm/Cancel Actions (pending only) -->

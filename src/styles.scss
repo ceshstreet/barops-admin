@@ -1,50 +1,262 @@
+// ── DESIGN TOKENS ─────────────────────────────────────────────────────────────
+:root {
+  --brand:      #7c5cff;
+  --brand2:     #32d7a3;
+  --bg:         #0b1220;
+  --panel:      #111a2e;
+  --card-bg:    rgba(255, 255, 255, 0.04);
+  --border:     rgba(255, 255, 255, 0.08);
+  --border-md:  rgba(255, 255, 255, 0.12);
+  --text:       #eaf1ff;
+  --muted:      rgba(234, 241, 255, 0.5);
+  --muted2:     rgba(234, 241, 255, 0.28);
+  --danger:     #ef4444;
+  --success:    #34d399;
+  --warn:       #f59e0b;
+  --info:       #60a5fa;
+  --r-sm:       8px;
+  --r:          12px;
+  --r-lg:       16px;
+  --r-xl:       20px;
+}
+
+// ── GLOBAL RESET & FONT ───────────────────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ── SHARED ICON BUTTONS ───────────────────────────────────────────────────────
+// Use: <button class="icon-btn"> or <button class="icon-btn danger">
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s;
+  flex-shrink: 0;
+
+  .material-icons {
+    font-size: 17px;
+    color: var(--muted);
+    transition: color 0.14s;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: var(--border-md);
+
+    .material-icons { color: var(--text); }
+  }
+
+  &.edit:hover {
+    background: rgba(124, 92, 255, 0.12);
+    border-color: rgba(124, 92, 255, 0.35);
+    .material-icons { color: var(--brand); }
+  }
+
+  &.view:hover {
+    background: rgba(50, 215, 163, 0.12);
+    border-color: rgba(50, 215, 163, 0.35);
+    .material-icons { color: var(--brand2); }
+  }
+
+  &.danger:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.4);
+    .material-icons { color: var(--danger); }
+  }
+}
+
+// ── SHARED BUTTONS ────────────────────────────────────────────────────────────
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.12s;
+  white-space: nowrap;
+
+  .material-icons { font-size: 17px; }
+
+  &:hover   { opacity: 0.88; transform: translateY(-1px); }
+  &:active  { transform: translateY(0); opacity: 1; }
+  &:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.14s;
+
+  .material-icons { font-size: 17px; color: var(--muted); }
+
+  &:hover { background: rgba(255, 255, 255, 0.1); }
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--r);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s;
+
+  .material-icons { font-size: 17px; }
+
+  &:hover { background: rgba(239, 68, 68, 0.25); }
+}
+
+// ── SHARED MODAL ──────────────────────────────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+}
+
+.modal-card {
+  background: #141c33;
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-xl);
+  padding: 32px 28px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+
+  .modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+
+    .material-icons { font-size: 26px; }
+
+    &.danger-icon {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      .material-icons { color: #f87171; }
+    }
+  }
+
+  h3 {
+    margin: 0 0 10px;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  p {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0 0 24px;
+    line-height: 1.55;
+
+    strong { color: var(--text); font-weight: 600; }
+  }
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+// ── SHARED BADGE ─────────────────────────────────────────────────────────────
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+
+  .material-icons { font-size: 12px; }
+
+  &.green  { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.3); color: #34d399; }
+  &.purple { background: rgba(124,92,255,0.12);  border-color: rgba(124,92,255,0.3); color: #a78bfa; }
+  &.amber  { background: rgba(245,158,11,0.12);  border-color: rgba(245,158,11,0.3); color: #f59e0b; }
+  &.red    { background: rgba(239,68,68,0.12);   border-color: rgba(239,68,68,0.3);  color: #f87171; }
+  &.blue   { background: rgba(96,165,250,0.12);  border-color: rgba(96,165,250,0.3); color: #60a5fa; }
+}
+
+// ── PHONE INPUT DROPDOWN ──────────────────────────────────────────────────────
 .iti__dropdown-content {
   background: #1a1f35 !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 12px !important;
+  border-radius: var(--r) !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
 }
 
 .iti__country {
-  color: #eaf1ff !important;
-
-  &:hover, &.iti__highlight {
-    background: rgba(124, 92, 255, 0.15) !important;
-  }
+  color: var(--text) !important;
+  &:hover, &.iti__highlight { background: rgba(124, 92, 255, 0.15) !important; }
 }
 
-.iti__country-name {
-  color: #eaf1ff !important;
-}
-
-.iti__dial-code {
-  color: rgba(234, 241, 255, 0.55) !important;
-}
+.iti__country-name { color: var(--text) !important; }
+.iti__dial-code    { color: var(--muted) !important; }
 
 .iti__search-input {
   background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  color: #eaf1ff !important;
-  border-radius: 8px !important;
+  border: 1px solid var(--border-md) !important;
+  color: var(--text) !important;
+  border-radius: var(--r-sm) !important;
   padding: 8px 12px !important;
-
-  &::placeholder {
-    color: rgba(234, 241, 255, 0.4) !important;
-  }
+  &::placeholder { color: var(--muted2) !important; }
 }
 
-.iti__divider {
-  border-color: rgba(255, 255, 255, 0.08) !important;
-}
+.iti__divider { border-color: var(--border) !important; }
 
-// ── GLOBAL PRINT STYLES ────────────────────────────────
+// ── GLOBAL PRINT ─────────────────────────────────────────────────────────────
 @media print {
-  // Ocultar sidebar, topbar y elementos marcados con no-print
-  app-sidebar,
-  app-topbar,
-  .no-print { display: none !important; }
+  app-sidebar, app-topbar, .no-print { display: none !important; }
 
-  // Reset del shell del admin
   body, html {
     background: #fff !important;
     padding: 0 !important;
@@ -52,21 +264,7 @@
     overflow: visible !important;
   }
 
-  .admin-shell {
-    display: block !important;
-    background: #fff !important;
-  }
-
-  .admin-main {
-    margin-left: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-    background: #fff !important;
-  }
-
-  .admin-content {
-    padding: 0 !important;
-    background: #fff !important;
-    width: 100% !important;
-  }
+  .admin-shell  { display: block !important; background: #fff !important; }
+  .admin-main   { margin-left: 0 !important; padding: 0 !important; width: 100% !important; background: #fff !important; }
+  .admin-content { padding: 0 !important; background: #fff !important; width: 100% !important; }
 }

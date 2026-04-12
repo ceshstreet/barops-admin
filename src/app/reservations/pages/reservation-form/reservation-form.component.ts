@@ -83,7 +83,10 @@ export class ReservationFormComponent implements OnInit {
           if (match) this.clientId = match._id ?? '';
         }
       },
-      error: (err) => console.error('Error loading clients:', err),
+      error: (err) => {
+        console.error('Error loading clients:', err);
+        this.toastService.show('Could not load clients list.', 'error');
+      },
     });
 
     // ── Pre-fill from approved quote ──
@@ -117,16 +120,21 @@ export class ReservationFormComponent implements OnInit {
       this.isEditMode = true;
       this.eventService.getEventById(this.reservationId).subscribe({
         next: (ev: any) => {
-          this.clientId    = typeof ev.clientId === 'object' ? ev.clientId?._id : ev.clientId ?? '';
-          this.clientName  = ev.clientName  || '';
-          this.email       = ev.email       || '';
-          this.phone       = ev.phone       || '';
-          this.title       = ev.title       || '';
-          this.eventType   = ev.eventType   || '';
-          this.eventDate   = ev.eventDate   || '';
-          this.location    = ev.location    || '';
+          // client can be a populated object or a raw ObjectId string
+          const clientObj  = ev.client;
+          this.clientId    = typeof clientObj === 'object' && clientObj?._id
+                               ? clientObj._id
+                               : (typeof clientObj === 'string' ? clientObj : '');
+          // Flat fields (new format) with nested eventInfo as fallback (old format)
+          this.clientName  = ev.clientName          || clientObj?.name && `${clientObj.name} ${clientObj.lastName ?? ''}`.trim() || '';
+          this.email       = ev.email               || clientObj?.email || '';
+          this.phone       = ev.phone               || clientObj?.phone || '';
+          this.title       = ev.eventInfo?.title    || ev.title       || '';
+          this.eventType   = ev.eventInfo?.type     || ev.eventType   || '';
+          this.eventDate   = ev.eventInfo?.date     || ev.eventDate   || '';
+          this.location    = ev.eventInfo?.location || ev.location    || '';
           this.guests      = ev.guests      || '';
-          this.status      = ev.status      || 'pending';
+          this.status      = ev.status      || 'PENDIENTE';
           this.notes       = ev.notes       || '';
           this.packageName = ev.packageName || '';
           this.quotedTotal = ev.quotedTotal || 0;
@@ -134,6 +142,16 @@ export class ReservationFormComponent implements OnInit {
         },
         error: (err) => console.error(err),
       });
+    }
+  }
+
+  onClientSelect(id: string): void {
+    if (!id) return;
+    const c = this.clients.find(x => x._id === id);
+    if (c) {
+      this.clientName = `${c.name} ${c.lastName ?? ''}`.trim();
+      this.email      = c.email  || '';
+      this.phone      = c.phone  || '';
     }
   }
 
@@ -156,10 +174,18 @@ export class ReservationFormComponent implements OnInit {
       clientName:  this.clientName,
       email:       this.email,
       phone:       this.phone,
+      // Flat fields (used by new read logic)
       title:       this.title,
       eventType:   this.eventType,
       eventDate:   this.eventDate,
       location:    this.location,
+      // Nested eventInfo (keeps backend schema consistent)
+      eventInfo: {
+        title:    this.title,
+        type:     this.eventType,
+        date:     this.eventDate,
+        location: this.location,
+      },
       guests:      this.guests,
       status:      this.status,
       notes:       this.notes,

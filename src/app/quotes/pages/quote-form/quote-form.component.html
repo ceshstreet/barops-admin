@@ -1,284 +1,651 @@
-<div class="quote-form-page">
+<div class="builder-page">
 
-  <div class="page-header">
-    <div>
-      <h2>{{ isEdit ? 'Edit Quote' : 'New Quote' }}</h2>
-      <p>{{ isEdit ? 'Update quote details.' : 'Build a professional proposal for the client.' }}</p>
+  <!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
+  <div class="builder-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="cancel()">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <div>
+        <h2>{{ isEdit ? 'Edit Quote' : 'New Quote' }}</h2>
+        <p>{{ isEdit ? 'Update the proposal for your client.' : 'Configure and price a service proposal.' }}</p>
+      </div>
     </div>
-    <div class="header-actions">
-      <button class="secondary-btn" (click)="cancel()">Cancel</button>
-      <button class="outline-btn" (click)="save(true)" [disabled]="saving">Save Draft</button>
-      <button class="primary-btn" (click)="save(false)" [disabled]="!fullName || !eventName || saving">
-        {{ saving ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Quote') }}
+    <div class="header-right">
+      <button class="btn-ghost" (click)="save(true)" [disabled]="saving">
+        <span class="material-icons">save</span>
+        Save Draft
+      </button>
+      <button class="btn-primary" (click)="save(false)"
+        [disabled]="!fullName || !eventName || saving">
+        <span class="material-icons">send</span>
+        {{ saving ? 'Saving…' : (isEdit ? 'Save Changes' : 'Create Quote') }}
       </button>
     </div>
   </div>
 
-  <div class="form-layout">
+  <!-- ══ 3-ZONE BODY ══════════════════════════════════════════════════════════ -->
+  <div class="builder-body">
 
-    <!-- ══ LEFT COLUMN ══ -->
-    <div class="left-col">
-
-      <!-- CLIENT & EVENT -->
-      <div class="form-card">
-        <h3 class="card-title">
-          <span class="material-icons">person</span> Client & Event
-        </h3>
-        <div class="form-grid">
-          <div class="field">
-            <label>Client Name *</label>
-            <input type="text" [(ngModel)]="fullName" placeholder="Full name" />
-          </div>
-          <div class="field">
-            <label>Email</label>
-            <input type="email" [(ngModel)]="email" placeholder="client@email.com" />
-          </div>
-          <div class="field">
-            <label>Phone</label>
-            <input type="tel" [(ngModel)]="phone" placeholder="+1 (555) 000-0000" />
-          </div>
-          <div class="field">
-            <label>Event Name *</label>
-            <input type="text" [(ngModel)]="eventName" placeholder="E.g. Smith Wedding" />
-          </div>
-          <div class="field">
-            <label>Event Type</label>
-            <select [(ngModel)]="eventType">
-              <option value="">Select type</option>
-              <option *ngFor="let t of eventTypes" [value]="t">{{ t }}</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Event Date</label>
-            <input type="date" [(ngModel)]="eventDate" />
-          </div>
-          <div class="field field-full">
-            <label>Location / Venue</label>
-            <input type="text" [(ngModel)]="location" placeholder="Address or venue name" />
-          </div>
-          <div class="field">
-            <label>Number of Guests</label>
-            <input type="number" [(ngModel)]="guestCount" min="1" />
-          </div>
-          <div class="field">
-            <label>Budget Range</label>
-            <input type="text" [(ngModel)]="budgetRange" placeholder="E.g. $2,000 – $3,500" />
-          </div>
+    <!-- ── LEFT: Step Navigation ──────────────────────────────────────────── -->
+    <nav class="step-nav">
+      <div *ngFor="let s of STEPS"
+        class="step-item"
+        [class.done]="(s.id===1&&step1Complete)||(s.id===2&&step2Complete)||(s.id===3&&step3Complete)||(s.id===4&&step4Complete)||(s.id===5&&step5Complete)"
+        [class.active]="activeStep === s.id"
+        (click)="scrollTo(s.id)">
+        <div class="step-bullet">
+          <span class="material-icons check-ico"
+            *ngIf="(s.id===1&&step1Complete)||(s.id===2&&step2Complete)||(s.id===3&&step3Complete)||(s.id===4&&step4Complete)||(s.id===5&&step5Complete)">
+            check
+          </span>
+          <span class="step-num"
+            *ngIf="!((s.id===1&&step1Complete)||(s.id===2&&step2Complete)||(s.id===3&&step3Complete)||(s.id===4&&step4Complete)||(s.id===5&&step5Complete))">
+            {{ s.id }}
+          </span>
+        </div>
+        <div class="step-text">
+          <span class="step-name">{{ s.label }}</span>
         </div>
       </div>
 
-      <!-- PACKAGE SELECTION -->
-      <div class="form-card">
-        <h3 class="card-title">
-          <span class="material-icons">inventory</span> Package
-        </h3>
-        <p class="card-hint">Select a base package. Pricing will calculate automatically.</p>
-
-        <div *ngIf="allPackages.length === 0" class="empty-hint">
-          No active packages. <a routerLink="/packages/new">Create one first.</a>
-        </div>
-
-        <div class="package-grid">
-          <div *ngFor="let pkg of allPackages"
-            class="package-card"
-            [class.selected]="selectedPackageId === pkg._id"
-            (click)="selectPackage(pkg)">
-            <div class="pkg-check" [class.checked]="selectedPackageId === pkg._id">
-              <svg *ngIf="selectedPackageId === pkg._id" width="11" height="11" viewBox="0 0 24 24"
-                fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="pkg-info">
-              <span class="pkg-name">{{ pkg.name }}</span>
-              <span class="pkg-meta">{{ pkg.duration }} · {{ pkg.barType }}</span>
-            </div>
-            <div class="pkg-price">
-              <span class="pkg-base">${{ pkg.basePrice }}</span>
-              <span class="pkg-per">+${{ pkg.pricePerGuest }}/guest</span>
-            </div>
+      <!-- Progress hint -->
+      <div class="step-progress">
+        <div class="progress-bar">
+          <div class="progress-fill"
+            [style.width.%]="stepsProgress">
           </div>
         </div>
+        <span class="progress-label">
+          {{ stepsCompleted }}/5 complete
+        </span>
+      </div>
+    </nav>
 
-        <!-- Package preview -->
-        <div class="package-preview" *ngIf="selectedPackage">
-          <div class="preview-row">
-            <span>Base price</span><span>${{ selectedPackage.basePrice }}</span>
+    <!-- ── CENTER: Builder Canvas ─────────────────────────────────────────── -->
+    <div class="builder-canvas">
+
+      <!-- ▸ SECTION 1 — Client & Event ──────────────────────────────────── -->
+      <section class="builder-section" id="step-1">
+        <div class="section-header" (click)="scrollTo(1)">
+          <div class="section-num" [class.done]="step1Complete">
+            <span class="material-icons" *ngIf="step1Complete">check</span>
+            <span *ngIf="!step1Complete">1</span>
           </div>
-          <div class="preview-row">
-            <span>{{ guestCount }} guests × ${{ selectedPackage.pricePerGuest }}</span>
-            <span>${{ packageGuestPrice }}</span>
-          </div>
-          <div class="preview-row muted" *ngIf="selectedPackage.minGuests">
-            <span>Capacity</span>
-            <span>{{ selectedPackage.minGuests }}–{{ selectedPackage.maxGuests }} guests</span>
+          <div>
+            <h3>Client & Event</h3>
+            <p>Who is this quote for and what's the occasion?</p>
           </div>
         </div>
+
+        <div class="section-body">
+          <!-- Basic info grid -->
+          <!-- ── Client search from database ── -->
+          <div class="subsection-label">Client from Database</div>
+          <div class="client-search-wrap">
+            <div class="client-search-box" [class.has-value]="selectedClientId">
+              <span class="material-icons cs-icon">person_search</span>
+              <input
+                type="text"
+                [(ngModel)]="clientSearch"
+                (focus)="showClientDropdown = true"
+                (input)="showClientDropdown = true"
+                placeholder="Search by name, email or phone…"
+                class="cs-input"
+                autocomplete="off" />
+              <button *ngIf="selectedClientId" class="cs-clear" (click)="clearClient()" title="Clear client">
+                <span class="material-icons">close</span>
+              </button>
+            </div>
+            <div class="client-dropdown" *ngIf="showClientDropdown && filteredClients.length > 0">
+              <div *ngFor="let c of filteredClients"
+                class="client-option"
+                (mousedown)="selectClient(c)">
+                <div class="co-avatar">{{ (c.name || '?').charAt(0) }}{{ (c.lastName || '').charAt(0) }}</div>
+                <div class="co-info">
+                  <span class="co-name">{{ c.name }} {{ c.lastName }}</span>
+                  <span class="co-sub">{{ c.email }} · {{ c.phone }}</span>
+                </div>
+                <span class="material-icons co-pick">arrow_forward</span>
+              </div>
+            </div>
+            <!-- Click-away to close -->
+            <div class="dropdown-backdrop" *ngIf="showClientDropdown"
+              (click)="showClientDropdown = false"></div>
+          </div>
+
+          <div *ngIf="selectedClientId" class="client-selected-banner">
+            <span class="material-icons">check_circle</span>
+            Client linked — fields below were auto-filled. You can still edit them.
+          </div>
+
+          <!-- ── Manual fields ── -->
+          <div class="form-grid">
+            <div class="field field-full">
+              <label>Event Name *</label>
+              <input type="text" [(ngModel)]="eventName" placeholder="E.g. Smith Wedding Reception" />
+            </div>
+            <div class="field">
+              <label>Client Name *</label>
+              <input type="text" [(ngModel)]="fullName" placeholder="Full name" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="email" placeholder="client@email.com" />
+            </div>
+            <div class="field">
+              <label>Phone</label>
+              <input type="tel" [(ngModel)]="phone" placeholder="+1 (555) 000-0000" />
+            </div>
+            <div class="field">
+              <label>Event Date</label>
+              <input type="date" [(ngModel)]="eventDate" />
+            </div>
+            <div class="field field-full">
+              <label>Location / Venue</label>
+              <input type="text" [(ngModel)]="location" placeholder="Address or venue name" />
+            </div>
+            <div class="field">
+              <label>Budget Range</label>
+              <input type="text" [(ngModel)]="budgetRange" placeholder="E.g. $2,000 – $3,500" />
+            </div>
+          </div>
+
+          <!-- Event type icon cards -->
+          <div class="subsection-label">Event Type</div>
+          <div class="event-type-grid">
+            <button *ngFor="let et of EVENT_TYPE_CARDS"
+              type="button"
+              class="event-type-card"
+              [class.selected]="eventType === et.value"
+              (click)="eventType = et.value">
+              <span class="material-icons et-icon">{{ et.icon }}</span>
+              <span class="et-label">{{ et.label }}</span>
+            </button>
+          </div>
+
+          <!-- Guest count stepper -->
+          <div class="subsection-label">Number of Guests</div>
+          <div class="guest-stepper">
+            <button type="button" class="step-btn" (click)="stepGuest(-10)">−10</button>
+            <button type="button" class="step-btn" (click)="stepGuest(-1)">−</button>
+            <div class="guest-display">
+              <input type="number" [(ngModel)]="guestCount" min="1" (ngModelChange)="triggerFlash()" class="guest-input" />
+              <span class="guest-unit">guests</span>
+            </div>
+            <button type="button" class="step-btn" (click)="stepGuest(1)">+</button>
+            <button type="button" class="step-btn" (click)="stepGuest(10)">+10</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ▸ SECTION 2 — Package ─────────────────────────────────────────── -->
+      <section class="builder-section" id="step-2">
+        <div class="section-header" (click)="scrollTo(2)">
+          <div class="section-num" [class.done]="step2Complete">
+            <span class="material-icons" *ngIf="step2Complete">check</span>
+            <span *ngIf="!step2Complete">2</span>
+          </div>
+          <div>
+            <h3>Package</h3>
+            <p>Choose a base package — pricing calculates instantly.</p>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <div *ngIf="allPackages.length === 0" class="empty-hint">
+            No active packages. <a routerLink="/packages/new">Create one first.</a>
+          </div>
+
+          <div class="package-grid">
+            <div *ngFor="let pkg of allPackages"
+              class="package-card"
+              [class.selected]="selectedPackageId === pkg._id"
+              (click)="selectPackage(pkg)">
+
+              <!-- Selected check -->
+              <div class="pkg-selected-badge" *ngIf="selectedPackageId === pkg._id">
+                <span class="material-icons">check_circle</span> Selected
+              </div>
+
+              <div class="pkg-header">
+                <span class="pkg-name">{{ pkg.name }}</span>
+                <div class="pkg-tags">
+                  <span class="pkg-tag">{{ pkg.duration }}</span>
+                  <span class="pkg-tag" *ngIf="pkg.barType">{{ pkg.barType }}</span>
+                </div>
+              </div>
+
+              <div class="pkg-capacity" *ngIf="pkg.minGuests">
+                <span class="material-icons">group</span>
+                {{ pkg.minGuests }}–{{ pkg.maxGuests }} guests
+              </div>
+
+              <div class="pkg-features" *ngIf="packageIncludedServices(pkg).length">
+                <div *ngFor="let svc of packageIncludedServices(pkg)" class="pkg-feature">
+                  <span class="material-icons">check</span>
+                  {{ svc }}
+                </div>
+              </div>
+
+              <div class="pkg-pricing">
+                <div class="pkg-base-price">${{ pkg.basePrice | number:'1.0-0' }}</div>
+                <div class="pkg-per-guest">+ ${{ pkg.pricePerGuest }}/guest</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Package preview when selected -->
+          <div class="package-preview" *ngIf="selectedPackage || storedPackageName">
+            <div class="preview-title">
+              <span class="material-icons">calculate</span>
+              Calculation for {{ guestCount }} guests
+            </div>
+            <div class="preview-row">
+              <span>{{ effectivePackageName }} (base)</span>
+              <span>${{ packageBasePrice | number:'1.0-0' }}</span>
+            </div>
+            <div class="preview-row">
+              <span>{{ guestCount }} guests × ${{ effectivePricePerGuest }}</span>
+              <span>${{ packageGuestPrice | number:'1.0-0' }}</span>
+            </div>
+            <div class="preview-divider"></div>
+            <div class="preview-row preview-subtotal">
+              <span>Package subtotal</span>
+              <span>${{ (packageBasePrice + packageGuestPrice) | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ▸ SECTION 3 — Bar & Experience ───────────────────────────────── -->
+      <section class="builder-section" id="step-3">
+        <div class="section-header" (click)="scrollTo(3)">
+          <div class="section-num" [class.done]="step3Complete">
+            <span class="material-icons" *ngIf="step3Complete">check</span>
+            <span *ngIf="!step3Complete">3</span>
+          </div>
+          <div>
+            <h3>Bar & Experience</h3>
+            <p>Select the bar setup and drink theme for the event.</p>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <!-- Bar Types -->
+          <div class="subsection-label">Bar Type</div>
+          <div *ngIf="allBarTypes.length === 0" class="empty-hint">
+            No bar types available. <a routerLink="/bar-types/new">Add one.</a>
+          </div>
+          <div class="catalog-grid">
+            <div *ngFor="let bt of allBarTypes"
+              class="catalog-card"
+              [class.selected]="selectedBarTypeId === bt._id"
+              (click)="selectedBarTypeId = bt._id || ''">
+              <div class="catalog-icon">
+                <span class="material-icons">{{ barTypeIcon(bt) }}</span>
+              </div>
+              <div class="catalog-info">
+                <span class="catalog-name">{{ bt.name }}</span>
+                <div class="catalog-tags">
+                  <span class="catalog-tag">{{ bt.category }}</span>
+                  <span class="catalog-tag" *ngIf="bt.capacity">Cap. {{ bt.capacity }}</span>
+                  <span class="catalog-tag accent" *ngIf="bt.lighting">💡 Lighting</span>
+                </div>
+                <span class="catalog-sub" *ngIf="bt.setupType">{{ bt.setupType }}</span>
+              </div>
+              <div class="catalog-check" *ngIf="selectedBarTypeId === bt._id">
+                <span class="material-icons">check_circle</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drink Themes -->
+          <div class="subsection-label" style="margin-top: 24px;">Drink Theme</div>
+          <div *ngIf="allThemes.length === 0" class="empty-hint">
+            No drink themes available. <a routerLink="/drink-themes/new">Add one.</a>
+          </div>
+          <div class="catalog-grid">
+            <div *ngFor="let theme of allThemes"
+              class="catalog-card theme-card"
+              [class.selected]="selectedThemeId === theme._id"
+              [style.--theme-color]="theme.color || '#7c5cff'"
+              (click)="selectedThemeId = theme._id">
+              <div class="theme-swatch" [style.background]="theme.color || '#7c5cff'">
+                <span class="material-icons">{{ themeIcon(theme) }}</span>
+              </div>
+              <div class="catalog-info">
+                <span class="catalog-name">{{ theme.name }}</span>
+                <div class="catalog-tags">
+                  <span class="catalog-tag">{{ theme.style }}</span>
+                </div>
+                <span class="catalog-sub" *ngIf="theme.targetEvent">{{ theme.targetEvent }}</span>
+              </div>
+              <div class="catalog-check" *ngIf="selectedThemeId === theme._id">
+                <span class="material-icons">check_circle</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ▸ SECTION 4 — Add-ons ─────────────────────────────────────────── -->
+      <section class="builder-section" id="step-4">
+        <div class="section-header" (click)="scrollTo(4)">
+          <div class="section-num" [class.done]="step4Complete">
+            <span class="material-icons" *ngIf="step4Complete">check</span>
+            <span *ngIf="!step4Complete">4</span>
+          </div>
+          <div>
+            <h3>Add-ons & Extras</h3>
+            <p>Enhance the experience with optional services.</p>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <!-- Selected add-on lines -->
+          <div class="addon-lines" *ngIf="selectedAddOnLines.length > 0">
+            <div *ngFor="let line of selectedAddOnLines; let i = index" class="addon-line">
+              <div class="addon-line-icon">
+                <span class="material-icons">check_circle</span>
+              </div>
+              <div class="addon-line-info">
+                <span class="addon-line-name">{{ line.name }}</span>
+                <span class="addon-line-detail" *ngIf="line.detail">{{ line.detail }}</span>
+              </div>
+              <div class="addon-line-price">
+                <input type="number" [(ngModel)]="line.price" min="0"
+                  (ngModelChange)="triggerFlash()" class="addon-price-input" />
+                <span class="price-currency">$</span>
+              </div>
+              <button type="button" class="remove-addon-btn" (click)="removeAddOnLine(i)" title="Remove">
+                <span class="material-icons">close</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="addon-empty" *ngIf="selectedAddOnLines.length === 0">
+            <span class="material-icons">add_circle_outline</span>
+            <p>No add-ons selected yet. Browse the catalog to add extras.</p>
+          </div>
+
+          <div class="addon-actions-row">
+            <button type="button" class="browse-addons-btn" (click)="showAddonModal = true; addonSearch = ''">
+              <span class="material-icons">storefront</span>
+              Browse Catalog
+              <span class="addon-count-badge" *ngIf="selectedAddOnLines.length > 0">
+                {{ selectedAddOnLines.length }}
+              </span>
+            </button>
+            <button type="button" class="add-custom-line-btn" (click)="addCustomLine()">
+              <span class="material-icons">add</span>
+              Custom Line
+            </button>
+          </div>
+
+          <!-- Custom price lines -->
+          <div class="custom-lines" *ngIf="customLines.length > 0">
+            <div class="subsection-label">Custom Lines</div>
+            <div *ngFor="let line of customLines; let i = index" class="custom-line">
+              <span class="material-icons custom-line-icon">edit_note</span>
+              <input type="text" [(ngModel)]="line.name" placeholder="Description…"
+                class="custom-line-name" />
+              <div class="custom-line-price-wrap">
+                <span class="cpl-dollar">$</span>
+                <input type="number" [(ngModel)]="line.price" min="0"
+                  (ngModelChange)="triggerFlash()" class="custom-line-price" />
+              </div>
+              <button type="button" class="remove-addon-btn" (click)="removeCustomLine(i)">
+                <span class="material-icons">close</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ▸ SECTION 5 — Notes ───────────────────────────────────────────── -->
+      <section class="builder-section" id="step-5">
+        <div class="section-header" (click)="scrollTo(5)">
+          <div class="section-num" [class.done]="step5Complete">
+            <span class="material-icons" *ngIf="step5Complete">check</span>
+            <span *ngIf="!step5Complete">5</span>
+          </div>
+          <div>
+            <h3>Notes & Review</h3>
+            <p>Add client-facing terms and any internal notes.</p>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <div class="form-grid">
+            <div class="field field-full">
+              <label>Notes for Client</label>
+              <textarea [(ngModel)]="notes" rows="4"
+                placeholder="Terms, inclusions, special conditions visible to the client…"></textarea>
+            </div>
+            <div class="field field-full">
+              <label>Internal Notes</label>
+              <textarea [(ngModel)]="internalNotes" rows="3"
+                placeholder="Internal comments — not visible to the client…"></textarea>
+            </div>
+          </div>
+
+          <!-- Final save row -->
+          <div class="final-actions">
+            <button class="btn-ghost" (click)="save(true)" [disabled]="saving">
+              <span class="material-icons">save</span> Save Draft
+            </button>
+            <button class="btn-primary" (click)="save(false)"
+              [disabled]="!fullName || !eventName || saving">
+              <span class="material-icons">send</span>
+              {{ saving ? 'Saving…' : (isEdit ? 'Save Changes' : 'Create Quote') }}
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /builder-canvas -->
+
+    <!-- ── RIGHT: Live Quote Summary ────────────────────────────────────── -->
+    <aside class="summary-panel">
+
+      <div class="summary-header">
+        <span class="material-icons">receipt_long</span>
+        <span>Quote Summary</span>
       </div>
 
-      <!-- BAR TYPE & THEME -->
-      <div class="form-card">
-        <h3 class="card-title">
-          <span class="material-icons">local_bar</span> Bar & Theme
-        </h3>
-        <div class="form-grid">
-          <div class="field">
-            <label>Bar Type</label>
-            <select [(ngModel)]="selectedBarTypeId">
-              <option value="">Select bar type</option>
-              <option *ngFor="let b of allBarTypes" [value]="b._id">
-                {{ b.name }} · {{ b.category }} · Cap. {{ b.capacity }}
-              </option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Drink Theme</label>
-            <select [(ngModel)]="selectedThemeId">
-              <option value="">Select theme</option>
-              <option *ngFor="let t of allThemes" [value]="t._id">
-                {{ t.name }} — {{ t.style }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- ADD-ONS -->
-      <div class="form-card">
-        <div class="card-title-row">
-          <h3 class="card-title">
-            <span class="material-icons">add_circle_outline</span> Add-ons & Extras
-          </h3>
-          <button type="button" class="add-btn" (click)="showAddOnPicker = !showAddOnPicker">
-            + Add Service
-          </button>
-        </div>
-
-        <!-- Picker -->
-        <div class="addon-picker" *ngIf="showAddOnPicker">
-          <div *ngIf="allAddOns.length === 0" class="picker-empty">No add-ons in catalog.</div>
-          <button type="button" class="addon-picker-item"
-            *ngFor="let a of allAddOns"
-            [class.selected]="isAddOnSelected(a)"
-            (click)="toggleAddOn(a)">
-            <span class="addon-picker-name">{{ a.name }}</span>
-            <span class="addon-picker-detail">{{ a.defaultDetail }}</span>
-            <span class="addon-picker-price" [class.included]="a.defaultIncluded">
-              {{ a.defaultIncluded ? 'Included' : ('$' + a.defaultPrice) }}
+      <!-- Package line -->
+      <div class="summary-section" *ngIf="effectivePackageName">
+        <div class="summary-section-label">Package</div>
+        <div class="summary-line">
+          <div class="summary-line-info">
+            <span class="summary-line-name">{{ effectivePackageName }}</span>
+            <span class="summary-line-sub" *ngIf="selectedPackage">
+              {{ guestCount }} guests × ${{ effectivePricePerGuest }}
             </span>
-            <span class="material-icons check-icon" *ngIf="isAddOnSelected(a)">check_circle</span>
-          </button>
-        </div>
-
-        <!-- Selected add-on lines -->
-        <div *ngIf="selectedAddOnLines.length > 0" class="addon-lines">
-          <div *ngFor="let line of selectedAddOnLines; let i = index" class="addon-line">
-            <div class="addon-line-info">
-              <span class="addon-line-name">{{ line.name }}</span>
-              <span class="addon-line-detail">{{ line.detail }}</span>
-            </div>
-            <input type="number" class="addon-price-input" [(ngModel)]="line.price" min="0" />
-            <button type="button" class="remove-btn" (click)="removeAddOnLine(i)">✕</button>
           </div>
-        </div>
-        <div *ngIf="selectedAddOnLines.length === 0 && !showAddOnPicker" class="empty-hint">
-          No add-ons selected.
+          <span class="summary-line-amount">
+            ${{ (packageBasePrice + packageGuestPrice) | number:'1.0-0' }}
+          </span>
         </div>
       </div>
 
-      <!-- NOTES -->
-      <div class="form-card">
-        <h3 class="card-title">
-          <span class="material-icons">notes</span> Notes
-        </h3>
-        <div class="form-grid">
-          <div class="field field-full">
-            <label>Notes for Client</label>
-            <textarea [(ngModel)]="notes" rows="4"
-              placeholder="Terms, inclusions, special conditions visible to the client..."></textarea>
+      <!-- Add-on lines -->
+      <div class="summary-section" *ngIf="selectedAddOnLines.length > 0 || customLines.length > 0">
+        <div class="summary-section-label">Extras & Add-ons</div>
+        <div *ngFor="let line of selectedAddOnLines; let i = index" class="summary-line addon-summary-line">
+          <div class="summary-line-info">
+            <span class="summary-line-name">{{ line.name }}</span>
           </div>
-          <div class="field field-full">
-            <label>Internal Notes</label>
-            <textarea [(ngModel)]="internalNotes" rows="3"
-              placeholder="Internal comments — not visible to the client..."></textarea>
+          <div class="summary-line-right">
+            <span class="summary-line-amount" *ngIf="line.price > 0">
+              ${{ line.price | number:'1.0-0' }}
+            </span>
+            <span class="included-badge" *ngIf="line.price === 0">Incl.</span>
+            <button class="summary-remove" (click)="removeAddOnLine(i)" title="Remove">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+        </div>
+        <div *ngFor="let line of customLines; let i = index" class="summary-line addon-summary-line">
+          <div class="summary-line-info">
+            <span class="summary-line-name">{{ line.name || 'Custom line' }}</span>
+          </div>
+          <div class="summary-line-right">
+            <span class="summary-line-amount">${{ line.price | number:'1.0-0' }}</span>
+            <button class="summary-remove" (click)="removeCustomLine(i)" title="Remove">
+              <span class="material-icons">close</span>
+            </button>
           </div>
         </div>
       </div>
 
-    </div>
-
-    <!-- ══ RIGHT COLUMN — PRICING SUMMARY ══ -->
-    <div class="right-col">
-      <div class="pricing-card">
-        <h3 class="pricing-title">
-          <span class="material-icons">calculate</span> Pricing Summary
-        </h3>
-
-        <div class="pricing-section" *ngIf="selectedPackage || storedPackageName">
-          <div class="pricing-label">Package</div>
-          <div class="pricing-row">
-            <span>{{ effectivePackageName }}</span>
-            <span>${{ packageBasePrice }}</span>
-          </div>
-          <div class="pricing-row">
-            <span>{{ guestCount }} guests × ${{ effectivePricePerGuest }}</span>
-            <span>${{ packageGuestPrice }}</span>
-          </div>
+      <!-- Experience tags -->
+      <div class="summary-tags" *ngIf="selectedBarTypeId || selectedThemeId">
+        <div class="summary-tag-row" *ngIf="selectedBarTypeId">
+          <span class="material-icons">local_bar</span>
+          <span>{{ selectedBarTypeName }}</span>
         </div>
-
-        <div class="pricing-section" *ngIf="selectedAddOnLines.length > 0">
-          <div class="pricing-label">Add-ons</div>
-          <div class="pricing-row" *ngFor="let line of selectedAddOnLines">
-            <span>{{ line.name }}</span>
-            <span>${{ line.price }}</span>
-          </div>
+        <div class="summary-tag-row" *ngIf="selectedThemeId">
+          <span class="material-icons">palette</span>
+          <span>{{ selectedThemeName }}</span>
         </div>
+      </div>
 
-        <div class="pricing-divider"></div>
+      <!-- Empty placeholder -->
+      <div class="summary-empty" *ngIf="!effectivePackageName && selectedAddOnLines.length === 0">
+        <span class="material-icons">add_shopping_cart</span>
+        <p>Select a package to start building your quote.</p>
+      </div>
 
-        <div class="pricing-row subtotal-row">
+      <div class="summary-divider"></div>
+
+      <!-- Subtotal / Discount / Tax -->
+      <div class="summary-totals">
+        <div class="total-row">
           <span>Subtotal</span>
           <span>${{ subtotal | number:'1.0-0' }}</span>
         </div>
-
-        <div class="pricing-row">
-          <span>Discount ($)</span>
-          <div class="inline-input-wrap">
-            <input type="number" [(ngModel)]="discount" min="0" class="inline-input" />
-          </div>
+        <div class="total-row">
+          <span>Discount (−$)</span>
+          <input type="number" [(ngModel)]="discount" min="0"
+            (ngModelChange)="triggerFlash()" class="total-input" />
         </div>
-
-        <div class="pricing-row">
-          <span>Tax ($)</span>
-          <div class="inline-input-wrap">
-            <input type="number" [(ngModel)]="tax" min="0" class="inline-input" />
-          </div>
-        </div>
-
-        <div class="pricing-divider"></div>
-
-        <div class="pricing-total-row">
-          <span>TOTAL</span>
-          <span class="total-amount">${{ total | number:'1.0-0' }}</span>
-        </div>
-
-        <!-- Status -->
-        <div class="status-section">
-          <label class="status-label">Quote Status</label>
-          <select [(ngModel)]="status" class="status-select">
-            <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
-          </select>
-        </div>
-
-        <!-- Actions -->
-        <div class="pricing-actions">
-          <button class="action-save-draft" (click)="save(true)" [disabled]="saving">
-            <span class="material-icons">save</span> Save Draft
-          </button>
-          <button class="action-save-primary" (click)="save(false)"
-            [disabled]="!fullName || !eventName || saving">
-            {{ saving ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Quote') }}
-          </button>
+        <div class="total-row">
+          <span>Tax (+$)</span>
+          <input type="number" [(ngModel)]="tax" min="0"
+            (ngModelChange)="triggerFlash()" class="total-input" />
         </div>
       </div>
+
+      <div class="summary-divider"></div>
+
+      <!-- TOTAL -->
+      <div class="summary-grand-total">
+        <span class="grand-label">TOTAL</span>
+        <span class="grand-amount" [class.flash]="totalFlash">
+          ${{ total | number:'1.0-0' }}
+        </span>
+      </div>
+
+      <div class="summary-divider"></div>
+
+      <!-- Status -->
+      <div class="summary-status">
+        <label>Quote Status</label>
+        <select [(ngModel)]="status" class="status-select">
+          <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="summary-actions">
+        <button class="btn-ghost full" (click)="save(true)" [disabled]="saving">
+          <span class="material-icons">save</span>
+          Save Draft
+        </button>
+        <button class="btn-primary full" (click)="save(false)"
+          [disabled]="!fullName || !eventName || saving">
+          <span class="material-icons">send</span>
+          {{ saving ? 'Saving…' : (isEdit ? 'Save Changes' : 'Create Quote') }}
+        </button>
+      </div>
+
+    </aside><!-- /summary-panel -->
+
+  </div><!-- /builder-body -->
+
+</div><!-- /builder-page -->
+
+<!-- ══ ADD-ON CATALOG MODAL ════════════════════════════════════════════════ -->
+<div class="addon-modal-overlay" *ngIf="showAddonModal" (click)="showAddonModal = false">
+  <div class="addon-modal" (click)="$event.stopPropagation()">
+
+    <div class="addon-modal-header">
+      <div class="modal-title">
+        <span class="material-icons">storefront</span>
+        Add-on Catalog
+      </div>
+      <div class="modal-search">
+        <span class="material-icons">search</span>
+        <input type="text" [(ngModel)]="addonSearch" placeholder="Search add-ons…" autofocus />
+      </div>
+      <button class="modal-close" (click)="showAddonModal = false">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <div class="addon-modal-body">
+      <div *ngIf="filteredAddOns.length === 0" class="addon-catalog-empty">
+        <span class="material-icons">search_off</span>
+        <p>No add-ons match your search.</p>
+      </div>
+
+      <div class="addon-catalog-grid">
+        <div *ngFor="let addon of filteredAddOns"
+          class="addon-catalog-card"
+          [class.selected]="isAddOnSelected(addon)"
+          (click)="toggleAddOn(addon)">
+
+          <div class="addon-catalog-icon">
+            <span class="material-icons">{{ addonCategoryIcon(addon.category) }}</span>
+          </div>
+
+          <div class="addon-catalog-info">
+            <span class="addon-catalog-name">{{ addon.name }}</span>
+            <span class="addon-catalog-detail" *ngIf="addon.defaultDetail">
+              {{ addon.defaultDetail }}
+            </span>
+            <span class="addon-catalog-cat">
+              {{ addonCategoryLabels[addon.category] }}
+            </span>
+          </div>
+
+          <div class="addon-catalog-footer">
+            <span class="addon-catalog-price" *ngIf="!addon.defaultIncluded">
+              ${{ addon.defaultPrice || 0 | number:'1.0-0' }}
+            </span>
+            <span class="addon-catalog-price included" *ngIf="addon.defaultIncluded">
+              Included
+            </span>
+            <button type="button" class="addon-toggle-btn" [class.added]="isAddOnSelected(addon)">
+              <span class="material-icons">{{ isAddOnSelected(addon) ? 'remove' : 'add' }}</span>
+              {{ isAddOnSelected(addon) ? 'Remove' : 'Add' }}
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="addon-modal-footer">
+      <span class="addon-selected-count">
+        {{ selectedAddOnLines.length }} add-on{{ selectedAddOnLines.length !== 1 ? 's' : '' }} selected
+      </span>
+      <button class="btn-primary" (click)="showAddonModal = false">
+        <span class="material-icons">check</span>
+        Done
+      </button>
     </div>
 
   </div>

@@ -1,183 +1,211 @@
-<div class="request-list-page">
+<div class="inbox-page">
+
+  <!-- ── PAGE HEADER ── -->
   <div class="page-header">
     <div>
-      <h2>Requests</h2>
-      <p>Review incoming quote requests stored in your inbox database.</p>
+      <h2>
+        Inbox
+        <span class="new-badge" *ngIf="newCount > 0">{{ newCount }} new</span>
+      </h2>
+      <p>Quote requests received from the landing page via Odoo.</p>
     </div>
   </div>
 
-  <div
-    class="feedback-banner"
-    *ngIf="actionMessage"
+  <!-- ── STATS ROW ── -->
+  <div class="stats-row">
+    <div class="stat-card" [class.active]="filterStatus === 'ALL'" (click)="filterStatus = 'ALL'; applyFilters()">
+      <div class="stat-icon purple"><span class="material-icons">all_inbox</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ count('ALL') }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+    </div>
+    <div class="stat-card" [class.active]="filterStatus === 'NEW'" (click)="filterStatus = 'NEW'; applyFilters()">
+      <div class="stat-icon amber"><span class="material-icons">mark_email_unread</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ count('NEW') }}</span>
+        <span class="stat-label">New</span>
+      </div>
+    </div>
+    <div class="stat-card" [class.active]="filterStatus === 'REVIEWED'" (click)="filterStatus = 'REVIEWED'; applyFilters()">
+      <div class="stat-icon blue"><span class="material-icons">drafts</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ count('REVIEWED') }}</span>
+        <span class="stat-label">Reviewed</span>
+      </div>
+    </div>
+    <div class="stat-card" [class.active]="filterStatus === 'CLIENT_CREATED'" (click)="filterStatus = 'CLIENT_CREATED'; applyFilters()">
+      <div class="stat-icon green"><span class="material-icons">person_check</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ count('CLIENT_CREATED') }}</span>
+        <span class="stat-label">Client Added</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOOLBAR ── -->
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"
+        placeholder="Search by event, name or phone…" />
+    </div>
+    <div class="filter-chips">
+      <button *ngFor="let opt of statusOptions"
+        class="chip" [class.active]="filterStatus === opt.value"
+        (click)="filterStatus = opt.value; applyFilters()">
+        {{ opt.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ── FEEDBACK BANNER ── -->
+  <div class="feedback-banner" *ngIf="actionMessage"
     [class.success]="actionMessageType === 'success'"
-    [class.error]="actionMessageType === 'error'"
-  >
-    <span class="material-icons">
-      {{ actionMessageType === 'success' ? 'check_circle' : 'error' }}
-    </span>
+    [class.error]="actionMessageType === 'error'">
+    <span class="material-icons">{{ actionMessageType === 'success' ? 'check_circle' : 'error' }}</span>
     <span>{{ actionMessage }}</span>
   </div>
 
-  <div class="filters-bar">
-    <div class="field field-search">
-      <label>Search</label>
-      <input
-        type="text"
-        placeholder="Search by event, client name or phone"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="applyFilters()"
-      />
-    </div>
+  <!-- ── LOADING ── -->
+  <div class="state-card" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Loading requests…</span>
   </div>
 
-  <div class="stats-row">
-    <div class="stat-card">
-      <span class="stat-value">{{ requests.length }}</span>
-      <span class="stat-label">Total Requests</span>
-    </div>
-
-    <div class="stat-card">
-      <span class="stat-value">{{ filteredRequests.length }}</span>
-      <span class="stat-label">Visible</span>
-    </div>
-
-    <div class="stat-card">
-      <span class="stat-value">{{ newCount }}</span>
-      <span class="stat-label">New</span>
-    </div>
+  <!-- ── ERROR ── -->
+  <div class="state-card error" *ngIf="error && !loading">
+    <span class="material-icons">error_outline</span>
+    <span>{{ error }}</span>
   </div>
 
-  <div class="table-card" *ngIf="!loading && !error">
-    <table *ngIf="filteredRequests.length > 0; else emptyState">
+  <!-- ── INBOX TABLE ── -->
+  <div class="table-wrap" *ngIf="!loading && !error">
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="filteredRequests.length === 0">
+      <span class="material-icons">inbox</span>
+      <p>No requests match your current filters.</p>
+    </div>
+
+    <table *ngIf="filteredRequests.length > 0">
       <thead>
         <tr>
-          <th (click)="sort('eventName')" class="sortable">
-            <span>Event</span>
-            <span class="material-icons sort-icon">{{ getSortIcon('eventName') }}</span>
+          <th class="col-status"></th>
+          <th class="sortable" (click)="sort('fullName')">
+            Client <span class="material-icons sort-icon">{{ getSortIcon('fullName') }}</span>
           </th>
-
-          <th (click)="sort('fullName')" class="sortable">
-            <span>Name</span>
-            <span class="material-icons sort-icon">{{ getSortIcon('fullName') }}</span>
+          <th class="sortable" (click)="sort('eventName')">
+            Event <span class="material-icons sort-icon">{{ getSortIcon('eventName') }}</span>
           </th>
-
-          <th (click)="sort('phone')" class="sortable">
-            <span>Phone</span>
-            <span class="material-icons sort-icon">{{ getSortIcon('phone') }}</span>
+          <th class="sortable" (click)="sort('eventDate')">
+            Date <span class="material-icons sort-icon">{{ getSortIcon('eventDate') }}</span>
           </th>
-
-          <th (click)="sort('eventDate')" class="sortable">
-            <span>Date</span>
-            <span class="material-icons sort-icon">{{ getSortIcon('eventDate') }}</span>
+          <th class="sortable" (click)="sort('createdAtOdoo')">
+            Received <span class="material-icons sort-icon">{{ getSortIcon('createdAtOdoo') }}</span>
           </th>
-
-          <th (click)="sort('createdAtOdoo')" class="sortable">
-            <span>Received</span>
-            <span class="material-icons sort-icon">{{ getSortIcon('createdAtOdoo') }}</span>
-          </th>
-
           <th>Status</th>
           <th>Actions</th>
         </tr>
       </thead>
-
       <tbody>
-        <tr
-          *ngFor="let request of filteredRequests; trackBy: trackByOdooId"
-          class="table-row"
-          [class.unread-row]="!request.isRead"
-          (click)="viewRequest(request.odooId)"
-        >
-          <td class="primary-text">{{ request.eventName }}</td>
-          <td class="muted-text">{{ request.fullName || 'N/A' }}</td>
-          <td class="muted-text">{{ request.phone || 'N/A' }}</td>
-          <td class="muted-text">{{ request.eventDate || 'N/A' }}</td>
-          <td class="muted-text">{{ request.createdAtOdoo || 'N/A' }}</td>
+        <tr *ngFor="let r of filteredRequests; trackBy: trackByOdooId"
+          class="inbox-row"
+          [class.unread]="!r.isRead"
+          (click)="viewRequest(r.odooId)">
 
-          <td>
-            <span
-              class="status-badge"
-              [class.reviewed]="request.status === 'REVIEWED'"
-              [class.created]="request.status === 'CLIENT_CREATED'">
-              {{ request.status }}
-            </span>
+          <!-- Unread dot -->
+          <td class="col-status">
+            <span class="unread-dot" *ngIf="!r.isRead"></span>
           </td>
 
-          <td>
-            <div class="actions-cell" (click)="$event.stopPropagation()">
+          <!-- Client -->
+          <td class="col-client">
+            <div class="client-cell">
+              <div class="avatar">{{ getInitials(r.fullName) }}</div>
+              <div class="client-info">
+                <span class="client-name">{{ r.fullName || 'Unknown' }}</span>
+                <span class="client-phone">{{ r.phone || '—' }}</span>
+              </div>
+            </div>
+          </td>
 
-              <button
-                class="icon-btn read-btn"
-                [disabled]="request.isRead || processingReadId === request.odooId"
-                (click)="markAsRead(request, $event)"
-                [title]="request.isRead ? 'Already reviewed' : 'Mark as reviewed'">
+          <!-- Event -->
+          <td class="col-event">
+            <span class="event-name">{{ r.eventName }}</span>
+            <span class="event-type" *ngIf="r.eventType">{{ r.eventType }}</span>
+          </td>
+
+          <!-- Date -->
+          <td class="col-date">{{ r.eventDate || '—' }}</td>
+
+          <!-- Received -->
+          <td class="col-received">{{ r.createdAtOdoo || '—' }}</td>
+
+          <!-- Status -->
+          <td class="col-badge">
+            <div class="badge-stack">
+              <span class="status-badge"
+                [style.color]="statusInfo(r.status).color"
+                [style.background]="statusInfo(r.status).bg"
+                [style.border-color]="statusInfo(r.status).color + '44'">
+                {{ statusInfo(r.status).label }}
+              </span>
+              <span class="match-badge"
+                *ngIf="matchedClient(r) as mc"
+                (click)="goToClient(mc._id!, $event)"
+                title="Client found by email/phone — click to view">
+                <span class="material-icons">person_check</span>
+                In CRM
+              </span>
+            </div>
+          </td>
+
+          <!-- Actions -->
+          <td class="col-actions" (click)="$event.stopPropagation()">
+            <div class="actions-cell">
+
+              <!-- Mark reviewed -->
+              <button class="act-btn amber"
+                [disabled]="r.isRead || processingReadId === r.odooId"
+                (click)="markAsRead(r, $event)"
+                [title]="r.isRead ? 'Already reviewed' : 'Mark as reviewed'">
                 <span class="material-icons">
-                  {{ processingReadId === request.odooId ? 'hourglass_top' : 'drafts' }}
+                  {{ processingReadId === r.odooId ? 'hourglass_top' : r.isRead ? 'drafts' : 'mark_email_read' }}
                 </span>
               </button>
 
-              <button
-                class="icon-btn view-btn"
-                (click)="viewRequest(request.odooId)"
-                title="View request">
+              <!-- View detail -->
+              <button class="act-btn ghost" (click)="viewRequest(r.odooId)" title="View detail">
                 <span class="material-icons">visibility</span>
               </button>
 
-              <button
-                class="icon-btn client-btn"
-                [disabled]="request.convertedToClient || processingClientId === request.odooId"
-                (click)="addClient(request, $event)"
-                [title]="request.convertedToClient ? 'Client already created' : 'Add client'">
+              <!-- Add / view client -->
+              <button class="act-btn"
+                [class.green]="!r.convertedToClient && !matchedClient(r)"
+                [class.teal]="r.convertedToClient || matchedClient(r)"
+                [disabled]="processingClientId === r.odooId"
+                (click)="r.convertedToClient ? viewClient(r, $event) : matchedClient(r) ? goToClient(matchedClient(r)!._id!, $event) : addClient(r, $event)"
+                [title]="r.convertedToClient ? 'View linked client' : matchedClient(r) ? 'Client found by email/phone — view' : 'Add as client'">
                 <span class="material-icons">
-                  {{
-                    processingClientId === request.odooId
-                      ? 'hourglass_top'
-                      : request.convertedToClient
-                        ? 'check_circle'
-                        : 'person_add'
-                  }}
+                  {{ processingClientId === r.odooId ? 'hourglass_top' : (r.convertedToClient || matchedClient(r)) ? 'open_in_new' : 'person_add' }}
                 </span>
               </button>
 
-              <button
-                *ngIf="request.convertedToClient && request.clientId"
-                class="icon-btn linked-btn"
-                (click)="viewClient(request, $event)"
-                title="View client">
-                <span class="material-icons">open_in_new</span>
+              <!-- Create / edit quote -->
+              <button class="act-btn"
+                [class.purple]="!r.quoteId"
+                [class.amber]="r.quoteId"
+                (click)="createQuote(r, $event)"
+                [title]="r.quoteId ? 'Edit existing quote' : 'Create quote'">
+                <span class="material-icons">{{ r.quoteId ? 'edit_note' : 'request_quote' }}</span>
               </button>
 
-
-
-              <button
-                class="icon-btn event-btn"
-                (click)="createQuote(request, $event)"
-                title="Create quote">
-                <span class="material-icons">request_quote</span>
-              </button>
             </div>
-
-
           </td>
         </tr>
       </tbody>
     </table>
-
-    <ng-template #emptyState>
-      <div class="empty-state">
-        <span class="material-icons">inbox</span>
-        <p>No requests found with the current filters.</p>
-      </div>
-    </ng-template>
   </div>
 
-  <div class="status-card" *ngIf="loading">
-    <span class="material-icons">hourglass_top</span>
-    <p>Loading requests...</p>
-  </div>
-
-  <div class="status-card error" *ngIf="error">
-    <span class="material-icons">error</span>
-    <p>{{ error }}</p>
-  </div>
 </div>

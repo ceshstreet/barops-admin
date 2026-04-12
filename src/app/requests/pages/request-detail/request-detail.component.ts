@@ -7,6 +7,7 @@ import {
   ConvertClientResponse
 } from '../../services/request.service';
 import { QuoteRequest } from '../../models/request.model';
+import { ClientService, Client } from '../../../clients/services/client.service';
 
 @Component({
   selector: 'app-request-detail',
@@ -16,13 +17,25 @@ import { QuoteRequest } from '../../models/request.model';
   styleUrl: './request-detail.component.scss',
 })
 export class RequestDetailComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private route          = inject(ActivatedRoute);
+  private router         = inject(Router);
   private requestsService = inject(RequestsService);
+  private clientService  = inject(ClientService);
 
   request: QuoteRequest | null = null;
+  matchedClient: Client | null = null;
   loading = false;
   error = '';
+
+  readonly STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
+    NEW:            { label: 'New',          color: '#f59e0b', bg: 'rgba(245,158,11,0.12)'  },
+    REVIEWED:       { label: 'Reviewed',     color: '#60a5fa', bg: 'rgba(96,165,250,0.12)'  },
+    CLIENT_CREATED: { label: 'Client Added', color: '#34d399', bg: 'rgba(52,211,153,0.12)'  },
+  };
+
+  statusInfo(status: string) {
+    return this.STATUS_MAP[status] ?? this.STATUS_MAP['NEW'];
+  }
 
   actionMessage = '';
   actionMessageType: 'success' | 'error' | '' = '';
@@ -47,6 +60,17 @@ export class RequestDetailComponent implements OnInit {
       next: (response: InboxDetailResponse) => {
         this.request = response.data;
         this.loading = false;
+        if (!this.request.convertedToClient) {
+          this.clientService.getClients().subscribe({
+            next: (clients) => {
+              this.matchedClient = clients.find(c =>
+                (this.request!.email && c.email?.toLowerCase() === this.request!.email.toLowerCase()) ||
+                (this.request!.phone && c.phone?.replace(/\D/g, '') === this.request!.phone?.replace(/\D/g, ''))
+              ) ?? null;
+            },
+            error: () => {}
+          });
+        }
       },
       error: (err: any) => {
         console.error('Error loading request detail:', err);
@@ -56,8 +80,23 @@ export class RequestDetailComponent implements OnInit {
     });
   }
 
-  goBack(): void {
-    this.router.navigate(['/requests']);
+  goBack(): void { this.router.navigate(['/requests']); }
+
+  goToClient(): void {
+    if (!this.matchedClient?._id) return;
+    this.router.navigate(['/clients', this.matchedClient._id]);
+  }
+
+  get matchedBy(): string {
+    if (!this.matchedClient || !this.request) return '';
+    const byEmail = this.request.email &&
+      this.matchedClient.email?.toLowerCase() === this.request.email.toLowerCase();
+    const byPhone = this.request.phone &&
+      (this.matchedClient.phone ?? '').replace(/\D/g, '') === this.request.phone.replace(/\D/g, '');
+    if (byEmail && byPhone) return 'email and phone';
+    if (byEmail) return 'email';
+    if (byPhone) return 'phone';
+    return '';
   }
 
   showMessage(message: string, type: 'success' | 'error'): void {
@@ -97,8 +136,16 @@ export class RequestDetailComponent implements OnInit {
     });
   }
 
+  get hasQuote(): boolean { return !!this.request?.quoteId; }
+
   createQuote(): void {
     if (!this.request) return;
+
+    // Already has a quote → go edit it
+    if (this.request.quoteId) {
+      this.router.navigate(['/quotes', this.request.quoteId, 'edit']);
+      return;
+    }
 
     const clientId =
       typeof this.request.clientId === 'string'

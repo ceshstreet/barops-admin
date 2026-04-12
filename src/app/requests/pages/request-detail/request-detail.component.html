@@ -1,152 +1,226 @@
-<div class="request-detail-page" *ngIf="request && !loading && !error">
-  <button class="back-btn" (click)="goBack()">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M19 12H5" />
-      <path d="M12 19l-7-7 7-7" />
-    </svg>
-    Volver a Requests
-  </button>
+<div class="req-detail-page">
 
-  <div
-    class="feedback-banner"
-    *ngIf="actionMessage"
-    [class.success]="actionMessageType === 'success'"
-    [class.error]="actionMessageType === 'error'"
-  >
-    <span class="material-icons">
-      {{ actionMessageType === 'success' ? 'check_circle' : 'error' }}
-    </span>
-    <span>{{ actionMessage }}</span>
+  <!-- ── LOADING ── -->
+  <div class="state-card" *ngIf="loading">
+    <div class="spinner"></div><span>Loading request…</span>
+  </div>
+  <div class="state-card error" *ngIf="error && !loading">
+    <span class="material-icons">error_outline</span><span>{{ error }}</span>
   </div>
 
-  <div class="detail-card">
-    <div class="detail-header">
-      <div class="header-info">
-        <div class="title-row">
-          <div class="avatar-chip">{{ getInitials(request.fullName) }}</div>
+  <ng-container *ngIf="!loading && !error && request">
 
-          <div class="title-block">
-            <h2>{{ request.eventName }}</h2>
-            <div class="meta-row">
-              <span class="meta-text">{{ request.fullName || 'Unknown client' }}</span>
-              <span class="meta-sep">•</span>
-              <span class="meta-text">{{ request.email }}</span>
-              <span class="meta-sep">•</span>
-              <span class="meta-text">{{ request.phone }}</span>
+    <!-- ── HEADER ── -->
+    <div class="page-header">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-icons">arrow_back</span> Inbox
+      </button>
+      <div class="header-right">
+        <span class="odoo-badge">
+          <span class="material-icons">sync</span> Odoo #{{ request.odooId }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ── TITLE ROW ── -->
+    <div class="title-row">
+      <div class="avatar-large">{{ getInitials(request.fullName) }}</div>
+      <div class="title-body">
+        <h2>{{ request.eventName }}</h2>
+        <div class="title-meta">
+          <span><span class="material-icons">person</span>{{ request.fullName || 'Unknown' }}</span>
+          <span *ngIf="request.email"><span class="material-icons">email</span>{{ request.email }}</span>
+          <span *ngIf="request.phone"><span class="material-icons">phone</span>{{ request.phone }}</span>
+        </div>
+      </div>
+      <span class="status-badge"
+        [style.color]="statusInfo(request.status).color"
+        [style.background]="statusInfo(request.status).bg"
+        [style.border-color]="statusInfo(request.status).color + '44'">
+        {{ statusInfo(request.status).label }}
+      </span>
+    </div>
+
+    <!-- ── FEEDBACK ── -->
+    <div class="feedback-banner" *ngIf="actionMessage"
+      [class.success]="actionMessageType === 'success'"
+      [class.error]="actionMessageType === 'error'">
+      <span class="material-icons">{{ actionMessageType === 'success' ? 'check_circle' : 'error' }}</span>
+      <span>{{ actionMessage }}</span>
+    </div>
+
+    <!-- ── TWO-COLUMN LAYOUT ── -->
+    <div class="detail-layout">
+
+      <!-- ══ LEFT ══ -->
+      <div class="left-col">
+
+        <!-- Contact -->
+        <div class="detail-card">
+          <h3 class="card-title"><span class="material-icons">person</span> Contact Information</h3>
+          <div class="info-list">
+            <div class="info-row">
+              <span class="info-icon material-icons">badge</span>
+              <div><span class="info-label">Full Name</span><span class="info-value">{{ request.fullName || '—' }}</span></div>
+            </div>
+            <div class="info-row" *ngIf="request.email">
+              <span class="info-icon material-icons">email</span>
+              <div>
+                <span class="info-label">Email</span>
+                <a [href]="'mailto:' + request.email" class="info-link">{{ request.email }}</a>
+              </div>
+            </div>
+            <div class="info-row" *ngIf="request.phone">
+              <span class="info-icon material-icons">whatsapp</span>
+              <div>
+                <span class="info-label">Phone / WhatsApp</span>
+                <a [href]="'https://wa.me/' + request.phone" target="_blank" class="info-link green">{{ request.phone }}</a>
+              </div>
             </div>
           </div>
-
-          <span
-            class="status-badge"
-            [class.reviewed]="request.status === 'REVIEWED'"
-            [class.created]="request.status === 'CLIENT_CREATED'">
-            <span class="status-dot"></span>
-            {{ request.status || 'NEW' }}
-          </span>
         </div>
+
+        <!-- Event Details -->
+        <div class="detail-card">
+          <h3 class="card-title"><span class="material-icons">event</span> Event Details</h3>
+          <div class="info-list">
+            <div class="info-row" *ngIf="request.eventType">
+              <span class="info-icon material-icons">celebration</span>
+              <div><span class="info-label">Event Type</span><span class="info-value">{{ request.eventType }}</span></div>
+            </div>
+            <div class="info-row" *ngIf="request.eventDate">
+              <span class="info-icon material-icons">calendar_today</span>
+              <div><span class="info-label">Event Date</span><span class="info-value">{{ request.eventDate }}</span></div>
+            </div>
+            <div class="info-row" *ngIf="request.location">
+              <span class="info-icon material-icons">place</span>
+              <div><span class="info-label">Location</span><span class="info-value">{{ request.location }}</span></div>
+            </div>
+            <div class="info-row" *ngIf="request.guests">
+              <span class="info-icon material-icons">group</span>
+              <div><span class="info-label">Guests</span><span class="info-value">{{ request.guests }}</span></div>
+            </div>
+            <div class="info-row" *ngIf="request.budgetRange">
+              <span class="info-icon material-icons">payments</span>
+              <div><span class="info-label">Budget Range</span><span class="info-value">{{ request.budgetRange }}</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message -->
+        <div class="detail-card" *ngIf="request.rawDescription">
+          <h3 class="card-title"><span class="material-icons">chat_bubble_outline</span> Client Message</h3>
+          <p class="raw-message">{{ request.rawDescription }}</p>
+        </div>
+
       </div>
 
-      <div class="header-actions">
-        <button
-          class="action-btn client-btn"
-          [disabled]="request.convertedToClient || processingClient"
-          (click)="addClientDirect()">
-          <span class="material-icons">
-            {{
-              processingClient
-                ? 'hourglass_top'
-                : request.convertedToClient
-                  ? 'check_circle'
-                  : 'person_add'
-            }}
-          </span>
-          {{ request.convertedToClient ? 'Client Created' : 'Add Client' }}
-        </button>
+      <!-- ══ RIGHT ══ -->
+      <div class="right-col">
 
-        <button class="action-btn event-btn" (click)="createQuote()">
-          <span class="material-icons">request_quote</span>
-          Create Quote
-        </button>
-      </div>
-    </div>
+        <!-- Actions -->
+        <div class="action-card">
+          <h3 class="card-title"><span class="material-icons">bolt</span> Quick Actions</h3>
 
-    <div class="detail-body">
-      <div class="body-left">
-        <div class="section-title-row">
-          <h3 class="section-title">Request Details</h3>
-          <span class="section-hint">captured from website form</span>
+          <button class="action-btn full"
+            [class.green-btn]="!request.convertedToClient"
+            [class.teal-btn]="request.convertedToClient && request.clientId"
+            [disabled]="(request.convertedToClient && !request.clientId) || processingClient"
+            (click)="request.convertedToClient ? null : addClientDirect()">
+            <span class="material-icons">
+              {{ processingClient ? 'hourglass_top' : request.convertedToClient ? 'check_circle' : 'person_add' }}
+            </span>
+            {{ request.convertedToClient ? 'Client Created' : 'Add as Client' }}
+          </button>
+
+          <button class="action-btn full"
+            [class.purple-btn]="!hasQuote"
+            [class.amber-btn]="hasQuote"
+            (click)="createQuote()">
+            <span class="material-icons">{{ hasQuote ? 'edit_note' : 'request_quote' }}</span>
+            {{ hasQuote ? 'Edit Quote' : 'Create Quote' }}
+          </button>
+
+          <button class="action-btn full amber-btn"
+            [disabled]="request.isRead || processingClient"
+            *ngIf="!request.isRead"
+            (click)="goBack()">
+            <span class="material-icons">mark_email_read</span>
+            Mark as Reviewed
+          </button>
         </div>
 
-        <div class="info-list">
-          <div class="info-item">
-            <span class="info-label">Client Name</span>
-            <span class="info-value">{{ request.fullName || 'N/A' }}</span>
+        <!-- Client match alert -->
+        <div class="match-alert" *ngIf="matchedClient">
+          <div class="match-alert-top">
+            <span class="material-icons">person_check</span>
+            <strong>Client already in CRM</strong>
           </div>
-
-          <div class="info-item">
-            <span class="info-label">Email</span>
-            <span class="info-value">{{ request.email || 'N/A' }}</span>
-          </div>
-
-          <div class="info-item">
-            <span class="info-label">Phone</span>
-            <span class="info-value">{{ request.phone || 'N/A' }}</span>
-          </div>
-
-          <div class="info-item">
-            <span class="info-label">Event Type</span>
-            <span class="info-value">{{ request.eventType || 'N/A' }}</span>
-          </div>
-
-          <div class="info-item">
-            <span class="info-label">Event Date</span>
-            <span class="info-value">{{ request.eventDate || 'N/A' }}</span>
-          </div>
-
-          <div class="info-item">
-            <span class="info-label">Location</span>
-            <span class="info-value">{{ request.location || 'N/A' }}</span>
-          </div>
-
-          <div class="info-item">
-            <span class="info-label">Guests</span>
-            <span class="info-value">{{ request.guests || 'N/A' }}</span>
-          </div>
-
-          <div class="info-item no-border">
-            <span class="info-label">Budget Range</span>
-            <span class="info-value">{{ request.budgetRange || 'N/A' }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="body-right">
-        <div class="info-block">
-          <h3 class="section-title">Received</h3>
-          <p class="info-text">{{ request.createdAtOdoo || 'N/A' }}</p>
-        </div>
-
-        <div class="info-block">
-          <h3 class="section-title">Email Preview</h3>
-          <p class="info-text muted">
-            This request was submitted from the landing page and normalized from Odoo.
+          <p>
+            <strong>{{ matchedClient.name }} {{ matchedClient.lastName }}</strong>
+            matches this request by <strong>{{ matchedBy }}</strong>.
           </p>
+          <button class="match-link" (click)="goToClient()">
+            <span class="material-icons">open_in_new</span> View Client
+          </button>
         </div>
 
-        <div class="note-card" *ngIf="request.rawDescription">
-          <h3 class="note-title">Message / Raw Content</h3>
-          <p class="note-text">{{ request.rawDescription }}</p>
+        <!-- Workflow status -->
+        <div class="workflow-card">
+          <h3 class="card-title"><span class="material-icons">account_tree</span> Workflow</h3>
+          <div class="workflow-steps">
+            <div class="step done">
+              <div class="step-dot"><span class="material-icons">check</span></div>
+              <div class="step-body">
+                <span class="step-label">Received</span>
+                <span class="step-sub">{{ request.createdAtOdoo || 'From Odoo' }}</span>
+              </div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" [class.done]="request.isRead || request.status !== 'NEW'">
+              <div class="step-dot">
+                <span class="material-icons">{{ request.isRead ? 'check' : 'radio_button_unchecked' }}</span>
+              </div>
+              <div class="step-body">
+                <span class="step-label">Reviewed</span>
+                <span class="step-sub">{{ request.isRead ? 'Done' : 'Pending' }}</span>
+              </div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" [class.done]="request.convertedToClient">
+              <div class="step-dot">
+                <span class="material-icons">{{ request.convertedToClient ? 'check' : 'radio_button_unchecked' }}</span>
+              </div>
+              <div class="step-body">
+                <span class="step-label">Client Added</span>
+                <span class="step-sub">{{ request.convertedToClient ? 'Created in CRM' : 'Not yet' }}</span>
+              </div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step pending">
+              <div class="step-dot"><span class="material-icons">radio_button_unchecked</span></div>
+              <div class="step-body">
+                <span class="step-label">Quote Created</span>
+                <span class="step-sub">Pending</span>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Meta -->
+        <div class="side-card">
+          <div class="side-row">
+            <span class="material-icons">schedule</span>
+            <div><span class="side-label">Received</span><span class="side-val">{{ request.createdAtOdoo || '—' }}</span></div>
+          </div>
+          <div class="side-row">
+            <span class="material-icons">tag</span>
+            <div><span class="side-label">Odoo ID</span><span class="side-val">#{{ request.odooId }}</span></div>
+          </div>
+        </div>
+
       </div>
     </div>
-  </div>
-</div>
 
-<div *ngIf="loading" class="loading-state">
-  Loading request detail...
-</div>
-
-<div *ngIf="error && !loading" class="loading-state error-state">
-  {{ error }}
+  </ng-container>
 </div>

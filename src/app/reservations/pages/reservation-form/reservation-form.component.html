@@ -35,6 +35,22 @@
       <div class="form-card">
         <h3 class="card-title"><span class="material-icons">person</span> Client Information</h3>
         <div class="form-grid">
+
+          <!-- Select from DB -->
+          <div class="field field-full">
+            <label>Select existing client <span class="label-hint">— picks from your CRM</span></label>
+            <select [(ngModel)]="clientId" (ngModelChange)="onClientSelect($event)">
+              <option value="">— New / manual entry —</option>
+              <option *ngFor="let c of clients" [value]="c._id">
+                {{ c.name }} {{ c.lastName }}
+              </option>
+            </select>
+            <span class="field-hint" *ngIf="clientId">
+              <span class="material-icons">check_circle</span>
+              Fields pre-filled from CRM — you can still edit them below.
+            </span>
+          </div>
+
           <div class="field field-full">
             <label>Full Name *</label>
             <input type="text" [(ngModel)]="clientName" placeholder="Client full name" />
@@ -47,22 +63,7 @@
             <label>Phone</label>
             <input type="tel" [(ngModel)]="phone" placeholder="+1 (555) 000-0000" />
           </div>
-          <div class="field field-full">
-            <label>
-              Link to existing client
-              <span class="label-hint">— optional, for CRM tracking</span>
-            </label>
-            <select [(ngModel)]="clientId">
-              <option value="">None — use name above</option>
-              <option *ngFor="let c of clients" [value]="c._id">
-                {{ c.name }} {{ c.lastName }}
-              </option>
-            </select>
-            <span class="field-hint" *ngIf="clientId">
-              <span class="material-icons">check_circle</span>
-              Linked to: {{ clientLabel }}
-            </span>
-          </div>
+
         </div>
       </div>
 

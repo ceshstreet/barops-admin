@@ -1,67 +1,216 @@
-<div class="event-list-page">
+<div class="events-page">
+
+  <!-- ── PAGE HEADER ── -->
   <div class="page-header">
     <div>
-      <h2>Events</h2>
-      <p>Operational view of approved and scheduled events.</p>
+      <h2>
+        <span class="material-icons header-icon">celebration</span>
+        Events
+      </h2>
+      <p>Confirmed bar operations — active and completed events</p>
+    </div>
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button [class.active]="view === 'list'" (click)="view = 'list'">
+          <span class="material-icons">view_agenda</span> List
+        </button>
+        <button [class.active]="view === 'calendar'" (click)="view = 'calendar'; buildCalendar()">
+          <span class="material-icons">calendar_month</span> Calendar
+        </button>
+      </div>
     </div>
   </div>
 
-  <div class="view-switcher-card">
-    <div class="view-switcher">
-      <button
-        [class.active]="currentView === 'list'"
-        (click)="setView('list')">
-        List View
-      </button>
+  <!-- ── STATS ROW ── -->
+  <div class="stats-row">
+    <div class="stat-card" [class.active]="filterStatus === 'ALL'" (click)="filterStatus = 'ALL'; applyFilters()">
+      <div class="stat-icon purple"><span class="material-icons">event_note</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ allEvents.length }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+    </div>
+    <div class="stat-card today-stat" [class.pulsing]="todayCount > 0">
+      <div class="stat-icon green"><span class="material-icons">bolt</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ todayCount }}</span>
+        <span class="stat-label">Today</span>
+      </div>
+      <div class="live-dot" *ngIf="todayCount > 0"></div>
+    </div>
+    <div class="stat-card" [class.active]="filterStatus === 'APROBADO'" (click)="filterStatus = 'APROBADO'; applyFilters()">
+      <div class="stat-icon green"><span class="material-icons">event_available</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ activeCount }}</span>
+        <span class="stat-label">Active</span>
+      </div>
+    </div>
+    <div class="stat-card" [class.active]="filterStatus === 'FINALIZADO'" (click)="filterStatus = 'FINALIZADO'; applyFilters()">
+      <div class="stat-icon blue"><span class="material-icons">task_alt</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ completedCount }}</span>
+        <span class="stat-label">Completed</span>
+      </div>
+    </div>
+    <div class="stat-card no-hover">
+      <div class="stat-icon amber"><span class="material-icons">date_range</span></div>
+      <div class="stat-body">
+        <span class="stat-value">{{ weekCount }}</span>
+        <span class="stat-label">This Week</span>
+      </div>
+    </div>
+  </div>
 
-      <button
-        [class.active]="currentView === 'calendar'"
-        (click)="setView('calendar')">
-        Calendar View
+  <!-- ── TOOLBAR ── -->
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"
+        placeholder="Search event, client, location…" />
+    </div>
+    <div class="filter-chips">
+      <button *ngFor="let opt of filterOptions"
+        class="chip" [class.active]="filterStatus === opt.value"
+        (click)="filterStatus = opt.value; applyFilters()">
+        {{ opt.label }}
       </button>
     </div>
   </div>
 
-  <!-- LIST VIEW -->
-  <div class="event-table-card" *ngIf="currentView === 'list'">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Event</th>
-          <th>Client</th>
-          <th>Date</th>
-          <th>Location</th>
-          <th>Bartender</th>
-          <th>Bar Type</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr
-          *ngFor="let event of events"
-          (click)="openEvent(event)"
-          class="clickable-row">
-          <td>{{ event.id }}</td>
-          <td>{{ event.eventName }}</td>
-          <td>{{ event.client }}</td>
-          <td>{{ event.date }}</td>
-          <td>{{ event.location }}</td>
-          <td>{{ event.bartender }}</td>
-          <td>{{ event.barType }}</td>
-          <td>
-            <span class="status-badge" [ngClass]="getStatusClass(event.status)">
-              {{ event.status }}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- ── LOADING ── -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Loading events…</span>
   </div>
 
-  <!-- CALENDAR VIEW -->
-  <div class="calendar-card" *ngIf="currentView === 'calendar'">
+  <!-- ── ERROR ── -->
+  <div class="empty-state" *ngIf="error && !loading">
+    <span class="material-icons" style="color: #ef4444">error_outline</span>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- ── CALENDAR VIEW ── -->
+  <div class="calendar-wrap" *ngIf="!loading && !error && view === 'calendar'">
     <full-calendar [options]="calendarOptions"></full-calendar>
   </div>
+
+  <!-- ── LIST VIEW ── -->
+  <ng-container *ngIf="!loading && !error && view === 'list'">
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="filteredEvents.length === 0">
+      <span class="material-icons">celebration</span>
+      <p>No confirmed events yet</p>
+      <span class="empty-sub">Confirmed reservations will appear here automatically.</span>
+    </div>
+
+    <!-- Card Grid -->
+    <div class="card-grid" *ngIf="filteredEvents.length > 0">
+      <div class="event-card"
+        *ngFor="let e of filteredEvents; trackBy: trackById"
+        [style.--status-color]="statusInfo(e.status).color"
+        [class.today-card]="isToday(e)"
+        (click)="viewEvent(e._id!)">
+
+        <!-- Left accent bar -->
+        <div class="card-accent"></div>
+
+        <!-- Main content -->
+        <div class="card-body">
+
+          <!-- Top row -->
+          <div class="card-top">
+            <div class="card-title-row">
+              <div class="card-title-group">
+                <span class="card-code" *ngIf="e.eventCode">{{ e.eventCode }}</span>
+                <span class="card-title">{{ getTitle(e) }}</span>
+              </div>
+              <span class="status-chip"
+                [style.color]="statusInfo(e.status).color"
+                [style.background]="statusInfo(e.status).bg">
+                <span class="material-icons">{{ statusInfo(e.status).icon }}</span>
+                {{ statusInfo(e.status).label }}
+              </span>
+            </div>
+
+            <!-- Live today badge -->
+            <div class="live-today-row" *ngIf="isToday(e)">
+              <span class="live-dot-sm"></span>
+              <span class="live-text">LIVE TODAY</span>
+            </div>
+
+            <div class="card-client">
+              <span class="material-icons">person</span>
+              {{ getClientName(e) }}
+            </div>
+          </div>
+
+          <!-- Meta -->
+          <div class="card-meta">
+            <div class="meta-item" *ngIf="getDate(e)">
+              <span class="material-icons">calendar_today</span>
+              {{ getDate(e) | date:'MMM d, y' }}
+            </div>
+            <div class="meta-item" *ngIf="getLocation(e) !== '—'">
+              <span class="material-icons">place</span>
+              {{ getLocation(e) }}
+            </div>
+            <div class="meta-item" *ngIf="e.guests">
+              <span class="material-icons">group</span>
+              {{ e.guests }} guests
+            </div>
+            <div class="meta-item" *ngIf="e.packageName">
+              <span class="material-icons">inventory_2</span>
+              {{ e.packageName }}
+            </div>
+          </div>
+
+          <!-- Footer: bartenders + financial -->
+          <div class="card-footer">
+            <!-- Bartender stack -->
+            <div class="bartender-row" *ngIf="getBartenders(e).length">
+              <div class="bartender-stack">
+                <div class="b-avatar"
+                  *ngFor="let b of getBartenders(e).slice(0, 3); let i = index"
+                  [style.z-index]="10 - i"
+                  [title]="b.name + ' ' + (b.lastName || '')">
+                  {{ getBartenderInitials(b) }}
+                </div>
+                <span class="b-extra" *ngIf="getBartenders(e).length > 3">
+                  +{{ getBartenders(e).length - 3 }}
+                </span>
+              </div>
+              <span class="bartender-label">
+                {{ getBartenders(e).length === 1 ? '1 bartender' : getBartenders(e).length + ' bartenders' }}
+              </span>
+            </div>
+
+            <!-- Quoted total -->
+            <span class="quoted-total" *ngIf="e.quotedTotal">
+              <span class="material-icons">attach_money</span>
+              ${{ e.quotedTotal | number:'1.0-0' }} quoted
+            </span>
+
+            <!-- Pay status -->
+            <span class="pay-chip"
+              *ngIf="e.financials?.paidStatus"
+              [style.color]="payInfo(e.financials?.paidStatus).color"
+              [style.background]="payInfo(e.financials?.paidStatus).bg">
+              {{ payInfo(e.financials?.paidStatus).label }}
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Action buttons -->
+        <div class="card-actions" (click)="$event.stopPropagation()">
+          <button class="icon-btn view" (click)="viewEvent(e._id!)" title="View event">
+            <span class="material-icons">visibility</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+
 </div>

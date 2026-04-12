@@ -1,35 +1,38 @@
 .bartender-list-page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  color: #eaf1ff;
+  gap: 20px;
+  color: var(--text);
 }
 
+// ── PAGE HEADER ───────────────────────────────────────────────────────────────
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
   flex-wrap: wrap;
 
   h2 {
     margin: 0;
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700;
+    color: var(--text);
   }
 
   p {
-    margin: 6px 0 0;
-    color: rgba(234, 241, 255, 0.68);
-    font-size: 14px;
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 13.5px;
   }
 }
 
+// ── TABLE CARD ────────────────────────────────────────────────────────────────
 .bartender-table-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 6px 0;
   overflow-x: auto;
 }
 
@@ -39,181 +42,74 @@ table {
 
   th, td {
     text-align: left;
-    padding: 14px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
     vertical-align: middle;
   }
 
+  tbody tr:last-child td { border-bottom: none; }
+
   th {
-    color: rgba(234, 241, 255, 0.55);
-    font-size: 12px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
   }
 
   td {
-    color: #eaf1ff;
-    font-size: 14px;
+    color: var(--text);
+    font-size: 13.5px;
   }
 }
 
 .clickable-row {
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: background 0.15s;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.04);
-  }
+  &:hover { background: rgba(255, 255, 255, 0.03); }
 }
 
-/* Badges de Estado */
+// ── STATUS BADGE ─────────────────────────────────────────────────────────────
 .status-badge {
-  display: inline-block;
-  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: capitalize;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
 
   &.available {
-    background: rgba(68, 224, 138, 0.14);
-    border: 1px solid rgba(68, 224, 138, 0.30);
-    color: #4ade80;
+    background: rgba(52, 211, 153, 0.12);
+    border-color: rgba(52, 211, 153, 0.3);
+    color: #34d399;
   }
 
   &.busy {
-    background: rgba(255, 204, 102, 0.14);
-    border: 1px solid rgba(255, 204, 102, 0.30);
-    color: #facc15;
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
   }
 
   &.inactive {
-    background: rgba(239, 68, 68, 0.14);
-    border: 1px solid rgba(239, 68, 68, 0.30);
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.3);
     color: #f87171;
   }
 }
 
-/* Botones Principales */
-.primary-btn {
-  background: linear-gradient(135deg, #7c5cff, #32d7a3);
-  color: white;
-  border: none;
-  border-radius: 14px;
-  padding: 12px 18px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.secondary-btn {
-  background: rgba(255, 255, 255, 0.06);
-  color: #eaf1ff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-weight: 500;
-  cursor: pointer;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-}
-
-.danger-btn {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-weight: 600;
-  cursor: pointer;
-
-  &:hover {
-    background: rgba(239, 68, 68, 0.3);
-  }
-}
-
-/* Celda de Acciones */
+// ── ACTIONS CELL ─────────────────────────────────────────────────────────────
 .actions-cell {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
-
-  .btn-edit, .btn-delete {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 15px;
-    padding: 6px 8px;
-    border-radius: 8px;
-    transition: background 0.2s ease;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-  }
-
-  .btn-delete:hover {
-    background: rgba(255, 80, 80, 0.15);
-  }
 }
 
-/* Modal de Confirmación */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-card {
-  background: #1a1f35;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 32px;
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-
-  .modal-icon {
-    font-size: 40px;
-    margin-bottom: 16px;
-  }
-
-  h3 {
-    margin: 0 0 12px;
-    font-size: 20px;
-    color: #eaf1ff;
-  }
-
-  p {
-    color: rgba(234, 241, 255, 0.68);
-    font-size: 14px;
-    margin-bottom: 24px;
-
-    strong {
-      color: #eaf1ff;
-    }
-  }
-}
-
-.modal-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
+// ── RESPONSIVE ───────────────────────────────────────────────────────────────
 @media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  table {
-    min-width: 760px;
-  }
+  .page-header { flex-direction: column; align-items: flex-start; }
+  table { min-width: 720px; }
 }

@@ -4,7 +4,10 @@
       <h2>Bartenders</h2>
       <p>Manage staff, availability, specialties, and assignment readiness.</p>
     </div>
-    <button class="primary-btn" (click)="createBartender()">+ New Bartender</button>
+    <button class="btn-primary" (click)="createBartender()">
+      <span class="material-icons">person_add</span>
+      New Bartender
+    </button>
   </div>
 
   <div class="bartender-table-card">
@@ -37,8 +40,12 @@
           </td>
           <td>
             <div class="actions-cell">
-              <button class="btn-edit" (click)="editBartender($event, bartender)">✏️</button>
-              <button class="btn-delete" (click)="confirmDelete($event, bartender)">🗑️</button>
+              <button class="icon-btn edit" (click)="editBartender($event, bartender)" title="Edit bartender">
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="icon-btn danger" (click)="confirmDelete($event, bartender)" title="Delete bartender">
+                <span class="material-icons">delete</span>
+              </button>
             </div>
           </td>
         </tr>
@@ -50,12 +57,14 @@
 @if (showDeleteModal && bartenderToDelete) {
   <div class="modal-overlay" (click)="cancelDelete()">
     <div class="modal-card" (click)="$event.stopPropagation()">
-      <div class="modal-icon">🗑️</div>
+      <div class="modal-icon danger-icon">
+        <span class="material-icons">delete</span>
+      </div>
       <h3>Delete Bartender</h3>
       <p>Are you sure you want to delete <strong>{{ getFullName(bartenderToDelete) }}</strong>? This action cannot be undone.</p>
       <div class="modal-actions">
-        <button class="secondary-btn" (click)="cancelDelete()">Cancel</button>
-        <button class="danger-btn" (click)="confirmDeleteAction()">Delete</button>
+        <button class="btn-ghost" (click)="cancelDelete()">Cancel</button>
+        <button class="btn-danger" (click)="confirmDeleteAction()">Delete</button>
       </div>
     </div>
   </div>

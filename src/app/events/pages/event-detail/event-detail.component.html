@@ -1,136 +1,258 @@
 <div class="event-detail-page">
-  <div class="page-header">
-    <div>
-      <h2>Event Detail</h2>
-      <p>Review the full operational event information.</p>
-    </div>
 
-    <div class="header-actions">
-      <button class="secondary-btn" (click)="goBack()">Back to Events</button>
-      <button class="secondary-btn" (click)="viewSummary()">View Summary</button>
-      <button class="primary-btn" (click)="editEvent()">Edit Event</button>
-    </div>
+  <!-- ── LOADING ── -->
+  <div class="state-card" *ngIf="loading">
+    <div class="spinner"></div><span>Loading event…</span>
+  </div>
+  <div class="state-card error" *ngIf="error && !loading">
+    <span class="material-icons">error_outline</span><span>{{ error }}</span>
   </div>
 
-  <!-- EVENT DETAIL CARD -->
-  <div class="detail-card">
-    <div class="detail-top">
-      <div>
-        <span class="event-id">{{ event.id }}</span>
-        <h3>{{ event.eventName }}</h3>
-        <p>{{ event.client }} • {{ event.eventType }}</p>
-      </div>
+  <ng-container *ngIf="!loading && !error && event">
 
-      <div class="status-badge" [ngClass]="event.status">
-        {{ event.status }}
-      </div>
-    </div>
-
-    <div class="detail-grid">
-      <div class="detail-item">
-        <label>Client</label>
-        <div>{{ event.client }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Event Type</label>
-        <div>{{ event.eventType }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Event Date</label>
-        <div>{{ event.eventDate }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Start Time</label>
-        <div>{{ event.startTime }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>End Time</label>
-        <div>{{ event.endTime }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Location</label>
-        <div>{{ event.location }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Guests</label>
-        <div>{{ event.guests }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Package</label>
-        <div>{{ event.package }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Drink Theme</label>
-        <div>{{ event.drinkTheme }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Bartender</label>
-        <div>{{ event.bartender }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Bar Type</label>
-        <div>{{ event.barType }}</div>
-      </div>
-
-      <div class="detail-item">
-        <label>Budget Range</label>
-        <div>{{ event.budgetRange }}</div>
-      </div>
-
-      <div class="detail-item full-width">
-        <label>Notes</label>
-        <div>{{ event.notes }}</div>
+    <!-- ── HEADER ── -->
+    <div class="page-header">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-icons">arrow_back</span> Events
+      </button>
+      <div class="header-right">
+        <span class="code-badge" *ngIf="event.eventCode">{{ event.eventCode }}</span>
+        <span class="today-badge" *ngIf="isToday()">
+          <span class="live-dot"></span> LIVE TODAY
+        </span>
       </div>
     </div>
-  </div>
 
-  <!-- DRINKS FOR THIS EVENT -->
-  <div class="detail-card">
-    <h3 class="section-title">Drinks for this Event</h3>
+    <!-- ── FEEDBACK BANNER ── -->
+    <div class="feedback-banner" *ngIf="actionMessage"
+      [class.success]="actionMessageType === 'success'"
+      [class.error]="actionMessageType === 'error'">
+      <span class="material-icons">{{ actionMessageType === 'success' ? 'check_circle' : 'error' }}</span>
+      <span>{{ actionMessage }}</span>
+    </div>
 
-    <div class="drink-grid">
-      <div class="drink-card" *ngFor="let drink of event.drinks">
-        <h4>{{ drink.name }}</h4>
-
-        <div class="drink-block">
-          <label>Ingredients</label>
-          <ul>
-            <li *ngFor="let item of drink.ingredients">{{ item }}</li>
-          </ul>
-        </div>
-
-        <div class="drink-block">
-          <label>Preparation</label>
-          <p>{{ drink.preparation }}</p>
-        </div>
-
-        <div class="drink-block">
-          <label>Garnish</label>
-          <p>{{ drink.garnish }}</p>
+    <!-- ── HERO ── -->
+    <div class="hero-row">
+      <div class="hero-icon" [class.done]="isCompleted()">
+        <span class="material-icons">{{ isCompleted() ? 'task_alt' : 'celebration' }}</span>
+      </div>
+      <div class="hero-body">
+        <h2>{{ getTitle() }}</h2>
+        <div class="hero-meta">
+          <span *ngIf="getEventType()">
+            <span class="material-icons">celebration</span>{{ getEventType() }}
+          </span>
+          <span *ngIf="getDate()">
+            <span class="material-icons">calendar_today</span>{{ getDate() | date:'EEE, MMM d, y' }}
+          </span>
+          <span *ngIf="getLocation() !== '—'">
+            <span class="material-icons">place</span>{{ getLocation() }}
+          </span>
         </div>
       </div>
+      <span class="status-badge"
+        [style.color]="statusInfo(event.status).color"
+        [style.background]="statusInfo(event.status).bg"
+        [style.border-color]="statusInfo(event.status).color + '44'">
+        <span class="material-icons">{{ statusInfo(event.status).icon }}</span>
+        {{ statusInfo(event.status).label }}
+      </span>
     </div>
-  </div>
 
-  <!-- INGREDIENT SUMMARY -->
-  <div class="detail-card">
-    <h3 class="section-title">Ingredient Summary</h3>
+    <!-- ── TWO-COLUMN ── -->
+    <div class="detail-layout">
 
-    <div class="ingredient-grid">
-      <div class="ingredient-card" *ngFor="let ingredient of ingredientSummary">
-        <div class="ingredient-name">{{ ingredient.name }}</div>
-        <div class="ingredient-qty">Used in {{ ingredient.quantity }} drink(s)</div>
+      <!-- ══ LEFT ══ -->
+      <div class="left-col">
+
+        <!-- Event Details -->
+        <div class="detail-card">
+          <h3 class="card-title"><span class="material-icons">event</span> Event Details</h3>
+          <div class="info-list">
+            <div class="info-row" *ngIf="getDate()">
+              <span class="info-icon material-icons">calendar_today</span>
+              <div>
+                <span class="info-label">Date</span>
+                <span class="info-value">{{ getDate() | date:'EEEE, MMMM d, y' }}</span>
+              </div>
+            </div>
+            <div class="info-row" *ngIf="getStartTime() || getEndTime()">
+              <span class="info-icon material-icons">schedule</span>
+              <div>
+                <span class="info-label">Time</span>
+                <span class="info-value">{{ getStartTime() }}{{ getEndTime() ? ' – ' + getEndTime() : '' }}</span>
+              </div>
+            </div>
+            <div class="info-row" *ngIf="getLocation() !== '—'">
+              <span class="info-icon material-icons">place</span>
+              <div>
+                <span class="info-label">Venue</span>
+                <span class="info-value">{{ getLocation() }}</span>
+              </div>
+            </div>
+            <div class="info-row" *ngIf="event.guests">
+              <span class="info-icon material-icons">group</span>
+              <div>
+                <span class="info-label">Guests</span>
+                <span class="info-value">{{ event.guests }}</span>
+              </div>
+            </div>
+            <div class="info-row" *ngIf="getEventType()">
+              <span class="info-icon material-icons">celebration</span>
+              <div>
+                <span class="info-label">Type</span>
+                <span class="info-value">{{ getEventType() }}</span>
+              </div>
+            </div>
+            <div class="info-row" *ngIf="event.packageName">
+              <span class="info-icon material-icons">inventory_2</span>
+              <div>
+                <span class="info-label">Package</span>
+                <span class="info-value">{{ event.packageName }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Client -->
+        <div class="detail-card">
+          <h3 class="card-title"><span class="material-icons">person</span> Client</h3>
+          <div class="client-profile">
+            <div class="client-avatar-lg">{{ getClientInitials() }}</div>
+            <div class="client-info-block">
+              <span class="client-big-name">{{ getClientName() }}</span>
+              <a *ngIf="getClientEmail()" [href]="'mailto:' + getClientEmail()" class="client-link">
+                <span class="material-icons">email</span>{{ getClientEmail() }}
+              </a>
+              <a *ngIf="getClientPhone()" [href]="'https://wa.me/' + getClientPhone()" target="_blank" class="client-link green">
+                <span class="material-icons">whatsapp</span>{{ getClientPhone() }}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="detail-card" *ngIf="event.notes">
+          <h3 class="card-title"><span class="material-icons">notes</span> Notes</h3>
+          <p class="notes-text">{{ event.notes }}</p>
+        </div>
+
+      </div>
+
+      <!-- ══ RIGHT ══ -->
+      <div class="right-col">
+
+        <!-- Bartenders -->
+        <div class="detail-card">
+          <h3 class="card-title"><span class="material-icons">local_bar</span> Assigned Bartenders</h3>
+          <div class="bartender-list" *ngIf="getBartenders().length; else noBartenders">
+            <div class="bartender-item" *ngFor="let b of getBartenders()">
+              <div class="bartender-av">{{ getBartenderInitials(b) }}</div>
+              <div class="bartender-info">
+                <span class="bartender-name">{{ b.name }} {{ b.lastName || '' }}</span>
+                <span class="bartender-spec" *ngIf="b.bartenderData?.specialty">{{ b.bartenderData.specialty }}</span>
+              </div>
+              <span class="status-dot"
+                [class.busy]="b.status === 'BUSY'"
+                [class.available]="b.status === 'AVAILABLE'">
+              </span>
+            </div>
+          </div>
+          <ng-template #noBartenders>
+            <p class="empty-note">No bartenders assigned to this event.</p>
+          </ng-template>
+        </div>
+
+        <!-- Financials -->
+        <div class="detail-card" *ngIf="event.quotedTotal || event.financials?.paidStatus">
+          <h3 class="card-title"><span class="material-icons">payments</span> Financials</h3>
+          <div class="financial-block">
+            <div class="financial-row" *ngIf="event.quotedTotal">
+              <span class="financial-label">Quoted Total</span>
+              <span class="financial-big">${{ event.quotedTotal | number:'1.0-0' }}</span>
+            </div>
+            <div class="financial-row" *ngIf="event.financials?.budgetRange">
+              <span class="financial-label">Budget Range</span>
+              <span class="financial-val">{{ event.financials?.budgetRange }}</span>
+            </div>
+            <div class="financial-row" *ngIf="event.financials?.paidStatus">
+              <span class="financial-label">Payment Status</span>
+              <span class="pay-badge"
+                [style.color]="payInfo(event.financials?.paidStatus).color"
+                [style.background]="payInfo(event.financials?.paidStatus).bg">
+                {{ payInfo(event.financials?.paidStatus).label }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="action-card">
+          <h3 class="card-title"><span class="material-icons">bolt</span> Quick Actions</h3>
+
+          <button class="action-btn full green-btn"
+            *ngIf="isConfirmed()"
+            [disabled]="completing"
+            (click)="markAsCompleted()">
+            <span class="material-icons">{{ completing ? 'hourglass_top' : 'task_alt' }}</span>
+            {{ completing ? 'Saving…' : 'Mark as Completed' }}
+          </button>
+
+          <div class="completed-pill" *ngIf="isCompleted()">
+            <span class="material-icons">celebration</span>
+            Event Completed
+          </div>
+
+          <button class="action-btn full amber-btn" *ngIf="event.quoteId" (click)="goToQuote()">
+            <span class="material-icons">receipt_long</span> View Quote
+          </button>
+
+          <button class="action-btn full ghost-btn" (click)="goToReservation()">
+            <span class="material-icons">event_note</span> View Reservation
+          </button>
+        </div>
+
+        <!-- Phase Tracker -->
+        <div class="phase-card">
+          <h3 class="card-title"><span class="material-icons">linear_scale</span> Event Lifecycle</h3>
+          <div class="phase-steps">
+
+            <div class="phase-step done">
+              <div class="phase-dot"><span class="material-icons">check</span></div>
+              <div class="phase-body">
+                <span class="phase-label">Reservation</span>
+                <span class="phase-sub">Request received</span>
+              </div>
+            </div>
+
+            <div class="phase-line done"></div>
+
+            <div class="phase-step done">
+              <div class="phase-dot"><span class="material-icons">check</span></div>
+              <div class="phase-body">
+                <span class="phase-label">Confirmed</span>
+                <span class="phase-sub">Bartenders assigned</span>
+              </div>
+            </div>
+
+            <div class="phase-line" [class.done]="isCompleted()"></div>
+
+            <div class="phase-step" [class.done]="isCompleted()" [class.active]="isConfirmed()">
+              <div class="phase-dot">
+                <span class="material-icons">{{ isCompleted() ? 'check' : 'radio_button_unchecked' }}</span>
+              </div>
+              <div class="phase-body">
+                <span class="phase-label">Completed</span>
+                <span class="phase-sub">{{ isCompleted() ? 'Event finished' : 'Upcoming' }}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </div>
-  </div>
+
+  </ng-container>
+
 </div>

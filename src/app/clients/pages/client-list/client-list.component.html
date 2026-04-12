@@ -4,7 +4,10 @@
       <h2>Clients</h2>
       <p>Manage customers, contacts, and event history.</p>
     </div>
-    <button class="primary-btn" (click)="createClient()">+ New Client</button>
+    <button class="btn-primary" (click)="createClient()">
+      <span class="material-icons">person_add</span>
+      New Client
+    </button>
   </div>
 
   <div class="client-table-card">
@@ -35,8 +38,12 @@
           <td>{{ client.clientData?.notes }}</td>
           <td>
             <div class="actions-cell">
-              <button class="btn-edit" (click)="editClient($event, client)">✏️</button>
-              <button class="btn-delete" (click)="confirmDelete($event, client)">🗑️</button>
+              <button class="icon-btn edit" (click)="editClient($event, client)" title="Edit client">
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="icon-btn danger" (click)="confirmDelete($event, client)" title="Delete client">
+                <span class="material-icons">delete</span>
+              </button>
             </div>
           </td>
         </tr>
@@ -49,12 +56,14 @@
 @if (showDeleteModal && clientToDelete) {
   <div class="modal-overlay" (click)="cancelDelete()">
     <div class="modal-card" (click)="$event.stopPropagation()">
-      <div class="modal-icon">🗑️</div>
+      <div class="modal-icon danger-icon">
+        <span class="material-icons">delete</span>
+      </div>
       <h3>Delete Client</h3>
       <p>Are you sure you want to delete <strong>{{ getFullName(clientToDelete) }}</strong>? This action cannot be undone.</p>
       <div class="modal-actions">
-        <button class="secondary-btn" (click)="cancelDelete()">Cancel</button>
-        <button class="danger-btn" (click)="confirmDeleteAction()">Delete</button>
+        <button class="btn-ghost" (click)="cancelDelete()">Cancel</button>
+        <button class="btn-danger" (click)="confirmDeleteAction()">Delete</button>
       </div>
     </div>
   </div>

@@ -84,6 +84,15 @@ export class ReservationDetailComponent implements OnInit {
     return s === 'pending' || s === 'PENDIENTE';
   }
 
+  isConfirmed(): boolean {
+    const s = this.reservation?.status ?? '';
+    return s === 'APROBADO' || s === 'confirmed';
+  }
+
+  goToEvent(): void {
+    if (this.reservation?._id) this.router.navigate(['/events', this.reservation._id]);
+  }
+
   confirm(): void {
     if (!this.selectedBartenderId) {
       this.toastService.show('Please select a bartender first.', 'warning');

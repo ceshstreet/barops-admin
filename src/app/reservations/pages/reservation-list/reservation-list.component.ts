@@ -110,7 +110,7 @@ export class ReservationListComponent implements OnInit {
   thisMonth(): number {
     const m = new Date().getMonth(); const y = new Date().getFullYear();
     return this.reservations.filter(r => {
-      const d = new Date(r.eventDate); return d.getMonth() === m && d.getFullYear() === y;
+      if (!r.eventDate) return false; const d = new Date(r.eventDate); return d.getMonth() === m && d.getFullYear() === y;
     }).length;
   }
 
