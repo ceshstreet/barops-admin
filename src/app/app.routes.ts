@@ -43,21 +43,20 @@ import { SupplierListComponent } from './suppliers/pages/supplier-list/supplier-
 import { QuoteListComponent } from './quotes/pages/quote-list/quote-list.component';
 import { QuoteFormComponent } from './quotes/pages/quote-form/quote-form.component';
 import { QuoteDetailComponent } from './quotes/pages/quote-detail/quote-detail.component';
+import { QuoteBuilderComponent } from './quotes/pages/quote-builder/quote-builder.component';
+import { QuotePdfPreviewComponent } from './quotes/pages/quote-pdf-preview/quote-pdf-preview.component';
 
-/* 🔥 NUEVOS IMPORTS */
 import { RequestListComponent } from './requests/pages/request-list/request-list.component';
 import { RequestDetailComponent } from './requests/pages/request-detail/request-detail.component';
 
 import { AddOnListComponent } from './add-ons/pages/add-on-list/add-on-list.component';
 import { AddOnFormComponent } from './add-ons/pages/add-on-form/add-on-form.component';
 
-import { QuotePublicComponent } from './quotes/pages/quote-public/quote-public.component';
-
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // ── Public (no auth, client-facing) ──
-  { path: 'q/:token', component: QuotePublicComponent },
+  // ── PDF preview: no admin chrome, opens in new tab for printing ──
+  { path: 'quotes/:id/pdf-preview', component: QuotePdfPreviewComponent },
 
   {
     path: '',
@@ -139,6 +138,7 @@ export const routes: Routes = [
       { path: 'quotes', component: QuoteListComponent},
       { path: 'quotes/new', component: QuoteFormComponent},
       { path: 'quotes/:id/edit', component: QuoteFormComponent},
+      { path: 'quotes/:id/build', component: QuoteBuilderComponent},
       { path: 'quotes/:id', component: QuoteDetailComponent},
     ],
   },

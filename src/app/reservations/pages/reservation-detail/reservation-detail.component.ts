@@ -24,31 +24,66 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
   styleUrl: './reservation-detail.component.scss',
 })
 export class ReservationDetailComponent implements OnInit {
-  private route           = inject(ActivatedRoute);
-  private router          = inject(Router);
-  private eventService    = inject(EventService);
+  private route            = inject(ActivatedRoute);
+  private router           = inject(Router);
+  private eventService     = inject(EventService);
   private bartenderService = inject(BartenderService);
-  private toastService    = inject(ToastService);
+  private toastService     = inject(ToastService);
 
   reservation: ReservationEvent | null = null;
-  bartenders: Bartender[] = [];
-  selectedBartenderId = '';
+  allBartenders: Bartender[] = [];
+
+  // Multi-select state
+  selectedBartenderIds: string[] = [];
+  showBartenderPicker  = false;
+  editingBartenders    = false;   // edit mode for confirmed reservations
+
+  // Availability by date (IDs of bartenders free on event date)
+  availableOnDateIds: Set<string> = new Set();
+  dateAvailabilityLoaded = false;
+
   loading = true;
   saving  = false;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
+
+    // Load all bartenders (we show status indicators ourselves)
+    this.bartenderService.getBartenders().subscribe({
+      next: (data) => { this.allBartenders = data; },
+      error: (err)  => console.error(err),
+    });
+
     if (id) {
       this.eventService.getEventById(id).subscribe({
-        next: (data) => { this.reservation = data; this.loading = false; },
+        next: (data) => {
+          this.reservation = data;
+          this.loading = false;
+
+          // Extract IDs from populated assignedBartenders array
+          const assigned = (data.assignedBartenders || []) as any[];
+          this.selectedBartenderIds = assigned
+            .map(b => (typeof b === 'object' ? b._id : b))
+            .filter(Boolean);
+
+          // Fetch which bartenders are free on this event's date
+          const dateStr = data.eventDate || (data as any).eventInfo?.date;
+          if (dateStr) {
+            this.bartenderService.getAvailableByDate(dateStr, data._id).subscribe({
+              next: (avail) => {
+                this.availableOnDateIds = new Set(avail.map(b => b._id!));
+                this.dateAvailabilityLoaded = true;
+              },
+              error: () => { this.dateAvailabilityLoaded = true; },
+            });
+          }
+        },
         error: () => { this.loading = false; },
       });
     }
-    this.bartenderService.getBartenders().subscribe({
-      next: (data) => this.bartenders = data.filter((b: Bartender) => b.status === 'AVAILABLE'),
-      error: (err) => console.error(err),
-    });
   }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
 
   statusInfo(status: string | undefined) {
     return STATUS_MAP[status ?? 'pending'] ?? STATUS_MAP['pending'];
@@ -93,22 +128,67 @@ export class ReservationDetailComponent implements OnInit {
     if (this.reservation?._id) this.router.navigate(['/events', this.reservation._id]);
   }
 
+  // ── Bartender multi-select ────────────────────────────────────────────────
+
+  get selectedBartenders(): Bartender[] {
+    return this.allBartenders.filter(b => this.selectedBartenderIds.includes(b._id!));
+  }
+
+  get pickerBartenders(): Bartender[] {
+    // Show unselected first, then selected — all visible
+    const unselected = this.allBartenders.filter(b => !this.isBartenderSelected(b._id!));
+    const selected   = this.allBartenders.filter(b =>  this.isBartenderSelected(b._id!));
+    return [...unselected, ...selected];
+  }
+
+  isBartenderSelected(id: string): boolean {
+    return this.selectedBartenderIds.includes(id);
+  }
+
+  isAvailableOnDate(bartenderId: string): boolean {
+    if (!this.dateAvailabilityLoaded) return true; // optimistic before load
+    return this.availableOnDateIds.has(bartenderId);
+  }
+
+  toggleBartender(id: string): void {
+    if (this.isBartenderSelected(id)) {
+      this.selectedBartenderIds = this.selectedBartenderIds.filter(x => x !== id);
+    } else {
+      this.selectedBartenderIds = [...this.selectedBartenderIds, id];
+    }
+  }
+
+  removeBartender(id: string): void {
+    this.selectedBartenderIds = this.selectedBartenderIds.filter(x => x !== id);
+  }
+
+  bartenderInitials(b: Bartender): string {
+    return ((b.name?.[0] ?? '') + (b.lastName?.[0] ?? '')).toUpperCase();
+  }
+
+  // ── Actions ───────────────────────────────────────────────────────────────
+
   confirm(): void {
-    if (!this.selectedBartenderId) {
-      this.toastService.show('Please select a bartender first.', 'warning');
+    if (this.selectedBartenderIds.length === 0) {
+      this.toastService.show('Assign at least one bartender before confirming.', 'warning');
       return;
     }
     this.saving = true;
     this.eventService.updateEvent(this.reservation!._id!, {
       status: 'APROBADO',
-      assignedBartenders: [this.selectedBartenderId],
+      assignedBartenders: this.selectedBartenderIds,
     }).subscribe({
       next: () => {
         this.toastService.show('Reservation confirmed!', 'success');
         this.reservation = { ...this.reservation!, status: 'APROBADO' };
         this.saving = false;
+        this.showBartenderPicker = false;
       },
-      error: () => { this.toastService.show('Error confirming reservation.', 'error'); this.saving = false; },
+      error: (err) => {
+        const msg = err?.error?.message || 'Error confirming reservation.';
+        this.toastService.show(msg, 'error');
+        this.saving = false;
+      },
     });
   }
 
@@ -122,6 +202,36 @@ export class ReservationDetailComponent implements OnInit {
       },
       error: () => { this.toastService.show('Error cancelling reservation.', 'error'); this.saving = false; },
     });
+  }
+
+  /** Update bartenders on an already-confirmed reservation */
+  saveBartenders(): void {
+    this.saving = true;
+    this.eventService.updateEvent(this.reservation!._id!, {
+      assignedBartenders: this.selectedBartenderIds,
+    }).subscribe({
+      next: () => {
+        this.toastService.show('Bartenders updated!', 'success');
+        this.saving = false;
+        this.editingBartenders = false;
+        this.showBartenderPicker = false;
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'Error updating bartenders.';
+        this.toastService.show(msg, 'error');
+        this.saving = false;
+      },
+    });
+  }
+
+  cancelEditBartenders(): void {
+    // Restore from reservation data
+    const assigned = (this.reservation?.assignedBartenders || []) as any[];
+    this.selectedBartenderIds = assigned
+      .map(b => (typeof b === 'object' ? b._id : b))
+      .filter(Boolean);
+    this.editingBartenders = false;
+    this.showBartenderPicker = false;
   }
 
   goBack(): void { this.router.navigate(['/reservations']); }

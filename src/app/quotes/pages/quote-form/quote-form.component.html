@@ -31,16 +31,16 @@
     <nav class="step-nav">
       <div *ngFor="let s of STEPS"
         class="step-item"
-        [class.done]="(s.id===1&&step1Complete)||(s.id===2&&step2Complete)||(s.id===3&&step3Complete)||(s.id===4&&step4Complete)||(s.id===5&&step5Complete)"
+        [class.done]="(s.id===1&&step1Complete)||(s.id===2&&step2Complete)||(s.id===3&&step3Complete)||(s.id===4&&step4Complete)||(s.id===5&&step5Complete)||(s.id===6&&step6Complete)"
         [class.active]="activeStep === s.id"
         (click)="scrollTo(s.id)">
         <div class="step-bullet">
           <span class="material-icons check-ico"
-            *ngIf="(s.id===1&&step1Complete)||(s.id===2&&step2Complete)||(s.id===3&&step3Complete)||(s.id===4&&step4Complete)||(s.id===5&&step5Complete)">
+            *ngIf="(s.id===1&&step1Complete)||(s.id===2&&step2Complete)||(s.id===3&&step3Complete)||(s.id===4&&step4Complete)||(s.id===5&&step5Complete)||(s.id===6&&step6Complete)">
             check
           </span>
           <span class="step-num"
-            *ngIf="!((s.id===1&&step1Complete)||(s.id===2&&step2Complete)||(s.id===3&&step3Complete)||(s.id===4&&step4Complete)||(s.id===5&&step5Complete))">
+            *ngIf="!((s.id===1&&step1Complete)||(s.id===2&&step2Complete)||(s.id===3&&step3Complete)||(s.id===4&&step4Complete)||(s.id===5&&step5Complete)||(s.id===6&&step6Complete))">
             {{ s.id }}
           </span>
         </div>
@@ -52,13 +52,9 @@
       <!-- Progress hint -->
       <div class="step-progress">
         <div class="progress-bar">
-          <div class="progress-fill"
-            [style.width.%]="stepsProgress">
-          </div>
+          <div class="progress-fill" [style.width.%]="stepsProgress"></div>
         </div>
-        <span class="progress-label">
-          {{ stepsCompleted }}/5 complete
-        </span>
+        <span class="progress-label">{{ stepsCompleted }}/6 complete</span>
       </div>
     </nav>
 
@@ -193,11 +189,26 @@
         </div>
 
         <div class="section-body">
-          <div *ngIf="allPackages.length === 0" class="empty-hint">
-            No active packages. <a routerLink="/packages/new">Create one first.</a>
+
+          <!-- Loading -->
+          <div class="pkg-loading" *ngIf="packagesLoading">
+            <div class="spinner-sm"></div>
+            <span>Loading packages…</span>
           </div>
 
-          <div class="package-grid">
+          <!-- Error -->
+          <div class="pkg-error" *ngIf="packagesError && !packagesLoading">
+            <span class="material-icons">error_outline</span>
+            {{ packagesError }}
+            <a routerLink="/packages/new">Create a package</a>
+          </div>
+
+          <!-- Empty -->
+          <div class="empty-hint" *ngIf="!packagesLoading && !packagesError && allPackages.length === 0">
+            No packages found. <a routerLink="/packages/new">Create one first.</a>
+          </div>
+
+          <div class="package-grid" *ngIf="!packagesLoading && allPackages.length > 0">
             <div *ngFor="let pkg of allPackages"
               class="package-card"
               [class.selected]="selectedPackageId === pkg._id"
@@ -235,24 +246,79 @@
             </div>
           </div>
 
-          <!-- Package preview when selected -->
-          <div class="package-preview" *ngIf="selectedPackage || storedPackageName">
-            <div class="preview-title">
-              <span class="material-icons">calculate</span>
-              Calculation for {{ guestCount }} guests
+          <!-- Editable price fields — always visible once a package is chosen or manually -->
+          <div class="price-editor" *ngIf="selectedPackageId || storedPackageName || customBasePrice > 0">
+            <div class="price-editor-header">
+              <span class="material-icons">edit</span>
+              Pricing for this quote
+              <span class="price-editor-hint">Modify the values below to adjust the quote price</span>
             </div>
-            <div class="preview-row">
-              <span>{{ effectivePackageName }} (base)</span>
-              <span>${{ packageBasePrice | number:'1.0-0' }}</span>
+
+            <div class="price-editor-grid">
+              <div class="price-field">
+                <label>Base Price</label>
+                <div class="price-input-wrap">
+                  <span class="price-symbol">$</span>
+                  <input type="number" [(ngModel)]="customBasePrice" min="0"
+                    (ngModelChange)="triggerFlash()" placeholder="0" />
+                </div>
+                <span class="price-field-hint">Fixed service fee</span>
+              </div>
+
+              <div class="price-field">
+                <label>Price per Guest</label>
+                <div class="price-input-wrap">
+                  <span class="price-symbol">$</span>
+                  <input type="number" [(ngModel)]="customPricePerGuest" min="0"
+                    (ngModelChange)="triggerFlash()" placeholder="0" />
+                  <span class="price-unit">/guest</span>
+                </div>
+                <span class="price-field-hint">Multiplied by {{ guestCount }} guests</span>
+              </div>
             </div>
-            <div class="preview-row">
-              <span>{{ guestCount }} guests × ${{ effectivePricePerGuest }}</span>
-              <span>${{ packageGuestPrice | number:'1.0-0' }}</span>
+
+            <div class="price-calc-row">
+              <div class="calc-item">
+                <span class="calc-label">Base</span>
+                <span class="calc-value">${{ customBasePrice | number:'1.0-0' }}</span>
+              </div>
+              <span class="calc-plus">+</span>
+              <div class="calc-item">
+                <span class="calc-label">{{ guestCount }} × ${{ customPricePerGuest }}</span>
+                <span class="calc-value">${{ packageGuestPrice | number:'1.0-0' }}</span>
+              </div>
+              <span class="calc-plus">=</span>
+              <div class="calc-item total-calc">
+                <span class="calc-label">Package Subtotal</span>
+                <span class="calc-value">${{ (packageBasePrice + packageGuestPrice) | number:'1.0-0' }}</span>
+              </div>
             </div>
-            <div class="preview-divider"></div>
-            <div class="preview-row preview-subtotal">
-              <span>Package subtotal</span>
-              <span>${{ (packageBasePrice + packageGuestPrice) | number:'1.0-0' }}</span>
+          </div>
+
+          <!-- Prompt to enter manual price when no package selected -->
+          <div class="price-manual-prompt" *ngIf="!selectedPackageId && !storedPackageName && customBasePrice === 0">
+            <span class="material-icons">attach_money</span>
+            <div>
+              <p>Select a package above to auto-fill prices, or enter them manually:</p>
+              <div class="price-editor-grid" style="margin-top: 10px;">
+                <div class="price-field">
+                  <label>Base Price</label>
+                  <div class="price-input-wrap">
+                    <span class="price-symbol">$</span>
+                    <input type="number" [(ngModel)]="customBasePrice" min="0"
+                      (ngModelChange)="triggerFlash()" placeholder="0" />
+                  </div>
+                </div>
+                <div class="price-field">
+                  <label>Price per Guest</label>
+                  <div class="price-input-wrap">
+                    <span class="price-symbol">$</span>
+                    <input type="number" [(ngModel)]="customPricePerGuest" min="0"
+                      (ngModelChange)="triggerFlash()" placeholder="0" />
+                    <span class="price-unit">/guest</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -329,12 +395,109 @@
         </div>
       </section>
 
-      <!-- ▸ SECTION 4 — Add-ons ─────────────────────────────────────────── -->
+      <!-- ▸ SECTION 4 — Drink Menu ─────────────────────────────────────── -->
       <section class="builder-section" id="step-4">
         <div class="section-header" (click)="scrollTo(4)">
           <div class="section-num" [class.done]="step4Complete">
             <span class="material-icons" *ngIf="step4Complete">check</span>
             <span *ngIf="!step4Complete">4</span>
+          </div>
+          <div>
+            <h3>Drink Menu</h3>
+            <p>
+              Select drinks from your catalog, set quantity and price per item — totals roll into the quote.
+            </p>
+          </div>
+        </div>
+
+        <div class="section-body">
+
+          <!-- Selected drink lines -->
+          <div class="drink-lines-list" *ngIf="drinkLines.length > 0">
+
+            <!-- Group by category -->
+            <ng-container *ngFor="let cat of drinkCategories">
+              <ng-container *ngIf="drinksByCategory(cat).length > 0">
+                <div class="dlg-header">
+                  <span class="material-icons dlg-icon">{{ drinkCategoryIcons[cat] }}</span>
+                  <span class="dlg-label">{{ drinkCategoryLabels[cat] }}</span>
+                  <span class="dlg-count">{{ drinksByCategory(cat).length }}</span>
+                </div>
+
+                <div class="dl-row" *ngFor="let d of drinksByCategory(cat)">
+                  <div class="dl-info">
+                    <span class="dl-name">{{ d.name }}</span>
+                    <span class="dl-detail" *ngIf="d.detail">{{ d.detail }}</span>
+                  </div>
+
+                  <!-- Quantity -->
+                  <div class="dl-qty-wrap">
+                    <label class="dl-micro-label">Qty</label>
+                    <input type="number" class="dl-qty-input" min="1"
+                      [ngModel]="d.quantity"
+                      (ngModelChange)="updateDrinkQty(d, $event)" />
+                  </div>
+
+                  <!-- Price per unit -->
+                  <div class="dl-price-wrap">
+                    <label class="dl-micro-label">Price / unit</label>
+                    <div class="dl-price-inner">
+                      <span class="dl-dollar">$</span>
+                      <input type="number" class="dl-price-input" min="0"
+                        [ngModel]="d.price"
+                        (ngModelChange)="updateDrinkPrice(d, $event)" />
+                    </div>
+                  </div>
+
+                  <!-- Line total -->
+                  <div class="dl-line-total" *ngIf="d.price > 0">
+                    ${{ (d.price * d.quantity) | number:'1.0-0' }}
+                  </div>
+                  <div class="dl-line-total incl" *ngIf="d.price === 0">Incl.</div>
+
+                  <button type="button" class="dl-remove-btn" (click)="removeDrinkLineByRef(d)" title="Remove">
+                    <span class="material-icons">close</span>
+                  </button>
+                </div>
+              </ng-container>
+            </ng-container>
+
+            <!-- Drinks subtotal -->
+            <div class="drinks-subtotal" *ngIf="drinksTotal > 0">
+              <span>Drinks subtotal</span>
+              <span>${{ drinksTotal | number:'1.0-0' }}</span>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div class="drink-empty-hint" *ngIf="drinkLines.length === 0">
+            <span class="material-icons">local_bar</span>
+            <p>No drinks added yet. Browse the catalog to build your menu.</p>
+            <p class="drink-empty-sub" *ngIf="selectedPackageId">
+              Tip: selecting a package auto-fills drinks from it.
+            </p>
+          </div>
+
+          <!-- Browse button -->
+          <div class="drink-actions-row">
+            <button type="button" class="browse-drinks-btn" (click)="openDrinkModal()">
+              <span class="material-icons">local_bar</span>
+              Browse Drink Catalog
+              <span class="drink-count-badge" *ngIf="drinkLines.length > 0">
+                {{ drinkLines.length }}
+              </span>
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ▸ SECTION 5 — Add-ons ─────────────────────────────────────────── -->
+      <section class="builder-section" id="step-5">
+        <div class="section-header" (click)="scrollTo(5)">
+          <div class="section-num" [class.done]="step5Complete">
+            <span class="material-icons" *ngIf="step5Complete">check</span>
+            <span *ngIf="!step5Complete">5</span>
           </div>
           <div>
             <h3>Add-ons & Extras</h3>
@@ -403,12 +566,12 @@
         </div>
       </section>
 
-      <!-- ▸ SECTION 5 — Notes ───────────────────────────────────────────── -->
-      <section class="builder-section" id="step-5">
-        <div class="section-header" (click)="scrollTo(5)">
-          <div class="section-num" [class.done]="step5Complete">
-            <span class="material-icons" *ngIf="step5Complete">check</span>
-            <span *ngIf="!step5Complete">5</span>
+      <!-- ▸ SECTION 6 — Notes ───────────────────────────────────────────── -->
+      <section class="builder-section" id="step-6">
+        <div class="section-header" (click)="scrollTo(6)">
+          <div class="section-num" [class.done]="step6Complete">
+            <span class="material-icons" *ngIf="step6Complete">check</span>
+            <span *ngIf="!step6Complete">6</span>
           </div>
           <div>
             <h3>Notes & Review</h3>
@@ -494,6 +657,26 @@
           <div class="summary-line-right">
             <span class="summary-line-amount">${{ line.price | number:'1.0-0' }}</span>
             <button class="summary-remove" (click)="removeCustomLine(i)" title="Remove">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drink lines -->
+      <div class="summary-section" *ngIf="drinkLines.length > 0">
+        <div class="summary-section-label">Drink Menu</div>
+        <div *ngFor="let d of drinkLines; let i = index" class="summary-line addon-summary-line">
+          <div class="summary-line-info">
+            <span class="summary-line-name">{{ d.name }}</span>
+            <span class="summary-line-sub" *ngIf="d.quantity > 1">×{{ d.quantity }}</span>
+          </div>
+          <div class="summary-line-right">
+            <span class="summary-line-amount" *ngIf="d.price > 0">
+              ${{ (d.price * d.quantity) | number:'1.0-0' }}
+            </span>
+            <span class="included-badge" *ngIf="d.price === 0">Incl.</span>
+            <button class="summary-remove" (click)="removeDrinkLine(i)" title="Remove">
               <span class="material-icons">close</span>
             </button>
           </div>
@@ -645,6 +828,102 @@
       <button class="btn-primary" (click)="showAddonModal = false">
         <span class="material-icons">check</span>
         Done
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ DRINK CATALOG MODAL ═════════════════════════════════════════════════ -->
+<div class="addon-modal-overlay" *ngIf="showDrinkModal" (click)="closeDrinkModal()">
+  <div class="addon-modal drink-modal" (click)="$event.stopPropagation()">
+
+    <div class="addon-modal-header">
+      <div class="modal-title">
+        <span class="material-icons">local_bar</span>
+        Drink Catalog
+      </div>
+      <div class="modal-search">
+        <span class="material-icons">search</span>
+        <input type="text" [(ngModel)]="drinkSearch" placeholder="Search drinks…" autofocus />
+      </div>
+      <button class="modal-close" (click)="closeDrinkModal()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <!-- Type filter tabs -->
+    <div class="drink-type-tabs">
+      <button class="dtt-btn" [class.active]="drinkTypeFilter === ''" (click)="drinkTypeFilter = ''">
+        All
+      </button>
+      <button class="dtt-btn" [class.active]="drinkTypeFilter === 'cocktail'" (click)="drinkTypeFilter = 'cocktail'">
+        <span class="material-icons">local_bar</span> Cocktails
+      </button>
+      <button class="dtt-btn" [class.active]="drinkTypeFilter === 'beer'" (click)="drinkTypeFilter = 'beer'">
+        <span class="material-icons">sports_bar</span> Beers
+      </button>
+      <button class="dtt-btn" [class.active]="drinkTypeFilter === 'beverage'" (click)="drinkTypeFilter = 'beverage'">
+        <span class="material-icons">emoji_food_beverage</span> Beverages
+      </button>
+      <button class="dtt-btn" [class.active]="drinkTypeFilter === 'wine'" (click)="drinkTypeFilter = 'wine'">
+        <span class="material-icons">wine_bar</span> Wines
+      </button>
+      <button class="dtt-btn" [class.active]="drinkTypeFilter === 'mixer'" (click)="drinkTypeFilter = 'mixer'">
+        <span class="material-icons">local_drink</span> Mixers
+      </button>
+    </div>
+
+    <div class="addon-modal-body">
+      <div *ngIf="filteredCatalogDrinks.length === 0" class="addon-catalog-empty">
+        <span class="material-icons">search_off</span>
+        <p>No drinks match your search.</p>
+      </div>
+
+      <div class="addon-catalog-grid">
+        <div *ngFor="let drink of filteredCatalogDrinks"
+          class="addon-catalog-card drink-catalog-card"
+          [class.selected]="isDrinkSelected(drink)"
+          (click)="toggleCatalogDrink(drink)">
+
+          <div class="addon-catalog-icon">
+            <span class="material-icons">
+              {{ drink.type === 'cocktail' ? 'local_bar' :
+                 drink.type === 'beer'     ? 'sports_bar' :
+                 drink.type === 'wine'     ? 'wine_bar' :
+                 drink.type === 'mixer'    ? 'local_drink' : 'emoji_food_beverage' }}
+            </span>
+          </div>
+
+          <div class="addon-catalog-info">
+            <span class="addon-catalog-name">{{ drink.name }}</span>
+            <span class="addon-catalog-detail" *ngIf="drink.brand">
+              {{ drink.brand }}{{ drink.size ? ' · ' + drink.size : '' }}
+            </span>
+            <span class="addon-catalog-detail" *ngIf="!drink.brand && drink.drinkType">
+              {{ drink.drinkType }}
+            </span>
+            <span class="addon-catalog-cat">{{ drinkTypeLabel(drink.type) }}</span>
+          </div>
+
+          <div class="addon-catalog-footer">
+            <button type="button" class="addon-toggle-btn" [class.added]="isDrinkSelected(drink)">
+              <span class="material-icons">{{ isDrinkSelected(drink) ? 'remove' : 'add' }}</span>
+              {{ isDrinkSelected(drink) ? 'Remove' : 'Add' }}
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="addon-modal-footer">
+      <span class="addon-selected-count">
+        {{ drinkLines.length }} drink{{ drinkLines.length !== 1 ? 's' : '' }} in menu
+      </span>
+      <button class="btn-primary" (click)="closeDrinkModal()">
+        <span class="material-icons">check</span>
+        Done — Set Prices
       </button>
     </div>
 

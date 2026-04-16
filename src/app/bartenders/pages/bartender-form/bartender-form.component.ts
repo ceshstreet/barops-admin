@@ -2,7 +2,7 @@ import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angula
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BartenderService, Bartender } from '../../services/bartender.service';
+import { BartenderService } from '../../services/bartender.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import intlTelInput from 'intl-tel-input';
 
@@ -98,7 +98,6 @@ export class BartenderFormComponent implements OnInit, AfterViewInit {
     const number = phoneEl?.value?.trim() || '';
     const fullPhone = `${dialCode}${number}`.replace(/\s/g, '');
 
-    console.log('Phone enviado:', fullPhone);
     const bartenderData = { ...this.bartender, phone: fullPhone };
 
     if (this.isEditMode && this.bartenderId) {

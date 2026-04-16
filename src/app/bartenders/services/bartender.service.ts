@@ -45,4 +45,12 @@ export class BartenderService {
   deleteBartender(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  /** Returns bartenders that are free on the given date (ISO string).
+   *  excludeEventId: the current event being edited — excluded from conflict check. */
+  getAvailableByDate(date: string, excludeEventId?: string): Observable<Bartender[]> {
+    let params = `date=${encodeURIComponent(date)}`;
+    if (excludeEventId) params += `&excludeEventId=${excludeEventId}`;
+    return this.http.get<Bartender[]>(`${this.apiUrl}/available?${params}`);
+  }
 }

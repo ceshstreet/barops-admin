@@ -44,17 +44,4 @@ export class QuotesService {
   deleteQuote(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
   }
-
-  generateShareLink(id: string): Observable<QuoteResponse> {
-    return this.http.patch<QuoteResponse>(`${this.apiUrl}/${id}/generate-link`, {});
-  }
-
-  // ── Public (no auth) ──
-  getPublicQuote(token: string): Observable<QuoteResponse> {
-    return this.http.get<QuoteResponse>(`${environment.apiUrl}/public/quotes/${token}`);
-  }
-
-  respondToQuote(token: string, action: 'approve' | 'reject'): Observable<QuoteResponse> {
-    return this.http.patch<QuoteResponse>(`${environment.apiUrl}/public/quotes/${token}/respond`, { action });
-  }
 }

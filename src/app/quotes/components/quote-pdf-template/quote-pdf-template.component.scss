@@ -1,0 +1,669 @@
+// ── PDF TEMPLATE STYLES ────────────────────────────────────────────────────────
+// Designed for both screen preview and print output.
+// Max-width 780px on screen. Full-width on print with proper margins.
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+$accent:  #7c5cff;
+$dark:    #0f172a;
+$heading: #1e2a3a;
+$body:    #334155;
+$muted:   #64748b;
+$border:  #e2e8f0;
+$bg-soft: #f8fafc;
+$green:   #22c55e;
+
+* { box-sizing: border-box; }
+
+.pdf-doc {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  color: $body;
+  background: #fff;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+// ── BRAND HEADER ──────────────────────────────────────────────────────────────
+
+.pdf-brand-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  border-bottom: 2px solid $accent;
+  background: $dark;
+  color: #fff;
+}
+
+.pdf-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .brand-ico { font-size: 20px; color: #a78bfa; }
+  .brand-name { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; color: #fff; }
+  .brand-sep  { color: #475569; }
+  .brand-tag  { font-size: 12px; color: #94a3b8; font-weight: 400; }
+}
+
+.pdf-doc-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #94a3b8;
+
+  .doc-label {
+    padding: 3px 10px;
+    background: $accent;
+    color: #fff;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  .doc-ref  { font-weight: 700; color: #cbd5e1; }
+  .doc-date { color: #64748b; }
+}
+
+// ── SECTION WRAPPER ───────────────────────────────────────────────────────────
+
+.pdf-section {
+  padding: 28px 32px;
+  border-bottom: 1px solid $border;
+
+  &:last-of-type { border-bottom: none; }
+}
+
+// ── SECTION HEADING ───────────────────────────────────────────────────────────
+
+.pdf-section-head {
+  margin-bottom: 20px;
+}
+
+.psh-rule {
+  width: 40px;
+  height: 3px;
+  background: $accent;
+  border-radius: 2px;
+  margin-bottom: 8px;
+}
+
+.psh-title {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 800;
+  color: $heading;
+  letter-spacing: -0.3px;
+}
+
+.psh-sub {
+  font-size: 12px;
+  color: $muted;
+}
+
+// ── SECTION DESCRIPTION NOTE ──────────────────────────────────────────────────
+
+.section-note {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #fafafa;
+  border-left: 3px solid $accent;
+  border-radius: 0 8px 8px 0;
+  font-size: 12px;
+  color: $muted;
+  font-style: italic;
+  white-space: pre-wrap;
+}
+
+// ── HERO SECTION ─────────────────────────────────────────────────────────────
+
+.pdf-hero {
+  padding-top: 0;
+  border-bottom: 1px solid $border;
+}
+
+.hero-accent-bar {
+  height: 5px;
+  background: linear-gradient(90deg, $accent, #a78bfa);
+  margin: 0 -32px 24px;
+}
+
+.hero-main { margin-bottom: 24px; }
+
+.hero-title {
+  margin: 0 0 14px;
+  font-size: 28px;
+  font-weight: 800;
+  color: $heading;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.hero-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: 16px;
+}
+
+.hero-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: $body;
+
+  .material-icons { font-size: 15px; color: $muted; }
+}
+
+.countdown-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #ede9ff;
+  color: $accent;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.hero-per-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, $accent, #5b3fd9);
+  color: #fff;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+
+  .material-icons { font-size: 14px; color: #fde68a; }
+  strong { font-weight: 800; }
+}
+
+.hero-client {
+  padding: 16px;
+  background: $bg-soft;
+  border: 1px solid $border;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.hc-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $muted;
+  margin-bottom: 10px;
+}
+
+.hc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hc-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: $accent;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.hc-name { font-size: 16px; font-weight: 700; color: $heading; }
+.hc-contacts { font-size: 12px; color: $muted; }
+.hc-sep { margin: 0 2px; }
+
+.hero-intro {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #ede9ff;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #4c1d95;
+  font-style: italic;
+  line-height: 1.7;
+
+  .material-icons { font-size: 20px; color: $accent; flex-shrink: 0; margin-top: 2px; }
+  p { margin: 0; }
+}
+
+// ── EXPERIENCE ────────────────────────────────────────────────────────────────
+
+.exp-headline {
+  font-size: 18px;
+  font-weight: 700;
+  color: $heading;
+  margin: 0 0 16px;
+}
+
+.pkg-stats {
+  display: flex;
+  gap: 0;
+  border: 1px solid $border;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.pkg-stat {
+  flex: 1;
+  padding: 12px 16px;
+  border-right: 1px solid $border;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &:last-child { border-right: none; }
+
+  strong { font-size: 15px; font-weight: 800; color: $heading; }
+  span   { font-size: 11px; color: $muted; text-transform: uppercase; letter-spacing: 0.05em; }
+}
+
+.pkg-desc {
+  margin: 0;
+  font-size: 13px;
+  color: $muted;
+  line-height: 1.7;
+}
+
+// ── INCLUDED SERVICES ─────────────────────────────────────────────────────────
+
+.included-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.incl-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: $bg-soft;
+  border: 1px solid $border;
+  border-radius: 8px;
+}
+
+.incl-check {
+  .material-icons { font-size: 18px; color: $green; }
+}
+
+.incl-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong { font-size: 13px; font-weight: 600; color: $heading; }
+  span   { font-size: 11px; color: $muted; }
+}
+
+// ── DRINKS ────────────────────────────────────────────────────────────────────
+
+.drinks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+}
+
+.drink-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dc-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: $accent;
+  border-bottom: 1px solid $border;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+
+  .material-icons { font-size: 14px; }
+}
+
+.dc-item {
+  font-size: 12px;
+  color: $body;
+  padding: 3px 0;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &:last-child { border-bottom: none; }
+}
+
+.dc-name   { font-weight: 500; }
+.dc-avail  { font-size: 10px; color: $muted; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; }
+.dc-detail { font-size: 11px; color: $muted; }
+.dc-qty    { font-size: 10px; font-weight: 700; color: #7c3aed; margin-right: 4px; background: #f5f3ff; padding: 1px 5px; border-radius: 4px; }
+.dc-price  { font-size: 10px; font-weight: 700; color: #059669; margin-left: auto; }
+
+.cocktails .dc-header { color: #b45309; }
+
+// ── BAR SETUP & THEME ─────────────────────────────────────────────────────────
+
+.setup-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.setup-card {
+  padding: 16px;
+  background: $bg-soft;
+  border: 1px solid $border;
+  border-radius: 12px;
+  border-top: 3px solid $accent;
+
+  &.theme { border-top-color: #a78bfa; }
+}
+
+.sc-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $muted;
+  margin-bottom: 4px;
+}
+
+.sc-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: $heading;
+  margin-bottom: 6px;
+}
+
+.sc-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #ede9ff;
+  color: $accent;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.sc-details {
+  font-size: 12px;
+  color: $muted;
+  line-height: 1.6;
+}
+
+.sc-lighting { color: #b45309; font-weight: 600; }
+.sc-target   { font-size: 11px; color: $muted; margin-top: 6px; }
+
+// ── PRICING TABLE ─────────────────────────────────────────────────────────────
+
+.price-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid $border;
+  border-radius: 10px;
+  overflow: hidden;
+
+  thead {
+    background: $dark;
+    th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    &:last-child { border-bottom: none; }
+
+    td {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: $body;
+      vertical-align: top;
+    }
+  }
+}
+
+.ta-r   { text-align: right; font-weight: 600; }
+.pt-name   { font-weight: 600; color: $heading; }
+.pt-detail { font-size: 11px; color: $muted; margin-top: 2px; }
+.incl-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f0fdf4;
+  color: $green;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+// ── TOTALS ────────────────────────────────────────────────────────────────────
+
+.totals-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+  margin-top: 12px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 280px;
+  font-size: 13px;
+  color: $muted;
+  padding: 4px 0;
+
+  &.discount { color: #15803d; }
+
+  &.grand {
+    border-top: 2px solid $border;
+    margin-top: 6px;
+    padding-top: 12px;
+  }
+}
+
+.grand-lhs    { display: flex; align-items: baseline; gap: 6px; }
+.grand-lbl    { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: $muted; }
+.grand-per    { font-size: 12px; font-weight: 600; color: $accent; }
+.grand-amount { font-size: 26px; font-weight: 800; color: $heading; }
+
+// ── UPSELLS ───────────────────────────────────────────────────────────────────
+
+.upsell-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upsell-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: $bg-soft;
+  border: 1px solid $border;
+  border-radius: 10px;
+}
+
+.ui-icon .material-icons { font-size: 20px; color: $accent; }
+
+.ui-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong { font-size: 13px; font-weight: 600; color: $heading; }
+  span   { font-size: 12px; color: $muted; }
+}
+
+.ui-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: $accent;
+  flex-shrink: 0;
+}
+
+// ── NOTES ─────────────────────────────────────────────────────────────────────
+
+.notes-body {
+  background: $bg-soft;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: $muted;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+// ── TIMELINE ──────────────────────────────────────────────────────────────────
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-left: 2px solid $border;
+  padding-left: 20px;
+}
+
+.tl-step {
+  display: flex;
+  gap: 14px;
+  padding: 0 0 20px;
+  position: relative;
+
+  &:last-child { padding-bottom: 0; }
+}
+
+.tl-num {
+  position: absolute;
+  left: -31px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: $accent;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tl-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 1px;
+
+  strong { font-size: 14px; font-weight: 700; color: $heading; }
+  span   { font-size: 12px; color: $muted; }
+}
+
+// ── FOOTER ────────────────────────────────────────────────────────────────────
+
+.pdf-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 32px;
+  background: $dark;
+  color: #64748b;
+  font-size: 12px;
+
+  strong { color: #94a3b8; }
+  .pf-validity { color: #475569; }
+  .pf-sig { font-style: italic; color: #94a3b8; }
+}
+
+// ══ PRINT STYLES ══════════════════════════════════════════════════════════════
+
+@media print {
+  @page {
+    size: Letter portrait;
+    margin: 0.65in 0.7in;
+  }
+
+  .pdf-doc {
+    max-width: none;
+    margin: 0;
+    font-size: 12px;
+  }
+
+  .pdf-brand-bar {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #0f172a !important;
+    color: #fff !important;
+  }
+
+  .hero-accent-bar {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: linear-gradient(90deg, #7c5cff, #a78bfa) !important;
+  }
+
+  .hero-per-person {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .pdf-section { page-break-inside: avoid; }
+
+  .price-table thead {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #0f172a !important;
+  }
+
+  .pdf-footer {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #0f172a !important;
+  }
+
+  .psh-rule {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #7c5cff !important;
+  }
+
+  .tl-num {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #7c5cff !important;
+  }
+}

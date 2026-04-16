@@ -1,52 +1,174 @@
-<div class="bartender-detail-page">
+<div class="bd-page">
+
+  <!-- ── HEADER ── -->
   <div class="page-header">
-    <button class="back-btn" (click)="goBack()">← Back</button>
-    <button class="primary-btn" (click)="editBartender()">✏️ Edit Bartender</button>
+    <button class="back-btn" (click)="goBack()">
+      <span class="material-icons">arrow_back</span> Bartenders
+    </button>
+    <button class="edit-btn" (click)="editBartender()" *ngIf="bartender">
+      <span class="material-icons">edit</span> Edit
+    </button>
   </div>
 
-  @if (bartender) {
-    <div class="detail-card">
-      <div class="bartender-hero">
-        <div class="avatar">{{ bartender.name[0] }}{{ bartender.lastName[0] }}</div>
-        <div>
+  <div class="loading-state" *ngIf="!bartender">
+    <div class="spinner"></div>
+    <span>Loading profile…</span>
+  </div>
+
+  <ng-container *ngIf="bartender">
+
+    <!-- ── PROFILE HERO ── -->
+    <div class="profile-card">
+      <div class="profile-left">
+        <div class="avatar">{{ initials() }}</div>
+        <div class="profile-info">
           <h2>{{ getFullName() }}</h2>
-          <span class="status-badge"
-                [class.available]="bartender.status === 'AVAILABLE'"
-                [class.busy]="bartender.status === 'BUSY'"
-                [class.inactive]="bartender.status === 'UNAVAILABLE'">
-            {{ bartender.status }}
+          <span class="spec-tag" *ngIf="bartender.bartenderData?.specialty">
+            <span class="material-icons">local_bar</span>
+            {{ bartender.bartenderData?.specialty }}
+          </span>
+          <span class="level-tag" *ngIf="bartender.bartenderData?.experienceLevel">
+            {{ bartender.bartenderData?.experienceLevel }}
           </span>
         </div>
       </div>
+      <span class="status-pill" [ngClass]="bartenderStatusClass()">
+        <span class="status-dot material-icons">fiber_manual_record</span>
+        {{ bartender.status }}
+      </span>
+    </div>
 
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Email</span>
-          <span class="info-value">{{ bartender.email }}</span>
+    <!-- ── TWO COLUMN ── -->
+    <div class="detail-layout">
+
+      <!-- LEFT: info + events -->
+      <div class="left-col">
+
+        <!-- Contact & Schedule -->
+        <div class="detail-card">
+          <h3 class="card-title"><span class="material-icons">person</span> Contact & Info</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Email</span>
+              <a [href]="'mailto:' + bartender.email" class="info-link">{{ bartender.email }}</a>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Phone</span>
+              <a [href]="'https://wa.me/' + bartender.phone" target="_blank" class="info-link wa">
+                <span class="material-icons">whatsapp</span>
+                {{ bartender.phone || '—' }}
+              </a>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Specialty</span>
+              <span class="info-value">{{ bartender.bartenderData?.specialty || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Experience Level</span>
+              <span class="info-value">{{ bartender.bartenderData?.experienceLevel || '—' }}</span>
+            </div>
+            <div class="info-item info-full">
+              <span class="info-label">Availability Schedule</span>
+              <span class="info-value">{{ bartender.bartenderData?.availabilitySchedule || 'Not specified' }}</span>
+            </div>
+            <div class="info-item info-full" *ngIf="bartender.bartenderData?.notes">
+              <span class="info-label">Notes</span>
+              <span class="info-value notes">{{ bartender.bartenderData?.notes }}</span>
+            </div>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="info-label">Phone</span>
-          <span class="info-value">{{ bartender.phone }}</span>
+
+        <!-- Assigned Events -->
+        <div class="detail-card">
+          <h3 class="card-title">
+            <span class="material-icons">event</span> Assigned Events
+            <span class="count-badge" *ngIf="totalCount > 0">{{ totalCount }}</span>
+          </h3>
+
+          <div class="loading-events" *ngIf="loadingEvents">
+            <div class="spinner sm"></div> Loading events…
+          </div>
+
+          <div class="empty-events" *ngIf="!loadingEvents && totalCount === 0">
+            <span class="material-icons">event_busy</span>
+            <p>No events assigned yet.</p>
+          </div>
+
+          <div class="events-list" *ngIf="!loadingEvents && totalCount > 0">
+            <div class="event-row"
+                 *ngFor="let e of assignedEvents"
+                 (click)="goToEvent(e._id)"
+                 [class.upcoming]="isUpcoming(e)"
+                 [class.past]="!isUpcoming(e)">
+
+              <div class="event-date-col">
+                <span class="event-day">{{ eventDate(e) | date:'d' }}</span>
+                <span class="event-mon">{{ eventDate(e) | date:'MMM' }}</span>
+                <span class="event-yr">{{ eventDate(e) | date:'y' }}</span>
+              </div>
+
+              <div class="event-info-col">
+                <span class="event-title">{{ eventTitle(e) }}</span>
+                <span class="event-loc">
+                  <span class="material-icons">place</span>
+                  {{ eventLocation(e) }}
+                </span>
+                <span class="event-code" *ngIf="e.eventCode">{{ e.eventCode }}</span>
+              </div>
+
+              <div class="event-right">
+                <span class="event-status" [ngClass]="statusClass(e.status)">
+                  {{ statusLabel(e.status) }}
+                </span>
+                <span class="upcoming-tag" *ngIf="isUpcoming(e)">Upcoming</span>
+                <span class="material-icons event-arrow">chevron_right</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="info-label">Specialty</span>
-          <span class="info-value">{{ bartender.bartenderData?.specialty }}</span>
+
+      </div>
+
+      <!-- RIGHT: stats sidebar -->
+      <div class="right-col">
+
+        <div class="stat-card">
+          <span class="material-icons stat-icon">calendar_today</span>
+          <div class="stat-body">
+            <span class="stat-value">{{ upcomingCount }}</span>
+            <span class="stat-label">Upcoming Events</span>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="info-label">Experience Level</span>
-          <span class="info-value">{{ bartender.bartenderData?.experienceLevel }}</span>
+
+        <div class="stat-card">
+          <span class="material-icons stat-icon muted">history</span>
+          <div class="stat-body">
+            <span class="stat-value">{{ totalCount - upcomingCount }}</span>
+            <span class="stat-label">Past Events</span>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="info-label">Availability Schedule</span>
-          <span class="info-value">{{ bartender.bartenderData?.availabilitySchedule || 'Not specified' }}</span>
+
+        <div class="stat-card total">
+          <span class="material-icons stat-icon purple">local_bar</span>
+          <div class="stat-body">
+            <span class="stat-value">{{ totalCount }}</span>
+            <span class="stat-label">Total Events</span>
+          </div>
         </div>
-        <div class="info-item info-full">
-          <span class="info-label">Notes</span>
-          <span class="info-value">{{ bartender.bartenderData?.notes || 'No additional notes' }}</span>
+
+        <!-- Quick contact -->
+        <div class="contact-card">
+          <div class="contact-card-title">Quick Contact</div>
+          <a [href]="'mailto:' + bartender.email" class="contact-btn email">
+            <span class="material-icons">email</span> Send Email
+          </a>
+          <a [href]="'https://wa.me/' + bartender.phone" target="_blank" class="contact-btn wa">
+            <span class="material-icons">whatsapp</span> WhatsApp
+          </a>
         </div>
+
       </div>
     </div>
-  } @else {
-    <div class="loading">Loading bartender details...</div>
-  }
+
+  </ng-container>
 </div>

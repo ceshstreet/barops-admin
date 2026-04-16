@@ -105,7 +105,47 @@
           <p class="notes-text">{{ reservation.notes }}</p>
         </div>
 
-        <!-- ── EVENT CREATED BLOCK (confirmed/cancelled) ── -->
+        <!-- ── CONFIRMED: Assigned Bartenders Card ── -->
+        <div class="detail-card" *ngIf="isConfirmed()">
+          <div class="card-title-row">
+            <h3 class="card-title">
+              <span class="material-icons">local_bar</span> Assigned Bartenders
+            </h3>
+            <button class="edit-bartenders-btn" *ngIf="!editingBartenders" (click)="editingBartenders = true; showBartenderPicker = true">
+              <span class="material-icons">edit</span> Edit
+            </button>
+          </div>
+
+          <!-- Read-only chips -->
+          <div class="b-chips-row" *ngIf="!editingBartenders">
+            <div class="b-chip readonly" *ngFor="let b of selectedBartenders">
+              <span class="b-chip-avatar">{{ bartenderInitials(b) }}</span>
+              <div class="b-chip-info">
+                <span class="b-chip-name">{{ b.name }} {{ b.lastName }}</span>
+                <span class="b-chip-spec">{{ b.bartenderData?.specialty || '—' }}</span>
+              </div>
+            </div>
+            <div class="no-bartenders-msg" *ngIf="selectedBartenders.length === 0">
+              <span class="material-icons">person_off</span> No bartenders assigned
+            </div>
+          </div>
+
+          <!-- Edit mode -->
+          <ng-container *ngIf="editingBartenders">
+            <ng-container *ngTemplateOutlet="bartenderPickerTpl"></ng-container>
+            <div class="edit-bartenders-actions">
+              <button class="cancel-edit-btn" (click)="cancelEditBartenders()" [disabled]="saving">
+                Cancel
+              </button>
+              <button class="save-bartenders-btn" (click)="saveBartenders()" [disabled]="saving">
+                <span class="material-icons">save</span>
+                {{ saving ? 'Saving…' : 'Save Changes' }}
+              </button>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- ── EVENT CREATED BLOCK (confirmed) ── -->
         <div class="event-created-card" *ngIf="isConfirmed()">
           <div class="event-created-icon">
             <span class="material-icons">celebration</span>
@@ -124,23 +164,45 @@
           <span>This reservation is <strong>{{ reservation.status }}</strong> and cannot be processed.</span>
         </div>
 
-        <!-- Confirm/Cancel Actions (pending only) -->
+        <!-- ── Confirm/Cancel Actions (pending only) ── -->
         <div class="action-card" *ngIf="isPending()">
           <h3 class="card-title"><span class="material-icons">assignment_turned_in</span> Process Reservation</h3>
+
+          <!-- Bartender multi-select -->
           <div class="field">
-            <label>Assign Bartender</label>
-            <select [(ngModel)]="selectedBartenderId">
-              <option value="">Select an available bartender</option>
-              <option *ngFor="let b of bartenders" [value]="b._id">
-                {{ b.name }} {{ b.lastName }} — {{ b.bartenderData?.specialty || 'Bartender' }}
-              </option>
-            </select>
+            <label>Assign Bartenders</label>
+
+            <!-- Selected chips -->
+            <div class="b-chips-row" *ngIf="selectedBartenders.length > 0">
+              <div class="b-chip" *ngFor="let b of selectedBartenders">
+                <span class="b-chip-avatar">{{ bartenderInitials(b) }}</span>
+                <div class="b-chip-info">
+                  <span class="b-chip-name">{{ b.name }} {{ b.lastName }}</span>
+                  <span class="b-chip-spec">{{ b.bartenderData?.specialty || '—' }}</span>
+                </div>
+                <button class="b-chip-remove" (click)="removeBartender(b._id!)">
+                  <span class="material-icons">close</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Add bartender toggle button -->
+            <button class="add-bartender-btn" (click)="showBartenderPicker = !showBartenderPicker">
+              <span class="material-icons">{{ showBartenderPicker ? 'expand_less' : 'person_add' }}</span>
+              {{ showBartenderPicker ? 'Close list' : (selectedBartenders.length === 0 ? 'Add Bartender' : 'Add Another') }}
+            </button>
+
+            <!-- Picker panel -->
+            <ng-container *ngIf="showBartenderPicker">
+              <ng-container *ngTemplateOutlet="bartenderPickerTpl"></ng-container>
+            </ng-container>
           </div>
+
           <div class="action-row">
             <button class="cancel-res-btn" (click)="cancel()" [disabled]="saving">
               <span class="material-icons">cancel</span> Cancel Reservation
             </button>
-            <button class="confirm-btn" (click)="confirm()" [disabled]="saving || !selectedBartenderId">
+            <button class="confirm-btn" (click)="confirm()" [disabled]="saving || selectedBartenderIds.length === 0">
               <span class="material-icons">check_circle</span>
               {{ saving ? 'Saving…' : 'Confirm Reservation' }}
             </button>
@@ -207,6 +269,20 @@
           </div>
         </div>
 
+        <!-- Assigned bartenders summary (sidebar) -->
+        <div class="side-card" *ngIf="selectedBartenders.length > 0">
+          <div class="side-card-label">Bartenders ({{ selectedBartenders.length }})</div>
+          <div class="side-bartenders">
+            <div class="side-b-item" *ngFor="let b of selectedBartenders">
+              <div class="side-b-avatar">{{ bartenderInitials(b) }}</div>
+              <div class="side-b-info">
+                <span class="side-b-name">{{ b.name }} {{ b.lastName }}</span>
+                <span class="side-b-spec">{{ b.bartenderData?.specialty || b.status }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -220,3 +296,31 @@
   </div>
 
 </div>
+
+<!-- ════════════════════════════════════════════
+     SHARED TEMPLATE: Bartender Picker Panel
+     Used in both pending action card + confirmed edit mode
+     ════════════════════════════════════════════ -->
+<ng-template #bartenderPickerTpl>
+  <div class="b-picker">
+    <div class="bp-item"
+         *ngFor="let b of pickerBartenders"
+         [class.selected]="isBartenderSelected(b._id!)"
+         [class.busy-today]="!isAvailableOnDate(b._id!) && !isBartenderSelected(b._id!)"
+         (click)="toggleBartender(b._id!)">
+      <div class="bp-avatar">{{ bartenderInitials(b) }}</div>
+      <div class="bp-info">
+        <span class="bp-name">{{ b.name }} {{ b.lastName }}</span>
+        <span class="bp-spec">{{ b.bartenderData?.specialty || 'Bartender' }}</span>
+      </div>
+      <div class="bp-right">
+        <span class="bp-avail-badge available" *ngIf="isAvailableOnDate(b._id!) && !isBartenderSelected(b._id!)">Free</span>
+        <span class="bp-avail-badge busy"      *ngIf="!isAvailableOnDate(b._id!) && !isBartenderSelected(b._id!)">Busy</span>
+        <span class="material-icons bp-check"  *ngIf="isBartenderSelected(b._id!)">check_circle</span>
+      </div>
+    </div>
+    <div class="bp-empty" *ngIf="allBartenders.length === 0">
+      <span class="material-icons">person_off</span> No bartenders found.
+    </div>
+  </div>
+</ng-template>

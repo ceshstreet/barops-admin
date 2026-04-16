@@ -1,81 +1,123 @@
-<div class="quote-detail-page">
+<div class="proposal-page">
 
   <!-- Loading -->
   <div class="loading-state" *ngIf="loading">
-    <span class="material-icons">autorenew</span>
-    <p>Loading quote...</p>
+    <div class="spinner"></div>
+    <p>Loading proposal…</p>
   </div>
 
   <!-- Error -->
   <div class="loading-state" *ngIf="!loading && error">
-    <span class="material-icons" style="color:#ef4444">error_outline</span>
+    <span class="material-icons" style="color:#ef4444;font-size:36px">error_outline</span>
     <p style="color:#ef4444">{{ error }}</p>
   </div>
 
   <ng-container *ngIf="!loading && quote">
 
-    <!-- Page Header -->
-    <div class="page-header">
+    <!-- ══ TOOLBAR (no-print) ═══════════════════════════════════════════════ -->
+    <div class="toolbar no-print">
       <button class="back-btn" (click)="goBack()">
         <span class="material-icons">arrow_back</span> Back to Quotes
       </button>
-      <div class="header-actions">
-        <button class="icon-action-btn no-print" (click)="copyShareLink()">
-          <span class="material-icons">link</span> Copy Link
+      <div class="toolbar-actions">
+        <button class="tool-btn primary" (click)="openBuilder()">
+          <span class="material-icons">picture_as_pdf</span> Build PDF
         </button>
-        <button class="icon-action-btn no-print" (click)="printQuote()">
-          <span class="material-icons">picture_as_pdf</span> Download PDF
-        </button>
-        <button class="icon-action-btn no-print" (click)="edit()">
+        <button class="tool-btn" (click)="edit()">
           <span class="material-icons">edit</span> Edit
         </button>
-        <button class="icon-action-btn convert no-print" *ngIf="quote.status === 'APPROVED'"
-          (click)="convertToReservation()">
+        <button class="tool-btn convert" *ngIf="quote.status === 'APPROVED'" (click)="convertToReservation()">
           <span class="material-icons">event_available</span> Create Reservation
         </button>
       </div>
     </div>
 
-    <!-- Document Card -->
-    <div class="doc-card">
+    <!-- ══ PROPOSAL GRID ════════════════════════════════════════════════════ -->
+    <div class="proposal-grid">
 
-      <!-- Header band -->
-      <div class="doc-header">
-        <div class="doc-header-left">
-          <span class="doc-badge">
-            <span class="material-icons">request_quote</span>
-            QUOTE
-          </span>
-          <h2 class="doc-title">{{ quote.eventName }}</h2>
-          <p class="doc-subtitle">{{ quote.fullName }} &middot; {{ quote.eventType }}</p>
-        </div>
-        <div class="doc-meta">
-          <span class="doc-status-badge"
-            [style.background]="getStatusColor(quote.status) + '22'"
-            [style.color]="getStatusColor(quote.status)"
-            [style.borderColor]="getStatusColor(quote.status) + '44'">
-            {{ getStatusLabel(quote.status) }}
-          </span>
-          <span class="doc-date">
-            Created {{ quote.createdAt | date:'MMM d, yyyy' }}<br>
-            <span *ngIf="quote.eventDate">Event: {{ quote.eventDate | date:'MMM d, yyyy' }}</span>
-          </span>
-        </div>
-      </div>
+      <!-- ── LEFT: Proposal Content ──────────────────────────────────────── -->
+      <main class="proposal-main">
 
-      <hr class="doc-divider">
+        <!-- ▸ HERO ──────────────────────────────────────────────────────── -->
+        <div class="proposal-hero">
 
-      <!-- Body -->
-      <div class="doc-body">
+          <!-- Expiry warning (conversion critical) -->
+          <div class="expiry-warning" *ngIf="isExpiringSoon">
+            <span class="material-icons">timer</span>
+            This proposal expires in <strong>{{ daysUntilExpiry }} day{{ daysUntilExpiry > 1 ? 's' : '' }}</strong> —
+            pricing may change after {{ quoteExpiryDate | date:'MMM d' }}.
+          </div>
+          <div class="expiry-warning expired" *ngIf="quoteExpired">
+            <span class="material-icons">warning</span>
+            This proposal has expired. Contact us to get updated pricing.
+          </div>
 
-        <!-- CLIENT -->
-        <div class="doc-section">
-          <p class="section-label">Client</p>
-          <div class="client-block">
+          <div class="hero-top-row">
+            <span class="hero-badge">
+              <span class="material-icons">request_quote</span> PROPOSAL
+            </span>
+            <span class="hero-status-badge"
+              [style.background]="getStatusColor(quote.status) + '22'"
+              [style.color]="getStatusColor(quote.status)"
+              [style.borderColor]="getStatusColor(quote.status) + '44'">
+              {{ getStatusLabel(quote.status) }}
+            </span>
+          </div>
+
+          <h1 class="hero-title">{{ quote.eventName }}</h1>
+
+          <div class="hero-meta">
+            <span class="hero-meta-chip client-chip">
+              <span class="material-icons">person</span>
+              {{ quote.fullName }}
+            </span>
+            <span class="hero-meta-chip" *ngIf="quote.eventType">
+              <span class="material-icons">{{ eventTypeIcon(quote.eventType) }}</span>
+              {{ quote.eventType }}
+            </span>
+          </div>
+
+          <div class="hero-facts">
+            <div class="hero-fact" *ngIf="quote.eventDate">
+              <span class="material-icons">calendar_today</span>
+              {{ quote.eventDate | date:'MMMM d, yyyy' }}
+              <span class="event-countdown" *ngIf="showUrgency">· {{ eventCountdownLabel }}</span>
+            </div>
+            <div class="hero-fact" *ngIf="quote.location">
+              <span class="material-icons">place</span>
+              {{ quote.location }}
+            </div>
+            <div class="hero-fact">
+              <span class="material-icons">groups</span>
+              {{ guestCount }} guests
+            </div>
+            <div class="hero-fact" *ngIf="pkgData?.duration">
+              <span class="material-icons">schedule</span>
+              {{ pkgData!.duration }} of bar service
+            </div>
+          </div>
+
+          <!-- Per-person price — anchors value immediately -->
+          <div class="hero-value-row" *ngIf="pricePerPerson > 0">
+            <div class="per-person-badge">
+              <span class="material-icons">star</span>
+              Only <strong>${{ pricePerPerson }}/person</strong> — all-inclusive
+            </div>
+            <div class="validity-note" *ngIf="quoteExpiryDate && !quoteExpired">
+              <span class="material-icons">lock_clock</span>
+              Price locked until {{ quoteExpiryDate | date:'MMM d' }}
+            </div>
+          </div>
+
+        </div><!-- /proposal-hero -->
+
+        <!-- ▸ CLIENT INFO ─────────────────────────────────────────────────── -->
+        <div class="prop-section">
+          <div class="prop-card client-card">
             <div class="client-avatar">{{ quote.fullName.charAt(0).toUpperCase() }}</div>
             <div class="client-details">
               <span class="client-name">{{ quote.fullName }}</span>
-              <div class="client-contact">
+              <div class="client-contacts">
                 <span *ngIf="quote.email">
                   <span class="material-icons">email</span>{{ quote.email }}
                 </span>
@@ -87,154 +129,507 @@
           </div>
         </div>
 
-        <!-- EVENT DETAILS -->
-        <div class="doc-section">
-          <p class="section-label">Event Details</p>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Event Type</span>
-              <span class="info-value" [class.muted]="!quote.eventType">
-                {{ quote.eventType || '—' }}
-              </span>
+        <!-- ▸ EXPERIENCE SUMMARY ─────────────────────────────────────────── -->
+        <div class="prop-section">
+          <div class="section-eyebrow">
+            <span class="material-icons">auto_awesome</span>
+            Crafted for Your Event
+          </div>
+          <h2 class="section-headline">{{ experienceHeadline }}</h2>
+          <p class="section-desc" *ngIf="pkgData?.description">{{ pkgData!.description }}</p>
+
+          <!-- No description fallback — still feels premium -->
+          <p class="section-desc" *ngIf="!pkgData?.description">
+            A fully managed bar experience tailored to your event — every detail handled
+            from setup to last call, so you and your guests can focus on celebrating.
+          </p>
+
+          <div class="exp-meta-row">
+            <div class="exp-chip" *ngIf="pkgData?.duration">
+              <span class="material-icons">schedule</span>
+              {{ pkgData!.duration }} of service
             </div>
-            <div class="info-item">
-              <span class="info-label">Event Date</span>
-              <span class="info-value" [class.muted]="!quote.eventDate">
-                {{ quote.eventDate ? (quote.eventDate | date:'MMM d, yyyy') : '—' }}
-              </span>
+            <div class="exp-chip">
+              <span class="material-icons">groups</span>
+              Up to {{ guestCount }} guests
             </div>
-            <div class="info-item">
-              <span class="info-label">Location</span>
-              <span class="info-value" [class.muted]="!quote.location">{{ quote.location || '—' }}</span>
+            <div class="exp-chip" *ngIf="pkgData?.minGuests && pkgData?.maxGuests">
+              <span class="material-icons">group</span>
+              {{ pkgData!.minGuests }}–{{ pkgData!.maxGuests }} capacity
             </div>
-            <div class="info-item">
-              <span class="info-label">Guests</span>
-              <span class="info-value">{{ quote.guestCount || quote.guests || '—' }}</span>
+            <div class="exp-chip" *ngIf="quote.barTypeName || barTypeData?.name">
+              <span class="material-icons">local_bar</span>
+              {{ barTypeData?.name || quote.barTypeName }}
             </div>
-            <div class="info-item">
-              <span class="info-label">Budget Range</span>
-              <span class="info-value" [class.muted]="!quote.budgetRange">{{ quote.budgetRange || '—' }}</span>
-            </div>
-            <div class="info-item" *ngIf="quote.barTypeName">
-              <span class="info-label">Bar Type</span>
-              <span class="info-value">{{ quote.barTypeName }}</span>
-            </div>
-            <div class="info-item" *ngIf="quote.drinkThemeName">
-              <span class="info-label">Drink Theme</span>
-              <span class="info-value">{{ quote.drinkThemeName }}</span>
+            <div class="exp-chip theme" *ngIf="quote.drinkThemeName || drinkThemeData?.name"
+              [style.--tc]="drinkThemeData?.color || '#7c5cff'">
+              <span class="material-icons">palette</span>
+              {{ drinkThemeData?.name || quote.drinkThemeName }} Theme
             </div>
           </div>
         </div>
 
-        <!-- SERVICES -->
-        <div class="doc-section">
-          <p class="section-label">Services & Pricing</p>
-          <div class="doc-services">
-            <table class="services-table">
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Type</th>
-                  <th class="text-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Package base -->
-                <tr *ngIf="quote.packageName || quote.packageBasePrice">
-                  <td>
-                    <div class="item-name">{{ quote.packageName || 'Package' }}</div>
-                    <div class="item-detail">Base package</div>
-                  </td>
-                  <td><span class="addon-tag">Package</span></td>
-                  <td class="text-right">${{ quote.packageBasePrice || 0 | number:'1.0-0' }}</td>
-                </tr>
-                <!-- Per-guest -->
-                <tr *ngIf="quote.pricePerGuest && (quote.guestCount || quote.guests)">
-                  <td>
-                    <div class="item-name">Guest Rate</div>
-                    <div class="item-detail">
-                      {{ quote.guestCount || quote.guests }} guests × ${{ quote.pricePerGuest }}/guest
-                    </div>
-                  </td>
-                  <td></td>
-                  <td class="text-right">${{ (quote.guestCount || 0) * (quote.pricePerGuest || 0) | number:'1.0-0' }}</td>
-                </tr>
-                <!-- Subtotal from stored value if no package detail -->
-                <tr *ngIf="!quote.packageName && !quote.packageBasePrice && !quote.pricePerGuest && quote.subtotal">
-                  <td>
-                    <div class="item-name">Services</div>
-                    <div class="item-detail">Quote total</div>
-                  </td>
-                  <td></td>
-                  <td class="text-right">${{ quote.subtotal | number:'1.0-0' }}</td>
-                </tr>
-                <!-- Add-on lines -->
-                <tr *ngFor="let line of quote.addOnLines">
-                  <td>
-                    <div class="item-name">{{ line.name }}</div>
-                    <div class="item-detail" *ngIf="line.detail">{{ line.detail }}</div>
-                  </td>
-                  <td>
-                    <span class="included-tag" *ngIf="line.price === 0">Included</span>
-                    <span class="addon-tag" *ngIf="line.price > 0">Add-on</span>
-                  </td>
-                  <td class="text-right">
-                    {{ line.price === 0 ? 'Included' : ('$' + (line.price | number:'1.0-0')) }}
-                  </td>
-                </tr>
-                <!-- Empty state: solo cuando realmente no hay nada -->
-                <tr *ngIf="!quote.packageName && !quote.packageBasePrice && !quote.subtotal && (!quote.addOnLines || quote.addOnLines.length === 0)">
-                  <td colspan="3" style="color:rgba(234,241,255,0.3);font-style:italic;text-align:center;padding:24px">
-                    No services listed.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- ▸ WHAT'S INCLUDED ────────────────────────────────────────────── -->
+        <div class="prop-section" *ngIf="includedServices.length > 0">
+          <div class="section-eyebrow">
+            <span class="material-icons">verified</span>
+            Everything You Get — No Hidden Costs
+          </div>
+          <p class="section-sub-desc">
+            Every item below is fully included in your quoted price. No surprises on the day.
+          </p>
+          <div class="included-grid">
+            <div *ngFor="let svc of includedServices" class="included-item">
+              <span class="material-icons inc-check">check_circle</span>
+              <div class="inc-text">
+                <span class="inc-name">{{ svc.name }}</span>
+                <span class="inc-detail" *ngIf="svc.detail">{{ svc.detail }}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- TOTALS -->
-        <div class="doc-totals">
-          <div class="totals-col">
-            <div class="total-row">
+        <!-- ▸ FULL BAR MENU ──────────────────────────────────────────────── -->
+        <div class="prop-section" *ngIf="hasDrinkContent">
+          <div class="section-eyebrow">
+            <span class="material-icons">local_bar</span>
+            Your Full Bar Menu
+          </div>
+          <p class="section-sub-desc">
+            Everything on the menu is ready to serve from the first guest to the last call.
+          </p>
+
+          <div class="drinks-grid">
+            <div class="drink-group" *ngIf="hasBeers">
+              <div class="drink-group-header">
+                <span class="material-icons">sports_bar</span>
+                Premium Beers
+              </div>
+              <div class="drink-items">
+                <div *ngFor="let b of pkgData!.beers" class="drink-item">
+                  <span class="drink-dot"></span>
+                  <span class="drink-name">{{ b.name }}</span>
+                  <span class="drink-avail">{{ b.availability }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="drink-group" *ngIf="hasBeverages">
+              <div class="drink-group-header">
+                <span class="material-icons">liquor</span>
+                Spirits & Liquors
+              </div>
+              <div class="drink-items">
+                <div *ngFor="let b of pkgData!.beverages" class="drink-item">
+                  <span class="drink-dot"></span>
+                  <span class="drink-name">{{ b.name }}</span>
+                  <span class="drink-avail">{{ b.availability }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="drink-group" *ngIf="hasWines">
+              <div class="drink-group-header">
+                <span class="material-icons">wine_bar</span>
+                Wines, Curated for You
+              </div>
+              <div class="drink-items">
+                <div *ngFor="let w of pkgData!.wines" class="drink-item">
+                  <span class="drink-dot"></span>
+                  <span class="drink-name">{{ w.name }}</span>
+                  <span class="drink-avail">{{ w.detail }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="drink-group" *ngIf="hasMixers">
+              <div class="drink-group-header">
+                <span class="material-icons">blender</span>
+                Mixers & Non-Alcoholic
+              </div>
+              <div class="drink-items">
+                <div *ngFor="let m of pkgData!.mixers" class="drink-item">
+                  <span class="drink-dot"></span>
+                  <span class="drink-name">{{ m.name }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Signature cocktails from theme -->
+          <div class="theme-cocktails" *ngIf="populatedDrinks.length > 0">
+            <div class="theme-cocktails-label">
+              <span class="material-icons">local_bar</span>
+              Signature Cocktails — {{ drinkThemeData?.name }}
+            </div>
+            <div class="theme-cocktails-chips">
+              <span *ngFor="let d of populatedDrinks" class="cocktail-chip">
+                🍹 {{ d.name }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ▸ BAR SETUP & THEME ──────────────────────────────────────────── -->
+        <div class="prop-section" *ngIf="barTypeData || drinkThemeData">
+          <div class="section-eyebrow">
+            <span class="material-icons">storefront</span>
+            The Look & Feel of Your Bar
+          </div>
+          <div class="setup-duo">
+
+            <div class="setup-card" *ngIf="barTypeData">
+              <div class="setup-icon">
+                <span class="material-icons">{{ barTypeIcon() }}</span>
+              </div>
+              <div class="setup-info">
+                <span class="setup-name">{{ barTypeData.name }}</span>
+                <span class="setup-label">Bar Setup</span>
+                <div class="setup-tags">
+                  <span class="setup-tag">{{ barTypeData.category }}</span>
+                  <span class="setup-tag" *ngIf="barTypeData.capacity">Up to {{ barTypeData.capacity }} guests</span>
+                  <span class="setup-tag" *ngIf="barTypeData.setupType">{{ barTypeData.setupType }}</span>
+                  <span class="setup-tag accent" *ngIf="barTypeData.lighting">💡 Lighting included</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="setup-card theme-card" *ngIf="drinkThemeData"
+              [style.--tc]="drinkThemeData.color || '#7c5cff'">
+              <div class="theme-icon-swatch" [style.background]="drinkThemeData.color || '#7c5cff'">
+                <span class="material-icons">{{ themeIcon() }}</span>
+              </div>
+              <div class="setup-info">
+                <span class="setup-name">{{ drinkThemeData.name }}</span>
+                <span class="setup-label">Drink Theme</span>
+                <div class="setup-tags">
+                  <span class="setup-tag">{{ drinkThemeData.style }}</span>
+                  <span class="setup-tag" *ngIf="drinkThemeData.targetEvent">{{ drinkThemeData.targetEvent }}</span>
+                </div>
+                <p class="setup-desc" *ngIf="drinkThemeData.description">{{ drinkThemeData.description }}</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ▸ EXTRAS & ADD-ONS ──────────────────────────────────────────── -->
+        <div class="prop-section" *ngIf="quote.addOnLines && quote.addOnLines.length > 0">
+          <div class="section-eyebrow">
+            <span class="material-icons">redeem</span>
+            Included Extras
+          </div>
+          <div class="addon-cards">
+            <div *ngFor="let line of quote.addOnLines" class="addon-card">
+              <div class="addon-card-ico">
+                <span class="material-icons">check_circle</span>
+              </div>
+              <div class="addon-card-body">
+                <span class="addon-card-name">{{ line.name }}</span>
+                <span class="addon-card-detail" *ngIf="line.detail">{{ line.detail }}</span>
+              </div>
+              <div class="addon-card-price">
+                <span class="badge-included" *ngIf="line.price === 0">Included</span>
+                <span class="badge-price" *ngIf="line.price > 0">${{ line.price | number:'1.0-0' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ▸ UPSELL — Make It Unforgettable ────────────────────────────── -->
+        <div class="prop-section upsell-section" *ngIf="hasUpsells">
+          <div class="upsell-header">
+            <div class="upsell-header-text">
+              <span class="upsell-eyebrow">
+                <span class="material-icons">auto_awesome</span>
+                Clients who booked this package also added…
+              </span>
+              <h3 class="upsell-title">Make It Unforgettable</h3>
+              <p class="upsell-sub">
+                These popular upgrades take the experience from great to exceptional.
+                Most clients add at least one.
+              </p>
+            </div>
+          </div>
+
+          <div class="upsell-grid">
+
+            <!-- Package optional services -->
+            <div *ngFor="let u of packageUpsells; let i = index" class="upsell-card">
+              <div class="popular-badge" *ngIf="i === 0">Most Popular</div>
+              <div class="upsell-ico pkg">
+                <span class="material-icons">add_circle_outline</span>
+              </div>
+              <div class="upsell-body">
+                <span class="upsell-name">{{ u.name }}</span>
+                <span class="upsell-detail">{{ u.detail }}</span>
+              </div>
+              <span class="upsell-price">+${{ u.price }}</span>
+            </div>
+
+            <!-- Catalog add-ons not yet selected -->
+            <div *ngFor="let a of suggestedAddOns; let i = index" class="upsell-card"
+              [class.popular]="popularUpsellIds.has(a._id)">
+              <div class="popular-badge" *ngIf="popularUpsellIds.has(a._id) && packageUpsells.length === 0 && i === 0">
+                Most Popular
+              </div>
+              <div class="upsell-ico">
+                <span class="material-icons">{{ addonCategoryIcon(a.category) }}</span>
+              </div>
+              <div class="upsell-body">
+                <span class="upsell-name">{{ a.name }}</span>
+                <span class="upsell-detail">{{ a.defaultDetail }}</span>
+                <span class="upsell-category-label">{{ addonCategoryLabels[a.category] }}</span>
+              </div>
+              <span class="upsell-price" *ngIf="a.defaultPrice && !a.defaultIncluded">+${{ a.defaultPrice }}</span>
+              <span class="upsell-price free" *ngIf="a.defaultIncluded">Free</span>
+            </div>
+
+          </div>
+
+          <div class="upsell-footer no-print">
+            <span class="material-icons">chat_bubble_outline</span>
+            Interested in any of these? Reply to this proposal or call us and we'll update your quote instantly.
+          </div>
+        </div>
+
+        <!-- ▸ INVESTMENT SUMMARY ─────────────────────────────────────────── -->
+        <div class="prop-section">
+          <div class="section-eyebrow">
+            <span class="material-icons">receipt</span>
+            Your Investment Summary
+          </div>
+
+          <div class="pricing-breakdown">
+
+            <div class="pricing-line" *ngIf="quote.packageName || quote.packageBasePrice">
+              <div class="pricing-info">
+                <span class="pricing-name">{{ quote.packageName || 'Bar Package' }}</span>
+                <span class="pricing-sub">Base service fee — flat rate</span>
+              </div>
+              <span class="pricing-amount">${{ (quote.packageBasePrice || 0) | number:'1.0-0' }}</span>
+            </div>
+
+            <div class="pricing-line" *ngIf="quote.pricePerGuest && guestCount > 0">
+              <div class="pricing-info">
+                <span class="pricing-name">Per-Guest Rate</span>
+                <span class="pricing-sub">{{ guestCount }} guests × ${{ quote.pricePerGuest }} per person</span>
+              </div>
+              <span class="pricing-amount">${{ packageGuestTotal | number:'1.0-0' }}</span>
+            </div>
+
+            <ng-container *ngIf="quote.addOnLines && quote.addOnLines.length > 0">
+              <div *ngFor="let line of quote.addOnLines" class="pricing-line addon-pricing-line">
+                <div class="pricing-info">
+                  <span class="pricing-name">{{ line.name }}</span>
+                  <span class="pricing-sub" *ngIf="line.detail">{{ line.detail }}</span>
+                </div>
+                <span class="pricing-amount" *ngIf="line.price > 0">${{ line.price | number:'1.0-0' }}</span>
+                <span class="pricing-incl" *ngIf="line.price === 0">Included</span>
+              </div>
+            </ng-container>
+
+            <div class="pricing-divider"></div>
+
+            <div class="pricing-line subtotal-line">
               <span>Subtotal</span>
-              <span>${{ quote.subtotal | number:'1.0-0' }}</span>
+              <span>${{ (quote.subtotal || 0) | number:'1.0-0' }}</span>
             </div>
-            <div class="total-row deduct" *ngIf="quote.discount">
-              <span>Discount</span>
-              <span>− ${{ quote.discount | number:'1.0-0' }}</span>
+            <div class="pricing-line discount-line" *ngIf="quote.discount">
+              <div class="pricing-info">
+                <span class="pricing-name">Discount</span>
+              </div>
+              <span class="discount-amount">− ${{ quote.discount | number:'1.0-0' }}</span>
             </div>
-            <div class="total-row" *ngIf="quote.tax">
+            <div class="pricing-line tax-line" *ngIf="quote.tax">
               <span>Tax</span>
               <span>+ ${{ quote.tax | number:'1.0-0' }}</span>
             </div>
-            <div class="total-row grand divider">
-              <span>TOTAL</span>
-              <span>${{ quote.total | number:'1.0-0' }}</span>
+
+            <div class="pricing-total-line">
+              <div>
+                <span class="total-label">Total Investment</span>
+                <span class="total-sub" *ngIf="pricePerPerson > 0">
+                  · ${{ pricePerPerson }}/person
+                </span>
+              </div>
+              <span class="total-amount">${{ (quote.total || 0) | number:'1.0-0' }}</span>
             </div>
+
+          </div>
+
+          <!-- Value anchor -->
+          <div class="value-anchor" *ngIf="pricePerPerson > 0">
+            <span class="material-icons">insights</span>
+            For reference — a single cocktail at a venue bar averages $14–$18.
+            This proposal covers every drink for every guest, all night long.
           </div>
         </div>
 
-        <!-- CLIENT NOTES -->
-        <div class="doc-section" *ngIf="quote.notes">
-          <p class="section-label">Notes for Client</p>
-          <div class="notes-block">
-            <div class="notes-label">
-              <span class="material-icons">description</span> Terms & Conditions
-            </div>
-            <p class="notes-text">{{ quote.notes }}</p>
+        <!-- ▸ NOTES & TERMS ─────────────────────────────────────────────── -->
+        <div class="prop-section" *ngIf="quote.notes">
+          <div class="section-eyebrow">
+            <span class="material-icons">description</span>
+            Terms & Conditions
+          </div>
+          <div class="notes-card">
+            <p>{{ quote.notes }}</p>
           </div>
         </div>
 
-      </div><!-- /doc-body -->
-    </div><!-- /doc-card -->
+      </main><!-- /proposal-main -->
 
-    <!-- STATUS ACTIONS -->
-    <div class="status-actions-card">
+      <!-- ── RIGHT: Sticky Sidebar ─────────────────────────────────────── -->
+      <aside class="proposal-sidebar">
+        <div class="sidebar-sticky">
+
+          <!-- Status badge -->
+          <div class="sidebar-status">
+            <span class="sidebar-status-badge"
+              [style.background]="getStatusColor(quote.status) + '22'"
+              [style.color]="getStatusColor(quote.status)"
+              [style.borderColor]="getStatusColor(quote.status) + '44'">
+              {{ getStatusLabel(quote.status) }}
+            </span>
+            <span class="sidebar-date" *ngIf="quote.createdAt">
+              {{ quote.createdAt | date:'MMM d, yyyy' }}
+            </span>
+          </div>
+
+          <!-- Total — biggest visual on sidebar -->
+          <div class="sidebar-total-hero" *ngIf="quote.total">
+            <span class="sth-label">Total Investment</span>
+            <span class="sth-amount">${{ (quote.total || 0) | number:'1.0-0' }}</span>
+            <span class="sth-per-person" *ngIf="pricePerPerson > 0">
+              ${{ pricePerPerson }}/person · {{ guestCount }} guests
+            </span>
+          </div>
+
+          <!-- Primary CTA — SENT quote -->
+          <div class="sidebar-cta-block" *ngIf="quote.status === 'SENT'">
+            <button class="cta-accept" (click)="setStatus('APPROVED')" [disabled]="updatingStatus">
+              <span class="material-icons">event_available</span>
+              Reserve This Date
+            </button>
+            <div class="trust-line">
+              <span class="material-icons">lock</span>
+              No payment now — we'll confirm availability first.
+            </div>
+            <button class="cta-questions" (click)="setStatus('REJECTED')" [disabled]="updatingStatus">
+              I have questions first
+            </button>
+          </div>
+
+          <!-- Convert CTA — APPROVED quote -->
+          <div class="sidebar-cta-block" *ngIf="quote.status === 'APPROVED'">
+            <button class="cta-convert" (click)="convertToReservation()">
+              <span class="material-icons">event_available</span>
+              Confirm Reservation
+            </button>
+          </div>
+
+          <!-- Next steps — removes fear of commitment -->
+          <div class="next-steps" *ngIf="quote.status === 'SENT' || quote.status === 'APPROVED'">
+            <div class="next-steps-label">What happens next</div>
+            <div class="next-step">
+              <div class="ns-num">1</div>
+              <div class="ns-text">
+                <span class="ns-title">You accept</span>
+                <span class="ns-sub">We hold your date for 48h</span>
+              </div>
+            </div>
+            <div class="next-step">
+              <div class="ns-num">2</div>
+              <div class="ns-text">
+                <span class="ns-title">Contract + deposit</span>
+                <span class="ns-sub">Sent within 24 hours</span>
+              </div>
+            </div>
+            <div class="next-step">
+              <div class="ns-num">3</div>
+              <div class="ns-text">
+                <span class="ns-title">Your event</span>
+                <span class="ns-sub">We handle everything</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expiry notice in sidebar -->
+          <div class="sidebar-expiry" *ngIf="daysUntilExpiry > 0 && !quoteExpired">
+            <span class="material-icons">lock_clock</span>
+            <span>
+              Price locked until
+              <strong>{{ quoteExpiryDate | date:'MMM d, yyyy' }}</strong>
+            </span>
+          </div>
+
+          <!-- Event quick facts -->
+          <div class="sidebar-card">
+            <div class="sidebar-card-label">Event Details</div>
+            <div class="sidebar-fact" *ngIf="quote.eventDate">
+              <span class="material-icons">calendar_today</span>
+              {{ quote.eventDate | date:'MMM d, yyyy' }}
+              <span class="countdown-pill" *ngIf="showUrgency">{{ eventCountdownLabel }}</span>
+            </div>
+            <div class="sidebar-fact" *ngIf="quote.location">
+              <span class="material-icons">place</span>
+              {{ quote.location }}
+            </div>
+            <div class="sidebar-fact">
+              <span class="material-icons">groups</span>
+              {{ guestCount }} guests
+            </div>
+            <div class="sidebar-fact" *ngIf="pkgData?.duration">
+              <span class="material-icons">schedule</span>
+              {{ pkgData!.duration }}
+            </div>
+            <div class="sidebar-fact" *ngIf="quote.eventType">
+              <span class="material-icons">{{ eventTypeIcon(quote.eventType) }}</span>
+              {{ quote.eventType }}
+            </div>
+          </div>
+
+          <!-- Pricing summary -->
+          <div class="sidebar-card sidebar-pricing">
+            <div class="sidebar-card-label">Pricing Breakdown</div>
+            <div class="sp-line" *ngIf="quote.packageBasePrice">
+              <span>{{ quote.packageName || 'Package' }}</span>
+              <span>${{ (quote.packageBasePrice || 0) | number:'1.0-0' }}</span>
+            </div>
+            <div class="sp-line" *ngIf="quote.pricePerGuest">
+              <span>{{ guestCount }} × ${{ quote.pricePerGuest }}/guest</span>
+              <span>${{ packageGuestTotal | number:'1.0-0' }}</span>
+            </div>
+            <div class="sp-line" *ngIf="addOnsTotal > 0">
+              <span>Add-ons ({{ quote.addOnLines?.length }})</span>
+              <span>${{ addOnsTotal | number:'1.0-0' }}</span>
+            </div>
+            <div class="sp-line deduct" *ngIf="quote.discount">
+              <span>Discount</span>
+              <span>− ${{ quote.discount | number:'1.0-0' }}</span>
+            </div>
+          </div>
+
+          <!-- Admin action buttons -->
+          <div class="sidebar-admin no-print">
+            <button class="sidebar-action-btn" (click)="edit()">
+              <span class="material-icons">edit</span> Edit
+            </button>
+            <button class="sidebar-action-btn primary" (click)="openBuilder()">
+              <span class="material-icons">picture_as_pdf</span> Build PDF
+            </button>
+          </div>
+
+        </div><!-- /sidebar-sticky -->
+      </aside>
+
+    </div><!-- /proposal-grid -->
+
+    <!-- ══ STATUS ACTIONS (internal) ════════════════════════════════════════ -->
+    <div class="status-actions-card no-print">
       <span class="status-actions-label">Update Status</span>
       <div class="status-actions-row">
-        <button
-          *ngFor="let s of statuses"
+        <button *ngFor="let s of statuses"
           class="status-action-btn"
           [class.active]="quote.status === s.value"
           [style.--s-color]="s.color"
@@ -245,8 +640,8 @@
       </div>
     </div>
 
-    <!-- INTERNAL NOTES -->
-    <div class="internal-card" *ngIf="quote.internalNotes">
+    <!-- ══ INTERNAL NOTES ════════════════════════════════════════════════════ -->
+    <div class="internal-card no-print" *ngIf="quote.internalNotes">
       <div class="internal-label">
         <span class="material-icons">lock</span> Internal Notes
       </div>
@@ -256,7 +651,9 @@
   </ng-container>
 
   <!-- Toast -->
-  <div class="toast" *ngIf="toast" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+  <div class="toast" *ngIf="toast"
+    [class.success]="toast.type === 'success'"
+    [class.error]="toast.type === 'error'">
     {{ toast.message }}
   </div>
 

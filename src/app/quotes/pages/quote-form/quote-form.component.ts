@@ -2,7 +2,10 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Quote, QuoteAddOnLine } from '../../models/quote.model';
+import {
+  Quote, QuoteAddOnLine, QuoteDrinkLine, DrinkCategory,
+  DRINK_CATEGORY_LABELS, DRINK_CATEGORY_ICONS, DRINK_CATEGORIES,
+} from '../../models/quote.model';
 import { QuotesService } from '../../services/quotes.service';
 import { Package } from '../../../packages/models/package.model';
 import { PackageService } from '../../../packages/services/package.service';
@@ -12,6 +15,8 @@ import { DrinkThemeService } from '../../../drink-themes/services/drink-theme.se
 import { AddOn, ADDON_CATEGORY_LABELS } from '../../../add-ons/models/add-on.model';
 import { AddOnService } from '../../../add-ons/services/add-on.service';
 import { Client, ClientService } from '../../../clients/services/client.service';
+import { Drink } from '../../../drinks/models/drink.model';
+import { DrinkService } from '../../../drinks/services/drink.service';
 
 @Component({
   selector: 'app-quote-form',
@@ -29,6 +34,7 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
   private themeService   = inject(DrinkThemeService);
   private addOnService   = inject(AddOnService);
   private clientService  = inject(ClientService);
+  private drinkService   = inject(DrinkService);
 
   isEdit  = false;
   quoteId: string | null = null;
@@ -61,15 +67,20 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
 
   // ── Stored fallback (edit mode) ───────────────────────────────────────────
   storedPackageName      = '';
-  storedPackageBasePrice = 0;
-  storedPricePerGuest    = 0;
+
+  // ── Editable price fields (override catalog prices per-quote) ─────────────
+  customBasePrice      = 0;
+  customPricePerGuest  = 0;
 
   // ── Catalogs ──────────────────────────────────────────────────────────────
   allPackages: Package[]    = [];
+  packagesLoading = true;
+  packagesError   = '';
   allBarTypes: BarType[]    = [];
   allThemes: DrinkTheme[]   = [];
   allAddOns: AddOn[]        = [];
   allClients: Client[]      = [];
+  allDrinks: Drink[]        = [];
 
   // ── Client search ─────────────────────────────────────────────────────────
   clientSearch         = '';
@@ -78,6 +89,18 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
 
   // ── Custom price lines ────────────────────────────────────────────────────
   customLines: { name: string; price: number }[] = [];
+
+  // ── Drink lines ───────────────────────────────────────────────────────────
+  drinkLines: QuoteDrinkLine[] = [];
+
+  readonly drinkCategories    = DRINK_CATEGORIES;
+  readonly drinkCategoryLabels = DRINK_CATEGORY_LABELS;
+  readonly drinkCategoryIcons  = DRINK_CATEGORY_ICONS;
+
+  // ── Drink catalog modal ───────────────────────────────────────────────────
+  showDrinkModal    = false;
+  drinkSearch       = '';
+  drinkTypeFilter   = '';   // '' | 'cocktail' | 'beer' | 'beverage' | 'wine' | 'mixer'
 
   // ── UI state ──────────────────────────────────────────────────────────────
   showAddonModal = false;
@@ -108,37 +131,41 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
 
   // ── Steps ─────────────────────────────────────────────────────────────────
   readonly STEPS = [
-    { id: 1, label: 'Client & Event',   icon: 'person'         },
-    { id: 2, label: 'Package',          icon: 'inventory'      },
-    { id: 3, label: 'Bar & Experience', icon: 'local_bar'      },
-    { id: 4, label: 'Add-ons',          icon: 'add_circle'     },
-    { id: 5, label: 'Notes',            icon: 'notes'          },
+    { id: 1, label: 'Client & Event',   icon: 'person'       },
+    { id: 2, label: 'Package',          icon: 'inventory'    },
+    { id: 3, label: 'Bar & Experience', icon: 'local_bar'    },
+    { id: 4, label: 'Drink Menu',       icon: 'sports_bar'   },
+    { id: 5, label: 'Add-ons',          icon: 'add_circle'   },
+    { id: 6, label: 'Notes',            icon: 'notes'        },
   ];
 
   // ── Step completion ───────────────────────────────────────────────────────
   get step1Complete(): boolean { return !!(this.fullName && this.eventName); }
   get step2Complete(): boolean { return !!this.selectedPackageId; }
   get step3Complete(): boolean { return !!(this.selectedBarTypeId || this.selectedThemeId); }
-  get step4Complete(): boolean { return this.selectedAddOnLines.length > 0; }
-  get step5Complete(): boolean { return !!(this.notes || this.internalNotes); }
+  get step4Complete(): boolean { return this.drinkLines.length > 0; }
+  get step5Complete(): boolean { return this.selectedAddOnLines.length > 0; }
+  get step6Complete(): boolean { return !!(this.notes || this.internalNotes); }
 
   get stepsCompleted(): number {
     return [this.step1Complete, this.step2Complete, this.step3Complete,
-            this.step4Complete, this.step5Complete].filter(v => v).length;
+            this.step4Complete, this.step5Complete, this.step6Complete].filter(v => v).length;
   }
 
-  get stepsProgress(): number { return (this.stepsCompleted / 5) * 100; }
+  get stepsProgress(): number { return (this.stepsCompleted / 6) * 100; }
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.packageService.getAll().subscribe({
       next: (p) => {
-        // Accept 'active', 'Active', or missing status
-        this.allPackages = p.filter((x: Package) =>
-          !x.status || x.status.toLowerCase() === 'active'
-        );
+        this.allPackages    = Array.isArray(p) ? p : (p as any).data || [];
+        this.packagesLoading = false;
       },
-      error: (err) => console.error('Error loading packages:', err),
+      error: (err) => {
+        this.packagesError   = 'Could not load packages.';
+        this.packagesLoading = false;
+        console.error('Packages error:', err);
+      },
     });
     this.barTypeService.getBarTypes().subscribe({
       next: (b) => this.allBarTypes = b.filter(x => x.status),
@@ -155,6 +182,10 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
     this.clientService.getClients().subscribe({
       next: (c) => this.allClients = c,
       error: (err) => console.error('Error loading clients:', err),
+    });
+    this.drinkService.getAll().subscribe({
+      next: (d) => this.allDrinks = (d as any[]).filter((x: any) => x.status === 'active' || x.status === 'Active'),
+      error: (err) => console.error('Error loading drinks:', err),
     });
 
     this.route.queryParams.subscribe(params => {
@@ -191,9 +222,9 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
           this.selectedBarTypeId = q.barTypeId  || '';
           this.selectedThemeId   = q.drinkThemeId || '';
           this.selectedAddOnLines = q.addOnLines || [];
-          this.storedPackageName      = q.packageName      || '';
-          this.storedPackageBasePrice = q.packageBasePrice || 0;
-          this.storedPricePerGuest    = q.pricePerGuest    || 0;
+          this.storedPackageName   = q.packageName      || '';
+          this.customBasePrice     = q.packageBasePrice || 0;
+          this.customPricePerGuest = q.pricePerGuest    || 0;
           this.discount      = q.discount || 0;
           this.tax           = q.tax      || 0;
           this.notes         = q.notes         || '';
@@ -201,6 +232,12 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
           this.status        = q.status;
           this.requestId     = q.requestId || '';
           this.clientId      = q.clientId  || '';
+          // Ensure saved lines always have quantity + price (backwards compat)
+          this.drinkLines = (q.drinkLines || []).map((d: any) => ({
+            ...d,
+            quantity: d.quantity ?? 1,
+            price:    d.price    ?? 0,
+          }));
         },
       });
     }
@@ -260,9 +297,120 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
   }
 
   selectPackage(pkg: Package): void {
-    this.selectedPackageId = pkg._id;
+    this.selectedPackageId   = pkg._id;
+    this.customBasePrice     = pkg.basePrice     || 0;
+    this.customPricePerGuest = pkg.pricePerGuest || 0;
     if (pkg.barTypeId) this.selectedBarTypeId = pkg.barTypeId;
+    this.populateDrinksFromPackage(pkg);
     this.triggerFlash();
+  }
+
+  // ── Drink management ──────────────────────────────────────────────────────
+
+  /** Map Drink.type → DrinkCategory */
+  private drinkTypeToCategory(type: string): DrinkCategory {
+    const map: Record<string, DrinkCategory> = {
+      beer:      'beer',
+      beverage:  'spirit',
+      wine:      'wine',
+      mixer:     'mixer',
+      cocktail:  'cocktail',
+    };
+    return map[type] || 'other';
+  }
+
+  /** Build drinkLines from the selected package's beverage arrays. */
+  private populateDrinksFromPackage(pkg: Package): void {
+    const lines: QuoteDrinkLine[] = [];
+    (pkg.beers     || []).forEach(b => lines.push({ category: 'beer',   name: b.name, quantity: 1, price: 0 }));
+    (pkg.beverages || []).forEach(b => lines.push({ category: 'spirit', name: b.name, quantity: 1, price: 0 }));
+    (pkg.wines     || []).forEach(w => lines.push({ category: 'wine',   name: w.name, detail: w.detail, quantity: 1, price: 0 }));
+    (pkg.mixers    || []).forEach(m => lines.push({ category: 'mixer',  name: m.name, quantity: 1, price: 0 }));
+    this.drinkLines = lines;
+  }
+
+  drinksByCategory(cat: DrinkCategory): QuoteDrinkLine[] {
+    return this.drinkLines.filter(d => d.category === cat);
+  }
+
+  removeDrinkLine(index: number): void {
+    this.drinkLines.splice(index, 1);
+    this.triggerFlash();
+  }
+
+  removeDrinkLineByRef(line: QuoteDrinkLine): void {
+    const i = this.drinkLines.indexOf(line);
+    if (i >= 0) this.drinkLines.splice(i, 1);
+    this.triggerFlash();
+  }
+
+  // ── Drink catalog modal ───────────────────────────────────────────────────
+
+  openDrinkModal(): void {
+    this.showDrinkModal  = true;
+    this.drinkSearch     = '';
+    this.drinkTypeFilter = '';
+  }
+
+  closeDrinkModal(): void {
+    this.showDrinkModal = false;
+  }
+
+  get filteredCatalogDrinks(): Drink[] {
+    let list = this.allDrinks;
+    if (this.drinkTypeFilter) {
+      list = list.filter(d => d.type === this.drinkTypeFilter);
+    }
+    const s = this.drinkSearch.trim().toLowerCase();
+    if (s) {
+      list = list.filter(d =>
+        d.name.toLowerCase().includes(s) ||
+        (d.brand  || '').toLowerCase().includes(s) ||
+        (d.drinkType || '').toLowerCase().includes(s)
+      );
+    }
+    return list;
+  }
+
+  isDrinkSelected(drink: Drink): boolean {
+    return this.drinkLines.some(d => d.drinkId === drink._id);
+  }
+
+  toggleCatalogDrink(drink: Drink): void {
+    if (this.isDrinkSelected(drink)) {
+      this.drinkLines = this.drinkLines.filter(d => d.drinkId !== drink._id);
+    } else {
+      this.drinkLines.push({
+        drinkId:  drink._id,
+        category: this.drinkTypeToCategory(drink.type),
+        name:     drink.name,
+        detail:   drink.brand ? `${drink.brand}${drink.size ? ' · ' + drink.size : ''}` : drink.drinkType,
+        quantity: 1,
+        price:    0,
+      });
+    }
+    this.triggerFlash();
+  }
+
+  updateDrinkQty(line: QuoteDrinkLine, value: number): void {
+    line.quantity = Math.max(1, value || 1);
+    this.triggerFlash();
+  }
+
+  updateDrinkPrice(line: QuoteDrinkLine, value: number): void {
+    line.price = Math.max(0, value || 0);
+    this.triggerFlash();
+  }
+
+  drinkTypeLabel(type: string): string {
+    const map: Record<string, string> = {
+      cocktail:  'Cocktail',
+      beer:      'Beer',
+      beverage:  'Beverage',
+      wine:      'Wine',
+      mixer:     'Mixer',
+    };
+    return map[type] || type;
   }
 
   packageIncludedServices(pkg: Package): string[] {
@@ -272,14 +420,10 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
       .map(s => s.name);
   }
 
-  // ── Pricing ───────────────────────────────────────────────────────────────
-  get packageBasePrice(): number {
-    return this.selectedPackage?.basePrice ?? this.storedPackageBasePrice;
-  }
-
-  get packageGuestPrice(): number {
-    return (this.selectedPackage?.pricePerGuest ?? this.storedPricePerGuest) * this.guestCount;
-  }
+  // ── Pricing — always use editable custom fields ───────────────────────────
+  get packageBasePrice(): number  { return this.customBasePrice; }
+  get packageGuestPrice(): number { return this.customPricePerGuest * this.guestCount; }
+  get effectivePricePerGuest(): number { return this.customPricePerGuest; }
 
   get effectivePackageName(): string {
     return this.selectedPackage?.name || this.storedPackageName;
@@ -293,18 +437,18 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
     return this.allThemes.find(t => t._id === this.selectedThemeId)?.name || '';
   }
 
-  get effectivePricePerGuest(): number {
-    return this.selectedPackage?.pricePerGuest ?? this.storedPricePerGuest;
-  }
-
   get addOnsTotal(): number {
     const addonSum = this.selectedAddOnLines.reduce((s, a) => s + (a.price || 0), 0);
     const customSum = this.customLines.reduce((s, l) => s + (l.price || 0), 0);
     return addonSum + customSum;
   }
 
+  get drinksTotal(): number {
+    return this.drinkLines.reduce((s, d) => s + (d.price || 0) * (d.quantity || 1), 0);
+  }
+
   get subtotal(): number {
-    return this.packageBasePrice + this.packageGuestPrice + this.addOnsTotal;
+    return this.packageBasePrice + this.packageGuestPrice + this.addOnsTotal + this.drinksTotal;
   }
 
   get total(): number {
@@ -421,14 +565,15 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
       barTypeName:   barType?.name,
       drinkThemeId:  this.selectedThemeId    || undefined,
       drinkThemeName: theme?.name,
+      drinkLines: this.drinkLines.length > 0 ? this.drinkLines : undefined,
       addOnLines: [
         ...this.selectedAddOnLines,
         ...this.customLines
           .filter(l => l.name.trim())
           .map(l => ({ name: l.name, price: l.price, detail: 'Custom line' })),
       ],
-      packageBasePrice: this.packageBasePrice,
-      pricePerGuest:    this.selectedPackage?.pricePerGuest,
+      packageBasePrice: this.customBasePrice,
+      pricePerGuest:    this.customPricePerGuest,
       subtotal:      this.subtotal,
       discount:      this.discount,
       tax:           this.tax,

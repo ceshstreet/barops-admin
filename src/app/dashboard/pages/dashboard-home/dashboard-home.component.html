@@ -1,170 +1,230 @@
 <div class="dashboard-page">
+
+  <!-- ── HEADER ── -->
   <div class="page-header">
     <div>
       <h2>Dashboard</h2>
-      <p>Overview of operations, upcoming events, staff readiness, and service catalog.</p>
+      <p>Vista general de operaciones, eventos próximos y estado del equipo.</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/reservations/new" class="new-res-btn">
+        <span class="material-icons">add</span> New Reservation
+      </a>
     </div>
   </div>
 
-  <!-- HERO / HIGHLIGHT -->
-  <div class="hero-card">
-    <div class="hero-content">
-      <div class="hero-badge">Operations Overview</div>
-      <h3>Welcome back to BarOps Admin</h3>
-      <p>
-        Track reservations, prepare bartenders, review event drinks, and keep service execution
-        aligned from one central dashboard.
-      </p>
-
-      <div class="hero-actions">
-        <a routerLink="/reservations/calendar" class="hero-btn primary">Open Calendar</a>
-        <a routerLink="/reservations/new" class="hero-btn secondary">Create Reservation</a>
-      </div>
-    </div>
-
-    <div class="hero-stats">
-      <div class="hero-stat-box">
-        <strong>6</strong>
-        <span>Upcoming Events</span>
-      </div>
-      <div class="hero-stat-box">
-        <strong>3</strong>
-        <span>Available Bartenders</span>
-      </div>
-      <div class="hero-stat-box">
-        <strong>5</strong>
-        <span>Drinks in Rotation</span>
-      </div>
-    </div>
+  <!-- ── LOADING ── -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Loading dashboard…</span>
   </div>
 
-  <!-- KPI STATS -->
-  <div class="stats-grid">
-    <div class="stat-card" *ngFor="let stat of stats">
-      <div class="stat-top">
-        <span class="stat-label">{{ stat.label }}</span>
-      </div>
-      <div class="stat-value">{{ stat.value }}</div>
-      <div class="stat-helper">{{ stat.helper }}</div>
-    </div>
-  </div>
+  <ng-container *ngIf="!loading">
 
-  <!-- MAIN GRID -->
-  <div class="dashboard-grid">
-    <!-- UPCOMING EVENTS -->
-    <div class="dashboard-card large-card">
-      <div class="card-header">
-        <div>
-          <h3>Upcoming Events</h3>
-          <p>Next reservations scheduled in the system.</p>
+    <!-- ── KPI STATS ── -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon-wrap purple">
+          <span class="material-icons">event_note</span>
         </div>
-        <a routerLink="/reservations/calendar" class="card-link">View all</a>
-      </div>
-
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Event</th>
-              <th>Client</th>
-              <th>Date</th>
-              <th>Location</th>
-              <th>Bartender</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let event of upcomingEvents">
-              <td>{{ event.id }}</td>
-              <td>{{ event.eventName }}</td>
-              <td>{{ event.client }}</td>
-              <td>{{ event.date }}</td>
-              <td>{{ event.location }}</td>
-              <td>{{ event.bartender }}</td>
-              <td>
-                <span class="status-badge" [ngClass]="getStatusClass(event.status)">
-                  {{ event.status }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ALERTS -->
-    <div class="dashboard-card">
-      <div class="card-header">
-        <div>
-          <h3>Operational Alerts</h3>
-          <p>Items requiring immediate attention.</p>
+        <div class="stat-body">
+          <span class="stat-value">{{ totalReservations }}</span>
+          <span class="stat-label">Total Reservations</span>
         </div>
       </div>
 
-      <div class="alert-list">
-        <div class="alert-item" *ngFor="let alert of alerts" [ngClass]="getAlertClass(alert.severity)">
-          <strong>{{ alert.title }}</strong>
-          <p>{{ alert.description }}</p>
+      <div class="stat-card">
+        <div class="stat-icon-wrap green">
+          <span class="material-icons">celebration</span>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value green">{{ upcomingEvents.length }}</span>
+          <span class="stat-label">Upcoming Confirmed</span>
+        </div>
+      </div>
+
+      <div class="stat-card" [class.alert-card]="pendingReservations > 0">
+        <div class="stat-icon-wrap yellow">
+          <span class="material-icons">schedule</span>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value yellow">{{ pendingReservations }}</span>
+          <span class="stat-label">Pending Review</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrap teal">
+          <span class="material-icons">person</span>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value teal">{{ availableBartenders }}</span>
+          <span class="stat-label">Available Bartenders</span>
+          <span class="stat-sub" *ngIf="busyBartenders > 0">{{ busyBartenders }} busy</span>
         </div>
       </div>
     </div>
 
-    <!-- QUICK ACTIONS -->
-    <div class="dashboard-card">
-      <div class="card-header">
-        <div>
-          <h3>Quick Actions</h3>
-          <p>Shortcuts for the most common tasks.</p>
-        </div>
-      </div>
+    <!-- ── MAIN GRID ── -->
+    <div class="main-grid">
 
-      <div class="action-grid">
-        <a *ngFor="let action of quickActions" [routerLink]="action.route" class="action-card">
-          <strong>{{ action.label }}</strong>
-          <span>{{ action.description }}</span>
-        </a>
-      </div>
-    </div>
+      <!-- ════ LEFT COLUMN ════ -->
+      <div class="left-col">
 
-    <!-- STAFF STATUS -->
-    <div class="dashboard-card">
-      <div class="card-header">
-        <div>
-          <h3>Bartender Status</h3>
-          <p>Quick staff readiness check.</p>
-        </div>
-      </div>
-
-      <div class="staff-list">
-        <div class="staff-item" *ngFor="let bartender of bartenderWorkload">
-          <div class="staff-info">
-            <strong>{{ bartender.name }}</strong>
-            <span>{{ bartender.specialty }}</span>
+        <!-- Upcoming Events Table -->
+        <div class="dash-card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Upcoming Events</h3>
+              <p class="card-sub">Confirmed events ordered by date</p>
+            </div>
+            <a routerLink="/reservations" class="card-link">View all <span class="material-icons">arrow_forward</span></a>
           </div>
 
-          <span class="status-badge" [ngClass]="getStatusClass(bartender.status)">
-            {{ bartender.status }}
-          </span>
+          <div class="table-wrap">
+            <table *ngIf="upcomingEvents.length > 0">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Event</th>
+                  <th>Client</th>
+                  <th>Bartender(s)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let e of upcomingEvents"
+                    class="clickable-row"
+                    [routerLink]="['/reservations', e._id]">
+                  <td class="date-cell">
+                    <span class="date-day">{{ resolveDate(e) | date:'d' }}</span>
+                    <span class="date-mon">{{ resolveDate(e) | date:'MMM y' }}</span>
+                  </td>
+                  <td>
+                    <span class="event-name">{{ resolveTitle(e) }}</span>
+                    <span class="event-loc">{{ resolveLocation(e) }}</span>
+                  </td>
+                  <td>{{ clientName(e) }}</td>
+                  <td>
+                    <span class="bartender-cell" [class.no-bartender]="!e.assignedBartenders?.length">
+                      {{ bartenderNames(e) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-badge" [ngClass]="statusClass(e.status)">
+                      {{ statusLabel(e.status) }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="table-empty" *ngIf="upcomingEvents.length === 0">
+              <span class="material-icons">event_available</span>
+              <p>No upcoming confirmed events.</p>
+              <a routerLink="/reservations/new" class="empty-action">Create one →</a>
+            </div>
+          </div>
         </div>
+
+        <!-- Catalog Summary -->
+        <div class="dash-card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Catalog Summary</h3>
+              <p class="card-sub">Current configuration in the system</p>
+            </div>
+          </div>
+          <div class="catalog-grid">
+            <a *ngFor="let item of catalogSummary"
+               [routerLink]="item.route"
+               class="catalog-item">
+              <span class="material-icons cat-icon">{{ item.icon }}</span>
+              <strong>{{ item.value }}</strong>
+              <span>{{ item.label }}</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ RIGHT COLUMN ════ -->
+      <div class="right-col">
+
+        <!-- Alerts -->
+        <div class="dash-card">
+          <div class="card-header">
+            <h3 class="card-title">Alerts</h3>
+          </div>
+          <div class="alert-list">
+            <div class="alert-item"
+                 *ngFor="let a of alerts"
+                 [ngClass]="a.severity"
+                 (click)="navigateTo(a.route)"
+                 [class.clickable]="!!a.route">
+              <div class="alert-icon">
+                <span class="material-icons">
+                  {{ a.severity === 'danger' ? 'error' : a.severity === 'warning' ? 'warning' : 'check_circle' }}
+                </span>
+              </div>
+              <div class="alert-body">
+                <strong>{{ a.title }}</strong>
+                <p>{{ a.description }}</p>
+              </div>
+              <span class="material-icons alert-arrow" *ngIf="a.route">chevron_right</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bartender Status -->
+        <div class="dash-card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Staff</h3>
+              <p class="card-sub">{{ allBartenders.length }} bartender{{ allBartenders.length !== 1 ? 's' : '' }}</p>
+            </div>
+            <a routerLink="/bartenders" class="card-link">Manage <span class="material-icons">arrow_forward</span></a>
+          </div>
+
+          <div class="staff-list" *ngIf="allBartenders.length > 0">
+            <a class="staff-item"
+               *ngFor="let b of allBartenders"
+               [routerLink]="['/bartenders', b._id]">
+              <div class="staff-avatar">{{ initials(b) }}</div>
+              <div class="staff-info">
+                <span class="staff-name">{{ b.name }} {{ b.lastName }}</span>
+                <span class="staff-spec">{{ b.bartenderData?.specialty || '—' }}</span>
+              </div>
+              <span class="status-pill" [ngClass]="bartenderStatusClass(b)">
+                {{ b.status }}
+              </span>
+            </a>
+          </div>
+
+          <div class="table-empty" *ngIf="allBartenders.length === 0">
+            <span class="material-icons">person_off</span>
+            <p>No bartenders yet.</p>
+            <a routerLink="/bartenders/new" class="empty-action">Add one →</a>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dash-card">
+          <div class="card-header">
+            <h3 class="card-title">Quick Actions</h3>
+          </div>
+          <div class="quick-grid">
+            <a *ngFor="let a of quickActions" [routerLink]="a.route" class="quick-item">
+              <span class="material-icons quick-icon">{{ a.icon }}</span>
+              <strong>{{ a.label }}</strong>
+              <span>{{ a.description }}</span>
+            </a>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- CATALOG SUMMARY -->
-    <div class="dashboard-card full-row-card">
-      <div class="card-header">
-        <div>
-          <h3>Catalog Summary</h3>
-          <p>Current service configuration loaded into the system.</p>
-        </div>
-      </div>
+  </ng-container>
 
-      <div class="catalog-grid">
-        <div class="catalog-item" *ngFor="let item of catalogSummary">
-          <strong>{{ item.value }}</strong>
-          <span>{{ item.label }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>

@@ -1,0 +1,439 @@
+<div class="pdf-doc" *ngIf="quote">
+
+  <!-- ══ BRAND HEADER (every page) ══════════════════════════════════════════ -->
+  <header class="pdf-brand-bar">
+    <div class="pdf-brand">
+      <span class="brand-ico material-icons">local_bar</span>
+      <span class="brand-name">BarOps</span>
+      <span class="brand-sep">·</span>
+      <span class="brand-tag">Professional Bar Services</span>
+    </div>
+    <div class="pdf-doc-meta">
+      <span class="doc-label">PROPOSAL</span>
+      <span class="doc-ref">#{{ quoteRef }}</span>
+      <span class="doc-date">{{ today | date:'MMM d, yyyy' }}</span>
+    </div>
+  </header>
+
+  <!-- ══ HERO / COVER ════════════════════════════════════════════════════════ -->
+  <section class="pdf-section pdf-hero" *ngIf="isVisible('hero')">
+    <div class="hero-accent-bar"></div>
+
+    <div class="hero-main">
+      <h1 class="hero-title">{{ quote.eventName }}</h1>
+
+      <div class="hero-meta-row">
+        <div class="hero-meta-item" *ngIf="quote.eventDate">
+          <span class="material-icons">calendar_today</span>
+          <span>{{ quote.eventDate | date:'EEEE, MMMM d, yyyy' }}</span>
+          <span class="countdown-chip" *ngIf="eventCountdown">{{ eventCountdown }}</span>
+        </div>
+        <div class="hero-meta-item" *ngIf="quote.location">
+          <span class="material-icons">place</span>
+          <span>{{ quote.location }}</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="material-icons">groups</span>
+          <span>{{ guestCount }} guests</span>
+        </div>
+        <div class="hero-meta-item" *ngIf="quote.eventType">
+          <span class="material-icons">celebration</span>
+          <span>{{ quote.eventType }}</span>
+        </div>
+      </div>
+
+      <div class="hero-per-person" *ngIf="pricePerPerson > 0">
+        <span class="material-icons">star</span>
+        Only <strong>${{ pricePerPerson }}/person</strong> — all-inclusive
+      </div>
+    </div>
+
+    <!-- Client block -->
+    <div class="hero-client">
+      <div class="hc-label">Prepared for</div>
+      <div class="hc-row">
+        <div class="hc-avatar">{{ quote.fullName.charAt(0).toUpperCase() }}</div>
+        <div class="hc-info">
+          <div class="hc-name">{{ quote.fullName }}</div>
+          <div class="hc-contacts">
+            <span *ngIf="quote.email">{{ quote.email }}</span>
+            <span class="hc-sep" *ngIf="quote.email && quote.phone"> · </span>
+            <span *ngIf="quote.phone">{{ quote.phone }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opening intro (from proposal settings) -->
+    <div class="hero-intro" *ngIf="quote.proposalIntro">
+      <span class="material-icons">format_quote</span>
+      <p>{{ quote.proposalIntro }}</p>
+    </div>
+  </section>
+
+  <!-- ══ THE EXPERIENCE ══════════════════════════════════════════════════════ -->
+  <section class="pdf-section" *ngIf="isVisible('experience')">
+    <div class="pdf-section-head">
+      <div class="psh-rule"></div>
+      <h2 class="psh-title">{{ sectionTitle('experience') }}</h2>
+    </div>
+
+    <p class="exp-headline">{{ experienceHeadline }}</p>
+
+    <!-- Package stats strip -->
+    <div class="pkg-stats" *ngIf="pkgData">
+      <div class="pkg-stat" *ngIf="pkgData.duration">
+        <strong>{{ pkgData.duration }}</strong>
+        <span>Service</span>
+      </div>
+      <div class="pkg-stat">
+        <strong>{{ guestCount }}</strong>
+        <span>Guests</span>
+      </div>
+      <div class="pkg-stat" *ngIf="pkgData.minGuests && pkgData.maxGuests">
+        <strong>{{ pkgData.minGuests }}–{{ pkgData.maxGuests }}</strong>
+        <span>Capacity</span>
+      </div>
+      <div class="pkg-stat" *ngIf="quote.barTypeName">
+        <strong>{{ quote.barTypeName }}</strong>
+        <span>Bar Type</span>
+      </div>
+    </div>
+
+    <p class="pkg-desc" *ngIf="pkgData?.description">{{ pkgData!.description }}</p>
+
+    <div class="section-note" *ngIf="sectionDesc('experience')">
+      {{ sectionDesc('experience') }}
+    </div>
+  </section>
+
+  <!-- ══ WHAT'S INCLUDED ═════════════════════════════════════════════════════ -->
+  <section class="pdf-section"
+    *ngIf="isVisible('included') && includedServices.length > 0">
+    <div class="pdf-section-head">
+      <div class="psh-rule"></div>
+      <h2 class="psh-title">{{ sectionTitle('included') }}</h2>
+      <span class="psh-sub">No hidden costs — everything listed here is included in your price</span>
+    </div>
+
+    <div class="included-grid">
+      <div class="incl-item" *ngFor="let svc of includedServices">
+        <div class="incl-check">
+          <span class="material-icons">check_circle</span>
+        </div>
+        <div class="incl-text">
+          <strong>{{ svc.name }}</strong>
+          <span *ngIf="svc.detail">{{ svc.detail }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-note" *ngIf="sectionDesc('included')">
+      {{ sectionDesc('included') }}
+    </div>
+  </section>
+
+  <!-- ══ DRINK MENU ══════════════════════════════════════════════════════════ -->
+  <section class="pdf-section" *ngIf="isVisible('drinks') && hasDrinkContent">
+    <div class="pdf-section-head">
+      <div class="psh-rule"></div>
+      <h2 class="psh-title">{{ sectionTitle('drinks') }}</h2>
+      <span class="psh-sub">Your full selection for the event</span>
+    </div>
+
+    <!-- ── Custom drinkLines (from quote form) — preferred ── -->
+    <ng-container *ngIf="hasCustomDrinkLines">
+      <div class="drinks-grid">
+        <ng-container *ngFor="let cat of drinkCategories">
+          <div class="drink-col" *ngIf="drinkLinesByCategory(cat).length > 0">
+            <div class="dc-header">
+              <span class="material-icons">{{ drinkCategoryIcons[cat] }}</span>
+              {{ drinkCategoryLabels[cat] }}
+            </div>
+            <div class="dc-item" *ngFor="let d of drinkLinesByCategory(cat)">
+              <span class="dc-qty" *ngIf="d.quantity > 1">×{{ d.quantity }}</span>
+              <span class="dc-name">{{ d.name }}</span>
+              <span class="dc-detail" *ngIf="d.detail"> · {{ d.detail }}</span>
+              <span class="dc-price" *ngIf="d.price > 0"> ${{ (d.price * d.quantity) | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <!-- ── Fallback: pkgData catalog drinks (when no custom lines) ── -->
+    <ng-container *ngIf="!hasCustomDrinkLines">
+      <div class="drinks-grid">
+        <div class="drink-col" *ngIf="hasBeers">
+          <div class="dc-header">
+            <span class="material-icons">sports_bar</span>
+            Premium Beers
+          </div>
+          <div class="dc-item" *ngFor="let b of pkgData?.beers">
+            <span class="dc-name">{{ b.name }}</span>
+            <span class="dc-avail" *ngIf="b.availability && b.availability !== 'included'">
+              {{ b.availability }}
+            </span>
+          </div>
+        </div>
+
+        <div class="drink-col" *ngIf="hasBeverages">
+          <div class="dc-header">
+            <span class="material-icons">wine_bar</span>
+            Spirits & Liquors
+          </div>
+          <div class="dc-item" *ngFor="let b of pkgData?.beverages">
+            <span class="dc-name">{{ b.name }}</span>
+          </div>
+        </div>
+
+        <div class="drink-col" *ngIf="hasWines">
+          <div class="dc-header">
+            <span class="material-icons">local_bar</span>
+            Wines
+          </div>
+          <div class="dc-item" *ngFor="let w of pkgData?.wines">
+            <span class="dc-name">{{ w.name }}</span>
+            <span class="dc-detail" *ngIf="w.detail"> · {{ w.detail }}</span>
+          </div>
+        </div>
+
+        <div class="drink-col" *ngIf="hasMixers">
+          <div class="dc-header">
+            <span class="material-icons">emoji_food_beverage</span>
+            Mixers & Non-Alcoholic
+          </div>
+          <div class="dc-item" *ngFor="let m of pkgData?.mixers">
+            <span class="dc-name">{{ m.name }}</span>
+          </div>
+        </div>
+
+        <div class="drink-col cocktails" *ngIf="populatedDrinks.length > 0">
+          <div class="dc-header">
+            <span class="material-icons">cocktail</span>
+            Signature Cocktails
+          </div>
+          <div class="dc-item" *ngFor="let d of populatedDrinks">
+            <span class="dc-name">{{ d.name }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="section-note" *ngIf="sectionDesc('drinks')">
+      {{ sectionDesc('drinks') }}
+    </div>
+  </section>
+
+  <!-- ══ BAR SETUP & THEME ═══════════════════════════════════════════════════ -->
+  <section class="pdf-section"
+    *ngIf="isVisible('bar_setup') && (barTypeData || drinkThemeData)">
+    <div class="pdf-section-head">
+      <div class="psh-rule"></div>
+      <h2 class="psh-title">{{ sectionTitle('bar_setup') }}</h2>
+    </div>
+
+    <div class="setup-duo">
+      <div class="setup-card" *ngIf="barTypeData">
+        <div class="sc-eyebrow">Bar Setup</div>
+        <div class="sc-name">{{ barTypeData.name }}</div>
+        <div class="sc-tag" *ngIf="barTypeData.category">{{ barTypeData.category }}</div>
+        <div class="sc-details">
+          <span *ngIf="barTypeData.setupType">{{ barTypeData.setupType }}</span>
+          <span *ngIf="barTypeData.capacity"> · Up to {{ barTypeData.capacity }} guests</span>
+          <span class="sc-lighting" *ngIf="barTypeData.lighting"> · LED lighting included</span>
+        </div>
+      </div>
+
+      <div class="setup-card theme" *ngIf="drinkThemeData">
+        <div class="sc-eyebrow">Drink Theme</div>
+        <div class="sc-name">{{ drinkThemeData.name }}</div>
+        <div class="sc-tag" *ngIf="drinkThemeData.style">{{ drinkThemeData.style }}</div>
+        <div class="sc-details" *ngIf="drinkThemeData.description">
+          {{ drinkThemeData.description }}
+        </div>
+        <div class="sc-target" *ngIf="drinkThemeData.targetEvent">
+          Ideal for: {{ drinkThemeData.targetEvent }}
+        </div>
+      </div>
+    </div>
+
+    <div class="section-note" *ngIf="sectionDesc('bar_setup')">
+      {{ sectionDesc('bar_setup') }}
+    </div>
+  </section>
+
+  <!-- ══ INVESTMENT / PRICING ════════════════════════════════════════════════ -->
+  <section class="pdf-section" *ngIf="isVisible('pricing')">
+    <div class="pdf-section-head">
+      <div class="psh-rule"></div>
+      <h2 class="psh-title">{{ sectionTitle('pricing') }}</h2>
+      <span class="psh-sub">Complete breakdown — everything included, no surprises</span>
+    </div>
+
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th class="ta-r">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="quote.packageName || quote.packageBasePrice">
+          <td>
+            <div class="pt-name">{{ quote.packageName || 'Bar Package' }}</div>
+            <div class="pt-detail">Base service fee</div>
+          </td>
+          <td class="ta-r">${{ (quote.packageBasePrice || 0) | number:'1.0-0' }}</td>
+        </tr>
+        <tr *ngIf="quote.pricePerGuest && guestCount > 0">
+          <td>
+            <div class="pt-name">Per-Guest Rate</div>
+            <div class="pt-detail">{{ guestCount }} guests × ${{ quote.pricePerGuest }}/person</div>
+          </td>
+          <td class="ta-r">${{ packageGuestTotal | number:'1.0-0' }}</td>
+        </tr>
+        <!-- Drinks & Beverages line (when priced) -->
+        <tr *ngIf="drinksTotal > 0">
+          <td>
+            <div class="pt-name">Drinks & Beverages</div>
+            <div class="pt-detail">{{ (quote.drinkLines || []).length }} item(s) in menu</div>
+          </td>
+          <td class="ta-r">${{ drinksTotal | number:'1.0-0' }}</td>
+        </tr>
+        <tr *ngFor="let line of quote.addOnLines">
+          <td>
+            <div class="pt-name">{{ line.name }}</div>
+            <div class="pt-detail" *ngIf="line.detail">{{ line.detail }}</div>
+          </td>
+          <td class="ta-r">
+            <span *ngIf="line.price > 0">${{ line.price | number:'1.0-0' }}</span>
+            <span class="incl-chip" *ngIf="line.price === 0">Included</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="totals-block">
+      <div class="total-row" *ngIf="quote.subtotal">
+        <span>Subtotal</span>
+        <span>${{ quote.subtotal | number:'1.0-0' }}</span>
+      </div>
+      <div class="total-row discount" *ngIf="quote.discount">
+        <span>Discount</span>
+        <span>− ${{ quote.discount | number:'1.0-0' }}</span>
+      </div>
+      <div class="total-row" *ngIf="quote.tax">
+        <span>Tax</span>
+        <span>+ ${{ quote.tax | number:'1.0-0' }}</span>
+      </div>
+      <div class="total-row grand">
+        <div class="grand-lhs">
+          <span class="grand-lbl">Total Investment</span>
+          <span class="grand-per" *ngIf="pricePerPerson > 0">
+            · ${{ pricePerPerson }}/person
+          </span>
+        </div>
+        <span class="grand-amount">${{ (quote.total || 0) | number:'1.0-0' }}</span>
+      </div>
+    </div>
+
+    <div class="section-note" *ngIf="sectionDesc('pricing')">
+      {{ sectionDesc('pricing') }}
+    </div>
+  </section>
+
+  <!-- ══ OPTIONAL UPGRADES ═══════════════════════════════════════════════════ -->
+  <section class="pdf-section" *ngIf="isVisible('upsells') && hasUpsells">
+    <div class="pdf-section-head">
+      <div class="psh-rule"></div>
+      <h2 class="psh-title">{{ sectionTitle('upsells') }}</h2>
+      <span class="psh-sub">Take your event to the next level</span>
+    </div>
+
+    <div class="upsell-grid">
+      <div class="upsell-item" *ngFor="let u of packageUpsells">
+        <div class="ui-icon"><span class="material-icons">add_circle_outline</span></div>
+        <div class="ui-body">
+          <strong>{{ u.name }}</strong>
+          <span *ngIf="u.detail">{{ u.detail }}</span>
+        </div>
+        <div class="ui-price">+${{ u.price | number:'1.0-0' }}</div>
+      </div>
+      <div class="upsell-item" *ngFor="let a of suggestedAddOns">
+        <div class="ui-icon"><span class="material-icons">add_circle_outline</span></div>
+        <div class="ui-body">
+          <strong>{{ a.name }}</strong>
+          <span *ngIf="a.description">{{ a.description }}</span>
+        </div>
+        <div class="ui-price">+${{ (a.defaultPrice || 0) | number:'1.0-0' }}</div>
+      </div>
+    </div>
+
+    <div class="section-note" *ngIf="sectionDesc('upsells')">
+      {{ sectionDesc('upsells') }}
+    </div>
+  </section>
+
+  <!-- ══ TERMS & NOTES ══════════════════════════════════════════════════════ -->
+  <section class="pdf-section"
+    *ngIf="isVisible('notes') && (quote.notes || sectionDesc('notes'))">
+    <div class="pdf-section-head">
+      <div class="psh-rule"></div>
+      <h2 class="psh-title">{{ sectionTitle('notes') }}</h2>
+    </div>
+
+    <div class="notes-body" *ngIf="quote.notes">{{ quote.notes }}</div>
+    <div class="section-note" *ngIf="sectionDesc('notes')">{{ sectionDesc('notes') }}</div>
+  </section>
+
+  <!-- ══ WHAT HAPPENS NEXT ═══════════════════════════════════════════════════ -->
+  <section class="pdf-section" *ngIf="isVisible('timeline')">
+    <div class="pdf-section-head">
+      <div class="psh-rule"></div>
+      <h2 class="psh-title">{{ sectionTitle('timeline') }}</h2>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-step">
+        <div class="tl-num">1</div>
+        <div class="tl-body">
+          <strong>Accept this proposal</strong>
+          <span>Let us know you'd like to move forward — just send us a message.</span>
+        </div>
+      </div>
+      <div class="tl-step">
+        <div class="tl-num">2</div>
+        <div class="tl-body">
+          <strong>Service agreement & deposit</strong>
+          <span>We send the contract and confirm your date with a deposit.</span>
+        </div>
+      </div>
+      <div class="tl-step">
+        <div class="tl-num">3</div>
+        <div class="tl-body">
+          <strong>Your event, handled</strong>
+          <span>We take care of everything — you and your guests enjoy every moment.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-note" *ngIf="sectionDesc('timeline')">
+      {{ sectionDesc('timeline') }}
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ══════════════════════════════════════════════════════════════ -->
+  <footer class="pdf-footer">
+    <div class="pf-left">
+      <strong>BarOps</strong> · Professional Bar Services
+      <span class="pf-validity">
+        · Proposal valid 14 days from {{ today | date:'MMMM d, yyyy' }}
+      </span>
+    </div>
+    <div class="pf-sig" *ngIf="quote.proposalSignature">
+      {{ quote.proposalSignature }}
+    </div>
+  </footer>
+
+</div>

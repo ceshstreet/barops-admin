@@ -1,0 +1,204 @@
+<!-- ══ LOADING ═══════════════════════════════════════════════════════════════ -->
+<div class="builder-loading" *ngIf="loading">
+  <div class="bl-spinner"></div>
+  <span>Loading quote…</span>
+</div>
+
+<!-- ══ ERROR ═════════════════════════════════════════════════════════════════ -->
+<div class="builder-error" *ngIf="!loading && errorMsg">
+  <span class="material-icons">error_outline</span>
+  <p>{{ errorMsg }}</p>
+  <button (click)="goBack()">← Go Back</button>
+</div>
+
+<!-- ══ BUILDER ═══════════════════════════════════════════════════════════════ -->
+<div class="builder" *ngIf="!loading && !errorMsg && quote">
+
+  <!-- TOOLBAR -->
+  <div class="builder-toolbar">
+    <div class="bt-left">
+      <button class="bt-back" (click)="goBack()">
+        <span class="material-icons">arrow_back</span>
+        <span>Back</span>
+      </button>
+      <div class="bt-breadcrumb">
+        <span class="bt-event">{{ quote.eventName }}</span>
+        <span class="bt-sub">· PDF Builder</span>
+      </div>
+      <div class="bt-dirty-dot" *ngIf="dirty" title="Unsaved changes"></div>
+    </div>
+
+    <div class="bt-right">
+      <div class="bt-visible-count">
+        <span class="material-icons">visibility</span>
+        {{ visibleCount }} / {{ sections.length }} sections in PDF
+      </div>
+      <button class="bt-btn secondary" (click)="openPrintPreview()">
+        <span class="material-icons">open_in_new</span>
+        Preview & Print
+      </button>
+      <button class="bt-btn primary" (click)="save()" [disabled]="saving || !dirty">
+        <span class="material-icons">{{ saving ? 'hourglass_empty' : 'save' }}</span>
+        {{ saving ? 'Saving…' : 'Save' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- BODY: sidebar + preview -->
+  <div class="builder-body">
+
+    <!-- ── LEFT PANEL ──────────────────────────────────────────────────────── -->
+    <div class="builder-sidebar">
+
+      <!-- Section list -->
+      <div class="sidebar-block">
+        <div class="sb-header">
+          <span class="material-icons">tune</span>
+          <strong>PDF Sections</strong>
+          <span class="sb-hint">Drag to reorder</span>
+        </div>
+
+        <div class="section-list"
+          cdkDropList
+          (cdkDropListDropped)="onDrop($event)">
+
+          <div class="section-row"
+            *ngFor="let sec of sections"
+            cdkDrag
+            [class.selected]="selectedSection === sec"
+            [class.hidden-sec]="!sec.visibleInPdf"
+            (click)="selectSection(sec)">
+
+            <!-- Drag handle -->
+            <span class="sr-drag material-icons" cdkDragHandle>drag_indicator</span>
+
+            <!-- Section icon + label -->
+            <span class="sr-icon material-icons">{{ sectionIcon(sec.type) }}</span>
+            <span class="sr-label">
+              {{ sec.customTitle || sectionLabel(sec.type) }}
+            </span>
+
+            <!-- Visibility toggle -->
+            <button class="sr-eye"
+              (click)="toggleVisibility(sec, $event)"
+              [title]="sec.visibleInPdf ? 'Visible in PDF — click to hide' : 'Hidden from PDF — click to show'">
+              <span class="material-icons">
+                {{ sec.visibleInPdf ? 'visibility' : 'visibility_off' }}
+              </span>
+            </button>
+
+            <!-- Drag placeholder -->
+            <div class="sr-drag-placeholder" *cdkDragPlaceholder></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Section editor (appears when a section is selected) -->
+      <div class="sidebar-block editor-block" *ngIf="selectedSection">
+        <div class="sb-header">
+          <span class="material-icons">edit</span>
+          <strong>Edit Section</strong>
+          <button class="sb-close" (click)="selectedSection = null">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="editor-form">
+          <label class="ef-label">
+            Section Title
+            <span class="ef-hint">Leave blank to use default</span>
+          </label>
+          <input class="ef-input"
+            type="text"
+            [(ngModel)]="selectedSection.customTitle"
+            (ngModelChange)="onSectionFieldChange()"
+            [placeholder]="sectionLabel(selectedSection.type)" />
+
+          <label class="ef-label">
+            Custom Description
+            <span class="ef-hint">Shows below section content in PDF</span>
+          </label>
+          <textarea class="ef-textarea"
+            [(ngModel)]="selectedSection.customDescription"
+            (ngModelChange)="onSectionFieldChange()"
+            placeholder="Add a note, disclaimer, or context for this section…"
+            rows="4">
+          </textarea>
+
+          <div class="ef-visibility-row">
+            <span class="ef-vis-label">Show in PDF</span>
+            <button class="ef-vis-toggle"
+              [class.on]="selectedSection.visibleInPdf"
+              (click)="selectedSection.visibleInPdf = !selectedSection.visibleInPdf; dirty = true">
+              <span class="material-icons">
+                {{ selectedSection.visibleInPdf ? 'toggle_on' : 'toggle_off' }}
+              </span>
+              {{ selectedSection.visibleInPdf ? 'Visible' : 'Hidden' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proposal settings -->
+      <div class="sidebar-block">
+        <div class="sb-header">
+          <span class="material-icons">settings</span>
+          <strong>Proposal Settings</strong>
+        </div>
+
+        <div class="editor-form">
+          <label class="ef-label">
+            Opening Paragraph
+            <span class="ef-hint">Shown at the top of the proposal</span>
+          </label>
+          <textarea class="ef-textarea"
+            [(ngModel)]="proposalIntro"
+            (ngModelChange)="dirty = true"
+            placeholder="E.g. 'Thank you for considering BarOps for your event. We've crafted this proposal specifically for you…'"
+            rows="4">
+          </textarea>
+
+          <label class="ef-label">
+            Footer Signature
+            <span class="ef-hint">Small note at the bottom of the PDF</span>
+          </label>
+          <input class="ef-input"
+            type="text"
+            [(ngModel)]="proposalSignature"
+            (ngModelChange)="dirty = true"
+            placeholder="E.g. 'Questions? Reply to this message or call us at…'" />
+        </div>
+      </div>
+
+    </div><!-- /sidebar -->
+
+    <!-- ── RIGHT PANEL: PDF PREVIEW ─────────────────────────────────────────── -->
+    <div class="builder-preview">
+      <div class="preview-canvas">
+        <div class="preview-page">
+          <app-quote-pdf-template
+            [quote]="liveQuote!"
+            [sections]="sections"
+            [pkgData]="pkgData"
+            [barTypeData]="barTypeData"
+            [drinkThemeData]="drinkThemeData"
+            [suggestedAddOns]="suggestedAddOns">
+          </app-quote-pdf-template>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /builder-body -->
+
+</div><!-- /builder -->
+
+<!-- ══ TOAST ══════════════════════════════════════════════════════════════════ -->
+<div class="builder-toast" *ngIf="toast"
+  [class.success]="toast.type === 'success'"
+  [class.error]="toast.type === 'error'">
+  <span class="material-icons">
+    {{ toast.type === 'success' ? 'check_circle' : 'error_outline' }}
+  </span>
+  {{ toast.message }}
+</div>

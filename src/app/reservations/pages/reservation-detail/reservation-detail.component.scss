@@ -96,6 +96,19 @@
   .material-icons { font-size: 18px; color: #7c5cff; }
 }
 
+.card-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.edit-bartenders-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(124,92,255,0.1); border: 1px solid rgba(124,92,255,0.25);
+  border-radius: 8px; padding: 6px 12px; color: #a78bfa;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.14s;
+  .material-icons { font-size: 14px; }
+  &:hover { background: rgba(124,92,255,0.2); }
+}
+
 // ── INFO GRID ──
 .info-grid { display: flex; flex-direction: column; gap: 12px; }
 
@@ -190,13 +203,10 @@
 
 // ── ACTION CARD (Confirm/Cancel) ──
 .field {
-  display: flex; flex-direction: column; gap: 6px;
-  label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(234,241,255,0.4); }
-  select {
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; padding: 10px 13px; color: #eaf1ff; font-size: 14px; outline: none;
-    &:focus { border-color: rgba(124,92,255,0.5); }
-    option { background: #1a2236; }
+  display: flex; flex-direction: column; gap: 8px;
+  label {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; color: rgba(234,241,255,0.4);
   }
 }
 
@@ -221,6 +231,141 @@
   font-size: 14px; font-weight: 600; cursor: pointer; justify-content: center;
   .material-icons { font-size: 17px; }
   &:hover:not(:disabled) { background: rgba(239,68,68,0.2); }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+// ── BARTENDER CHIPS ──────────────────────────────────────────────────────────
+.b-chips-row {
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.b-chip {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(124,92,255,0.1); border: 1px solid rgba(124,92,255,0.25);
+  border-radius: 12px; padding: 8px 12px;
+
+  &.readonly { cursor: default; }
+}
+
+.b-chip-avatar {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #7c5cff, #34d399);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff;
+}
+
+.b-chip-info {
+  display: flex; flex-direction: column; gap: 1px; flex: 1;
+}
+
+.b-chip-name { font-size: 13px; font-weight: 700; color: #eaf1ff; }
+.b-chip-spec { font-size: 11px; color: rgba(234,241,255,0.45); }
+
+.b-chip-remove {
+  background: none; border: none; cursor: pointer; padding: 2px;
+  color: rgba(239,68,68,0.5); display: flex; align-items: center;
+  border-radius: 6px; transition: all 0.13s;
+  .material-icons { font-size: 16px; }
+  &:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
+}
+
+.no-bartenders-msg {
+  display: flex; align-items: center; gap: 8px;
+  color: rgba(234,241,255,0.3); font-size: 13px;
+  .material-icons { font-size: 17px; }
+}
+
+.add-bartender-btn {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  background: rgba(124,92,255,0.1); border: 1px dashed rgba(124,92,255,0.35);
+  border-radius: 10px; padding: 8px 14px; color: #a78bfa;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.14s;
+  .material-icons { font-size: 16px; }
+  &:hover { background: rgba(124,92,255,0.2); border-style: solid; }
+}
+
+// ── BARTENDER PICKER PANEL ───────────────────────────────────────────────────
+.b-picker {
+  display: flex; flex-direction: column; gap: 6px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 10px; max-height: 280px; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: rgba(124,92,255,0.3) transparent;
+}
+
+.bp-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  border: 1px solid transparent; transition: all 0.15s;
+
+  &:hover:not(.selected) { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); }
+
+  &.selected {
+    background: rgba(124,92,255,0.12); border-color: rgba(124,92,255,0.35);
+  }
+
+  &.busy-today {
+    opacity: 0.55;
+    cursor: default;
+    &:hover { background: none; border-color: transparent; }
+  }
+}
+
+.bp-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #7c5cff 0%, #34d399 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #fff;
+}
+
+.bp-info {
+  display: flex; flex-direction: column; gap: 2px; flex: 1;
+}
+
+.bp-name { font-size: 13px; font-weight: 700; color: #eaf1ff; }
+.bp-spec { font-size: 11px; color: rgba(234,241,255,0.4); }
+
+.bp-right {
+  display: flex; align-items: center; flex-shrink: 0;
+}
+
+.bp-avail-badge {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 3px 8px; border-radius: 999px; border: 1px solid;
+
+  &.available { color: #34d399; background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.3); }
+  &.busy      { color: #f87171; background: rgba(239,68,68,0.1);  border-color: rgba(239,68,68,0.3);  }
+}
+
+.bp-check { font-size: 20px; color: #7c5cff; }
+
+.bp-empty {
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+  padding: 20px; color: rgba(234,241,255,0.3); font-size: 13px;
+  .material-icons { font-size: 18px; }
+}
+
+// ── EDIT BARTENDERS ACTIONS ──────────────────────────────────────────────────
+.edit-bartenders-actions {
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+
+.cancel-edit-btn {
+  padding: 9px 16px; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+  color: rgba(234,241,255,0.6); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.14s;
+  &:hover:not(:disabled) { background: rgba(255,255,255,0.09); }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+.save-bartenders-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 16px; background: rgba(124,92,255,0.15);
+  border: 1px solid rgba(124,92,255,0.4); border-radius: 10px;
+  color: #a78bfa; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.14s;
+  .material-icons { font-size: 15px; }
+  &:hover:not(:disabled) { background: rgba(124,92,255,0.25); }
   &:disabled { opacity: 0.45; cursor: not-allowed; }
 }
 
@@ -288,6 +433,24 @@
 }
 
 .side-stat-val { font-size: 14px; font-weight: 600; color: #eaf1ff; &.green { color: #34d399; } }
+
+// ── SIDEBAR BARTENDERS SUMMARY ────────────────────────────────────────────────
+.side-bartenders { display: flex; flex-direction: column; gap: 8px; }
+
+.side-b-item {
+  display: flex; align-items: center; gap: 9px;
+}
+
+.side-b-avatar {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #7c5cff, #34d399);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; color: #fff;
+}
+
+.side-b-info { display: flex; flex-direction: column; gap: 1px; }
+.side-b-name { font-size: 12px; font-weight: 700; color: #eaf1ff; }
+.side-b-spec { font-size: 10px; color: rgba(234,241,255,0.35); }
 
 // ── RESPONSIVE ──
 @media (max-width: 860px) {

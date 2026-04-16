@@ -390,6 +390,141 @@
   font-weight: 700; color: #eaf1ff; font-size: 14px;
 }
 
+// ── PACKAGE LOADING / ERROR ───────────────────────────────────────────────────
+.pkg-loading {
+  display: flex; align-items: center; gap: 10px;
+  padding: 20px; color: rgba(234,241,255,0.5); font-size: 14px;
+}
+
+.spinner-sm {
+  width: 20px; height: 20px; flex-shrink: 0;
+  border: 2px solid rgba(124,92,255,0.2); border-top-color: #7c5cff;
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.pkg-error {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 16px; border-radius: 12px;
+  background: rgba(239,68,68,0.07);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #f87171; font-size: 13px;
+  .material-icons { font-size: 18px; flex-shrink: 0; }
+  a { color: #a78bfa; margin-left: 6px; text-decoration: none; &:hover { text-decoration: underline; } }
+}
+
+// ── PRICE EDITOR ──────────────────────────────────────────────────────────────
+.price-editor {
+  background: rgba(124,92,255,0.06);
+  border: 1px solid rgba(124,92,255,0.22);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+.price-editor-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 700; color: #a78bfa;
+  .material-icons { font-size: 17px; flex-shrink: 0; }
+}
+
+.price-editor-hint {
+  font-size: 11px; font-weight: 400; color: rgba(234,241,255,0.4);
+  margin-left: 4px;
+}
+
+.price-editor-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+
+.price-field {
+  display: flex; flex-direction: column; gap: 5px;
+
+  label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: rgba(234,241,255,0.5);
+  }
+}
+
+.price-input-wrap {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 10px; overflow: hidden;
+  transition: border-color 0.15s;
+
+  &:focus-within {
+    border-color: rgba(124,92,255,0.55);
+    background: rgba(255,255,255,0.09);
+  }
+}
+
+.price-symbol {
+  padding: 0 8px 0 12px;
+  font-size: 15px; font-weight: 700; color: rgba(234,241,255,0.45);
+  flex-shrink: 0;
+}
+
+.price-input-wrap input {
+  flex: 1; background: none; border: none; outline: none;
+  color: #eaf1ff; font-size: 16px; font-weight: 700;
+  padding: 9px 0; font-family: inherit;
+  min-width: 0;
+  &::placeholder { color: rgba(234,241,255,0.2); }
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { -webkit-appearance: none; }
+  -moz-appearance: textfield;
+}
+
+.price-unit {
+  padding: 0 12px 0 4px;
+  font-size: 12px; color: rgba(234,241,255,0.4); flex-shrink: 0;
+}
+
+.price-field-hint {
+  font-size: 10px; color: rgba(234,241,255,0.32);
+}
+
+.price-calc-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+
+.calc-item {
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+.calc-label {
+  font-size: 10px; color: rgba(234,241,255,0.38);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+.calc-value {
+  font-size: 15px; font-weight: 700; color: #eaf1ff;
+}
+
+.total-calc .calc-value {
+  font-size: 18px; font-weight: 800; color: #34d399;
+}
+
+.calc-plus {
+  font-size: 18px; color: rgba(234,241,255,0.25); font-weight: 300;
+  flex-shrink: 0;
+}
+
+.price-manual-prompt {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 16px 18px; border-radius: 14px;
+  background: rgba(245,158,11,0.06);
+  border: 1px dashed rgba(245,158,11,0.25);
+  .material-icons { font-size: 22px; color: #f59e0b; margin-top: 2px; flex-shrink: 0; }
+  p { margin: 0; font-size: 13px; color: rgba(234,241,255,0.5); }
+}
+
 // ── CATALOG CARDS (Bar Type & Theme) ─────────────────────────────────────────
 .catalog-grid {
   display: flex;
@@ -978,6 +1113,318 @@
 
 .addon-selected-count {
   font-size: 13px; font-weight: 600; color: rgba(234,241,255,0.5);
+}
+
+// ── DRINK MENU ────────────────────────────────────────────────────────────────
+
+.drink-empty-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: rgba(234,241,255,0.4);
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 16px;
+
+  .material-icons { font-size: 32px; opacity: 0.4; }
+  p { margin: 0; }
+  .drink-empty-sub { font-size: 11px; opacity: 0.6; margin-top: 2px; }
+}
+
+// ── Selected drink lines list ──────────────────────────────────────────────────
+
+.drink-lines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+// Category group header
+.dlg-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(124,92,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.dlg-icon {
+  font-size: 15px;
+  color: #7c5cff;
+}
+
+.dlg-label {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(167,139,250,0.8);
+}
+
+.dlg-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  background: rgba(124,92,255,0.2);
+  color: #a78bfa;
+  border-radius: 10px;
+}
+
+// Individual drink row
+.dl-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.12s;
+
+  &:last-of-type { border-bottom: none; }
+  &:hover { background: rgba(255,255,255,0.02); }
+}
+
+.dl-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 12px 10px 16px;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dl-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(234,241,255,0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.dl-detail {
+  font-size: 11px;
+  color: rgba(234,241,255,0.4);
+}
+
+.dl-micro-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(234,241,255,0.3);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.dl-qty-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 12px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.dl-qty-input {
+  width: 56px;
+  padding: 5px 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 7px;
+  font-size: 13px;
+  color: #e2e8f0;
+  text-align: center;
+  outline: none;
+
+  &:focus { border-color: #7c5cff; }
+  &::-webkit-inner-spin-button { opacity: 0.5; }
+}
+
+.dl-price-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 12px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.dl-price-inner {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 7px;
+  overflow: hidden;
+
+  &:focus-within { border-color: #7c5cff; }
+}
+
+.dl-dollar {
+  padding: 0 6px;
+  font-size: 12px;
+  color: rgba(234,241,255,0.4);
+}
+
+.dl-price-input {
+  width: 80px;
+  padding: 5px 8px 5px 0;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  color: #e2e8f0;
+  outline: none;
+
+  &::-webkit-inner-spin-button { opacity: 0.5; }
+}
+
+.dl-line-total {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #a78bfa;
+  min-width: 64px;
+  padding: 8px 4px 8px 8px;
+  justify-content: flex-end;
+
+  &.incl { color: rgba(234,241,255,0.3); font-weight: 400; font-size: 11px; }
+}
+
+.dl-remove-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(234,241,255,0.25);
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  transition: color 0.15s;
+
+  &:hover { color: #f87171; }
+  .material-icons { font-size: 15px; }
+}
+
+.drinks-subtotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(167,139,250,0.9);
+  background: rgba(124,92,255,0.06);
+  border-top: 1px solid rgba(124,92,255,0.2);
+}
+
+// ── Drink action row ──────────────────────────────────────────────────────────
+
+.drink-actions-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.browse-drinks-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 18px;
+  background: rgba(124,92,255,0.12);
+  border: 1px solid rgba(124,92,255,0.35);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #a78bfa;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  .material-icons { font-size: 18px; }
+
+  &:hover {
+    background: rgba(124,92,255,0.2);
+    border-color: #7c5cff;
+    color: #c4b5fd;
+  }
+}
+
+.drink-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #7c5cff;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+// ── Drink catalog modal ────────────────────────────────────────────────────────
+
+.drink-modal {
+  max-width: 780px;
+}
+
+.drink-type-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.dtt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(234,241,255,0.5);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+
+  .material-icons { font-size: 14px; }
+
+  &:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+
+  &.active {
+    background: rgba(124,92,255,0.2);
+    border-color: #7c5cff;
+    color: #c4b5fd;
+  }
+}
+
+.drink-catalog-card {
+  // inherits from addon-catalog-card, just override accent to teal for drinks
+  &.selected {
+    border-color: #7c5cff !important;
+    background: rgba(124,92,255,0.12) !important;
+  }
 }
 
 // ── RESPONSIVE ────────────────────────────────────────────────────────────────

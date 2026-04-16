@@ -1,43 +1,254 @@
-<div class="client-detail-page">
+<div class="cd-page">
 
+  <!-- ── HEADER ── -->
   <div class="page-header">
-    <button class="back-btn" (click)="goBack()">← Back</button>
-    <button class="primary-btn" (click)="editClient()">✏️ Edit Client</button>
+    <button class="back-btn" (click)="goBack()">
+      <span class="material-icons">arrow_back</span> Clients
+    </button>
+    <div class="header-actions" *ngIf="client">
+      <button class="action-btn quote" (click)="newQuote()">
+        <span class="material-icons">receipt_long</span> New Quote
+      </button>
+      <button class="action-btn reservation" (click)="newReservation()">
+        <span class="material-icons">event</span> New Reservation
+      </button>
+      <button class="action-btn edit" (click)="editClient()">
+        <span class="material-icons">edit</span> Edit
+      </button>
+    </div>
   </div>
 
-  @if (client) {
-    <div class="detail-card">
-      <div class="client-hero">
-        <div class="avatar">{{ client.name[0] }}{{ client.lastName[0] }}</div>
-        <div>
+  <!-- ── LOADING ── -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Loading client…</span>
+  </div>
+
+  <ng-container *ngIf="!loading && client">
+
+    <!-- ── PROFILE HERO ── -->
+    <div class="profile-card">
+      <div class="profile-left">
+        <div class="avatar">{{ initials() }}</div>
+        <div class="profile-info">
           <h2>{{ getFullName() }}</h2>
-          <span class="status-badge" [class.active]="client.status" [class.inactive]="!client.status">
-            {{ client.status ? 'Active' : 'Inactive' }}
-          </span>
+          <div class="profile-meta">
+            <a [href]="'mailto:' + client.email" class="meta-link email">
+              <span class="material-icons">email</span> {{ client.email }}
+            </a>
+            <a [href]="'https://wa.me/' + client.phone" target="_blank" class="meta-link wa" *ngIf="client.phone">
+              <span class="material-icons">whatsapp</span> {{ client.phone }}
+            </a>
+          </div>
         </div>
+      </div>
+      <span class="status-pill" [class.active]="client.status" [class.inactive]="!client.status">
+        <span class="material-icons status-dot">fiber_manual_record</span>
+        {{ client.status ? 'Active' : 'Inactive' }}
+      </span>
+    </div>
+
+    <!-- ── TWO-COLUMN LAYOUT ── -->
+    <div class="detail-layout">
+
+      <!-- ══ LEFT ══ -->
+      <div class="left-col">
+
+        <!-- Tabs: Events / Quotes -->
+        <div class="tabs-card">
+          <div class="tabs-header">
+            <button class="tab-btn" [class.active]="activeTab === 'events'" (click)="activeTab = 'events'">
+              <span class="material-icons">event</span>
+              Reservations
+              <span class="tab-badge">{{ clientEvents.length }}</span>
+            </button>
+            <button class="tab-btn" [class.active]="activeTab === 'quotes'" (click)="activeTab = 'quotes'">
+              <span class="material-icons">receipt_long</span>
+              Quotes
+              <span class="tab-badge">{{ clientQuotes.length }}</span>
+            </button>
+          </div>
+
+          <!-- ── EVENTS TAB ── -->
+          <div class="tab-body" *ngIf="activeTab === 'events'">
+
+            <div class="loading-related" *ngIf="loadingRelated">
+              <div class="spinner sm"></div> Loading…
+            </div>
+
+            <div class="empty-tab" *ngIf="!loadingRelated && clientEvents.length === 0">
+              <span class="material-icons">event_busy</span>
+              <p>No reservations found for this client.</p>
+              <button class="empty-action-btn" (click)="newReservation()">
+                <span class="material-icons">add</span> New Reservation
+              </button>
+            </div>
+
+            <div class="items-list" *ngIf="!loadingRelated && clientEvents.length > 0">
+              <div class="list-row"
+                   *ngFor="let e of clientEvents"
+                   (click)="goToEvent(e._id)"
+                   [class.past]="!isUpcoming(e)">
+
+                <div class="date-col">
+                  <span class="date-day">{{ resolveDate(e) | date:'d' }}</span>
+                  <span class="date-mon">{{ resolveDate(e) | date:'MMM' }}</span>
+                  <span class="date-yr">{{ resolveDate(e) | date:'y' }}</span>
+                </div>
+
+                <div class="row-info">
+                  <span class="row-title">{{ resolveTitle(e) }}</span>
+                  <span class="row-sub">
+                    <span class="material-icons">place</span>
+                    {{ resolveLocation(e) }}
+                  </span>
+                  <span class="row-code" *ngIf="e.eventCode">{{ e.eventCode }}</span>
+                </div>
+
+                <div class="row-right">
+                  <span class="amount" *ngIf="e.quotedTotal">
+                    ${{ e.quotedTotal | number:'1.0-0' }}
+                  </span>
+                  <span class="event-status" [ngClass]="eventStatusClass(e.status)">
+                    {{ eventStatusLabel(e.status) }}
+                  </span>
+                  <span class="upcoming-tag" *ngIf="isUpcoming(e)">Upcoming</span>
+                  <span class="material-icons row-arrow">chevron_right</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── QUOTES TAB ── -->
+          <div class="tab-body" *ngIf="activeTab === 'quotes'">
+
+            <div class="loading-related" *ngIf="loadingRelated">
+              <div class="spinner sm"></div> Loading…
+            </div>
+
+            <div class="empty-tab" *ngIf="!loadingRelated && clientQuotes.length === 0">
+              <span class="material-icons">receipt_long</span>
+              <p>No quotes found for this client.</p>
+              <button class="empty-action-btn" (click)="newQuote()">
+                <span class="material-icons">add</span> New Quote
+              </button>
+            </div>
+
+            <div class="items-list" *ngIf="!loadingRelated && clientQuotes.length > 0">
+              <div class="list-row quote-row"
+                   *ngFor="let q of clientQuotes"
+                   (click)="goToQuote(q._id)">
+
+                <div class="quote-ref">
+                  <span class="ref-label">REF</span>
+                  <span class="ref-val">{{ (q._id || '').slice(-6).toUpperCase() }}</span>
+                </div>
+
+                <div class="row-info">
+                  <span class="row-title">{{ q.eventType || 'Event Quote' }}</span>
+                  <span class="row-sub">
+                    <span class="material-icons">group</span>
+                    {{ q.guestCount || q.guests || '—' }} guests
+                    <ng-container *ngIf="q.eventDate">
+                      · {{ q.eventDate | date:'MMM d, y' }}
+                    </ng-container>
+                  </span>
+                  <span class="row-sub" *ngIf="q.packageName">
+                    <span class="material-icons">inventory_2</span>
+                    {{ q.packageName }}
+                  </span>
+                </div>
+
+                <div class="row-right">
+                  <span class="amount" *ngIf="q.total">
+                    ${{ q.total | number:'1.0-0' }}
+                  </span>
+                  <span class="event-status" [ngClass]="quoteStatusClass(q.status)">
+                    {{ quoteStatusLabel(q.status) }}
+                  </span>
+                  <span class="material-icons row-arrow">chevron_right</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Email</span>
-          <span class="info-value">{{ client.email }}</span>
+      <!-- ══ RIGHT ══ -->
+      <div class="right-col">
+
+        <!-- Stats -->
+        <div class="stat-card green">
+          <span class="material-icons stat-icon">celebration</span>
+          <div class="stat-body">
+            <span class="stat-value">{{ upcomingEventsCount }}</span>
+            <span class="stat-label">Upcoming Events</span>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="info-label">Phone</span>
-          <span class="info-value">{{ client.phone }}</span>
+
+        <div class="stat-card">
+          <span class="material-icons stat-icon muted">history</span>
+          <div class="stat-body">
+            <span class="stat-value">{{ clientEvents.length }}</span>
+            <span class="stat-label">Total Reservations</span>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="info-label">Preferred Contact</span>
-          <span class="info-value">{{ client.clientData?.preferredContact || '—' }}</span>
+
+        <div class="stat-card purple">
+          <span class="material-icons stat-icon purple-icon">receipt_long</span>
+          <div class="stat-body">
+            <span class="stat-value">{{ clientQuotes.length }}</span>
+            <span class="stat-label">Total Quotes</span>
+          </div>
         </div>
-        <div class="info-item info-full">
-          <span class="info-label">Notes</span>
-          <span class="info-value">{{ client.clientData?.notes || '—' }}</span>
+
+        <div class="stat-card teal" *ngIf="totalSpend > 0">
+          <span class="material-icons stat-icon teal-icon">paid</span>
+          <div class="stat-body">
+            <span class="stat-value">${{ totalSpend | number:'1.0-0' }}</span>
+            <span class="stat-label">Confirmed Revenue</span>
+          </div>
         </div>
+
+        <!-- Contact info card -->
+        <div class="contact-card">
+          <div class="contact-card-title">Contact</div>
+
+          <div class="contact-row" *ngIf="client.clientData?.preferredContact">
+            <span class="material-icons">star</span>
+            <div>
+              <span class="contact-label">Preferred</span>
+              <span class="contact-val">{{ client.clientData?.preferredContact }}</span>
+            </div>
+          </div>
+
+          <div class="contact-row" *ngIf="client.clientData?.notes">
+            <span class="material-icons">notes</span>
+            <div>
+              <span class="contact-label">Notes</span>
+              <span class="contact-val notes">{{ client.clientData?.notes }}</span>
+            </div>
+          </div>
+
+          <a [href]="'mailto:' + client.email" class="contact-btn email">
+            <span class="material-icons">email</span> Send Email
+          </a>
+          <a [href]="'https://wa.me/' + client.phone" target="_blank" class="contact-btn wa" *ngIf="client.phone">
+            <span class="material-icons">whatsapp</span> WhatsApp
+          </a>
+        </div>
+
       </div>
     </div>
-  } @else {
-    <div class="loading">Loading client...</div>
-  }
+
+  </ng-container>
+
+  <!-- ── NOT FOUND ── -->
+  <div class="empty-state" *ngIf="!loading && !client">
+    <span class="material-icons">person_off</span>
+    <p>Client not found.</p>
+    <button class="back-btn" (click)="goBack()">Go back</button>
+  </div>
 
 </div>
