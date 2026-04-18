@@ -20,6 +20,11 @@
         <span class="material-icons">arrow_back</span> Back to Quotes
       </button>
       <div class="toolbar-actions">
+        <button class="tool-btn send" (click)="sendToClient()" [disabled]="sending"
+          *ngIf="quote.status === 'DRAFT' || quote.status === 'SENT'">
+          <span class="material-icons">{{ sending ? 'hourglass_top' : 'send' }}</span>
+          {{ sending ? 'Sending…' : (quote.status === 'SENT' ? 'Resend' : 'Send to Client') }}
+        </button>
         <button class="tool-btn primary" (click)="openBuilder()">
           <span class="material-icons">picture_as_pdf</span> Build PDF
         </button>
@@ -612,6 +617,12 @@
 
           <!-- Admin action buttons -->
           <div class="sidebar-admin no-print">
+            <button class="sidebar-action-btn send"
+              (click)="sendToClient()" [disabled]="sending"
+              *ngIf="quote.status === 'DRAFT' || quote.status === 'SENT'">
+              <span class="material-icons">{{ sending ? 'hourglass_top' : 'send' }}</span>
+              {{ sending ? 'Sending…' : (quote.status === 'SENT' ? 'Resend' : 'Send') }}
+            </button>
             <button class="sidebar-action-btn" (click)="edit()">
               <span class="material-icons">edit</span> Edit
             </button>

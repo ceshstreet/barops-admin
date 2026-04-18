@@ -1,0 +1,67 @@
+<div class="login-page">
+  <div class="login-card">
+
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-icon"><span class="material-icons">sports_bar</span></div>
+      <span class="brand-name">BarOps</span>
+    </div>
+
+    <h2>Iniciar sesión</h2>
+
+    <!-- Tabs -->
+    <div class="role-tabs">
+      <button class="role-tab" [class.active]="tab === 'admin'" (click)="switchTab('admin')">
+        <span class="material-icons">admin_panel_settings</span> Admin
+      </button>
+      <button class="role-tab" [class.active]="tab === 'bartender'" (click)="switchTab('bartender')">
+        <span class="material-icons">sports_bar</span> Bartender
+      </button>
+    </div>
+
+    <form (ngSubmit)="submit()" autocomplete="off">
+
+      <!-- Email -->
+      <div class="field">
+        <label>Correo electrónico</label>
+        <div class="input-wrap">
+          <span class="material-icons field-ico">email</span>
+          <input type="email" [(ngModel)]="email" name="email"
+            autocomplete="email" placeholder="correo@ejemplo.com" required />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+        <label>Contraseña</label>
+        <div class="input-wrap">
+          <span class="material-icons field-ico">lock</span>
+          <input [type]="showPass ? 'text' : 'password'"
+            [(ngModel)]="password" name="password"
+            autocomplete="current-password" placeholder="Tu contraseña" required />
+          <button type="button" class="toggle-vis" (click)="showPass = !showPass" tabindex="-1">
+            <span class="material-icons">{{ showPass ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="error-banner" *ngIf="errorMsg">
+        <span class="material-icons">error_outline</span>
+        {{ errorMsg }}
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="!email || !password || loading">
+        <span class="spinner" *ngIf="loading"></span>
+        <span class="material-icons" *ngIf="!loading">login</span>
+        {{ loading ? 'Iniciando…' : 'Ingresar' }}
+      </button>
+
+    </form>
+
+    <a routerLink="/accept-invite" class="invite-link">
+      ¿Recibiste un código de invitación? Activa tu cuenta aquí →
+    </a>
+
+  </div>
+</div>

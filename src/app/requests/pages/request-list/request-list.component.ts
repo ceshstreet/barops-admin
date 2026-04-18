@@ -63,6 +63,46 @@ export class RequestListComponent implements OnInit {
   processingReadId: number | null = null;
   processingClientId: number | null = null;
 
+  // ── Pagination ─────────────────────────────────────────────────────────────
+  readonly pageSize = 15;
+  currentPage = 1;
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredRequests.length / this.pageSize));
+  }
+
+  get pagedRequests(): QuoteRequest[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredRequests.slice(start, start + this.pageSize);
+  }
+
+  get pageNumbers(): number[] {
+    const total = this.totalPages;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+    const cur  = this.currentPage;
+    const pages: (number | null)[] = [1];
+
+    if (cur > 3) pages.push(null);           // left ellipsis
+
+    for (let p = Math.max(2, cur - 1); p <= Math.min(total - 1, cur + 1); p++) {
+      pages.push(p);
+    }
+
+    if (cur < total - 2) pages.push(null);   // right ellipsis
+    pages.push(total);
+
+    return pages.filter((p): p is number => p !== null);
+  }
+
+  get pageEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredRequests.length);
+  }
+
+  prevPage(): void { if (this.currentPage > 1) this.currentPage--; }
+  nextPage(): void { if (this.currentPage < this.totalPages) this.currentPage++; }
+  goToPage(n: number): void { this.currentPage = n; }
+
   ngOnInit(): void {
     this.loadRequests();
   }
@@ -127,6 +167,7 @@ export class RequestListComponent implements OnInit {
       return matchSearch && matchStatus;
     });
 
+    this.currentPage = 1;
     this.sortData();
   }
 

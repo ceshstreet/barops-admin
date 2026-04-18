@@ -1,0 +1,151 @@
+.invite-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(900px 600px at 20% 10%, rgba(124,92,255,0.18), transparent 60%),
+    radial-gradient(700px 500px at 80% 80%, rgba(52,211,153,0.10), transparent 60%),
+    #0b1220;
+  padding: 24px;
+  color: #eaf1ff;
+}
+
+.invite-card {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 24px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+// ── Brand ──
+.brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.brand-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, #7c5cff, #34d399);
+  display: flex; align-items: center; justify-content: center;
+  .material-icons { font-size: 22px; color: #fff; }
+}
+.brand-name { font-size: 20px; font-weight: 800; color: #eaf1ff; }
+
+// ── Card header ──
+.card-header {
+  display: flex; flex-direction: column; gap: 6px;
+  h2 { margin: 0; font-size: 22px; font-weight: 800; }
+}
+.subtitle {
+  margin: 0; font-size: 13px; color: rgba(234,241,255,0.5); line-height: 1.5;
+}
+
+// ── Form ──
+form { display: flex; flex-direction: column; gap: 14px; }
+
+.field {
+  display: flex; flex-direction: column; gap: 6px;
+  label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: rgba(234,241,255,0.4);
+  }
+}
+
+.input-wrap {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 0 12px; transition: border-color 0.15s;
+
+  &:focus-within { border-color: rgba(124,92,255,0.55); }
+  &.invalid      { border-color: rgba(239,68,68,0.55); }
+
+  .field-ico {
+    font-size: 18px; color: rgba(234,241,255,0.25);
+    flex-shrink: 0; margin-right: 8px;
+  }
+
+  input {
+    flex: 1; background: none; border: none; outline: none;
+    color: #eaf1ff; font-size: 14px; padding: 12px 0;
+    &::placeholder { color: rgba(234,241,255,0.25); }
+  }
+}
+
+.code-wrap input {
+  font-size: 22px; font-weight: 800; letter-spacing: 0.2em;
+  text-align: center;
+}
+
+.toggle-vis {
+  background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center;
+  .material-icons { font-size: 18px; color: rgba(234,241,255,0.3); }
+  &:hover .material-icons { color: rgba(234,241,255,0.6); }
+}
+
+.field-hint { font-size: 11px; color: #f87171; font-weight: 500; }
+
+// ── Divider ──
+.divider {
+  display: flex; align-items: center; gap: 10px;
+  span {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: rgba(234,241,255,0.3);
+    white-space: nowrap;
+  }
+  &::before, &::after {
+    content: ''; flex: 1;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+}
+
+// ── Error banner ──
+.error-banner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 10px; font-size: 13px; color: #f87171;
+  .material-icons { font-size: 17px; flex-shrink: 0; }
+}
+
+// ── Submit ──
+.submit-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px; border-radius: 12px;
+  background: linear-gradient(135deg, #7c5cff, #5b3fd9);
+  border: none; color: #fff; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: opacity 0.15s; margin-top: 4px;
+  .material-icons { font-size: 18px; }
+  &:hover:not(:disabled) { opacity: 0.88; }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+// ── Success / Error state ──
+.result-state {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; text-align: center; padding: 12px 0;
+  h2 { margin: 0; font-size: 22px; font-weight: 800; }
+  p  { margin: 0; font-size: 14px; color: rgba(234,241,255,0.6); line-height: 1.5; }
+}
+
+.result-icon {
+  width: 68px; height: 68px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  .material-icons { font-size: 34px; }
+
+  &.success {
+    background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.3);
+    .material-icons { color: #34d399; }
+  }
+}
+
+// ── Spinner ──
+.spinner {
+  width: 18px; height: 18px; flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.25); border-top-color: #fff;
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

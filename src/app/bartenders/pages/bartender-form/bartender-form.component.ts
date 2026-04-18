@@ -24,7 +24,6 @@ export class BartenderFormComponent implements OnInit, AfterViewInit {
     lastName: '',
     email: '',
     phone: '',
-    password: '',
     status: 'AVAILABLE',
     bartenderData: {
       specialty: '',
@@ -113,9 +112,12 @@ export class BartenderFormComponent implements OnInit, AfterViewInit {
       });
     } else {
       this.bartenderService.insertBartender(bartenderData).subscribe({
-        next: () => {
-          this.toastService.show('Bartender creado con éxito', 'success');
-          setTimeout(() => this.router.navigate(['/bartenders']), 1500);
+        next: (res: any) => {
+          const msg = res?.emailSent === false
+            ? 'Bartender creado. Email no enviado — revisa la configuración SMTP.'
+            : 'Bartender creado. Email de invitación enviado.';
+          this.toastService.show(msg, res?.emailSent === false ? 'error' : 'success');
+          setTimeout(() => this.router.navigate(['/bartenders']), 2000);
         },
         error: (err) => {
           this.toastService.show(err.error?.message || 'Error al crear', 'error');

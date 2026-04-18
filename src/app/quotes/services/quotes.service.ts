@@ -41,6 +41,10 @@ export class QuotesService {
     return this.http.patch<QuoteResponse>(`${this.apiUrl}/${id}/status`, { status });
   }
 
+  sendQuote(id: string): Observable<{ ok: boolean; message: string; data: Quote }> {
+    return this.http.post<{ ok: boolean; message: string; data: Quote }>(`${this.apiUrl}/${id}/send`, {});
+  }
+
   deleteQuote(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
   }

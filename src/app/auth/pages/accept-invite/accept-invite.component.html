@@ -1,0 +1,116 @@
+<div class="invite-page">
+  <div class="invite-card">
+
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-icon">
+        <span class="material-icons">sports_bar</span>
+      </div>
+      <span class="brand-name">BarOps</span>
+    </div>
+
+    <!-- ══ SUCCESS ══ -->
+    <ng-container *ngIf="step === 'success'">
+      <div class="result-state">
+        <div class="result-icon success">
+          <span class="material-icons">check_circle</span>
+        </div>
+        <h2>¡Cuenta activada!</h2>
+        <p>Tu contraseña ha sido creada. Ya puedes iniciar sesión con tu correo.</p>
+        <button class="submit-btn" (click)="goToLogin()">
+          <span class="material-icons">login</span> Ir al inicio
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ══ FORM ══ -->
+    <ng-container *ngIf="step === 'form'">
+      <div class="card-header">
+        <h2>Activa tu cuenta</h2>
+        <p class="subtitle">
+          Revisa tu correo, copia el código de 6 dígitos e ingresa tu nueva contraseña.
+        </p>
+      </div>
+
+      <form (ngSubmit)="submit()" autocomplete="off">
+
+        <!-- Email -->
+        <div class="field">
+          <label>Tu correo electrónico</label>
+          <div class="input-wrap">
+            <span class="material-icons field-ico">email</span>
+            <input type="email" [(ngModel)]="email" name="email"
+              autocomplete="email" placeholder="correo@ejemplo.com" required />
+          </div>
+        </div>
+
+        <!-- Código -->
+        <div class="field">
+          <label>Código de verificación</label>
+          <div class="input-wrap code-wrap" [class.invalid]="code.length > 0 && !codeValid">
+            <span class="material-icons field-ico">tag</span>
+            <input type="text" [(ngModel)]="code" name="code"
+              maxlength="6" inputmode="numeric" placeholder="6 dígitos"
+              autocomplete="one-time-code" required />
+          </div>
+          <span class="field-hint" *ngIf="code.length > 0 && !codeValid">
+            El código debe tener exactamente 6 dígitos.
+          </span>
+        </div>
+
+        <!-- Divisor -->
+        <div class="divider">
+          <span>Nueva contraseña</span>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label>Contraseña (mín. 12 caracteres)</label>
+          <div class="input-wrap" [class.invalid]="password.length > 0 && !passwordValid">
+            <span class="material-icons field-ico">lock</span>
+            <input [type]="showPass ? 'text' : 'password'"
+              [(ngModel)]="password" name="password"
+              autocomplete="new-password" placeholder="Mínimo 12 caracteres" required />
+            <button type="button" class="toggle-vis" (click)="showPass = !showPass" tabindex="-1">
+              <span class="material-icons">{{ showPass ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <span class="field-hint" *ngIf="password.length > 0 && !passwordValid">
+            Debe tener al menos 12 caracteres.
+          </span>
+        </div>
+
+        <!-- Confirm -->
+        <div class="field">
+          <label>Confirmar contraseña</label>
+          <div class="input-wrap" [class.invalid]="confirm.length > 0 && !passwordsMatch">
+            <span class="material-icons field-ico">lock_reset</span>
+            <input [type]="showConfirm ? 'text' : 'password'"
+              [(ngModel)]="confirm" name="confirm"
+              autocomplete="new-password" placeholder="Repite tu contraseña" required />
+            <button type="button" class="toggle-vis" (click)="showConfirm = !showConfirm" tabindex="-1">
+              <span class="material-icons">{{ showConfirm ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <span class="field-hint" *ngIf="confirm.length > 0 && !passwordsMatch">
+            Las contraseñas no coinciden.
+          </span>
+        </div>
+
+        <!-- Error banner -->
+        <div class="error-banner" *ngIf="errorMsg">
+          <span class="material-icons">error_outline</span>
+          {{ errorMsg }}
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="!canSubmit">
+          <span class="material-icons" *ngIf="!loading">key</span>
+          <span class="spinner" *ngIf="loading"></span>
+          {{ loading ? 'Activando…' : 'Activar cuenta' }}
+        </button>
+
+      </form>
+    </ng-container>
+
+  </div>
+</div>

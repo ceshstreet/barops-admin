@@ -31,6 +31,12 @@
   .material-icons { font-size: 16px; }
   &:hover { background: rgba(255,255,255,0.1); color: #eaf1ff; }
 
+  &.send {
+    background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #10b981;
+    &:hover { background: rgba(16,185,129,0.2); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+
   &.convert {
     background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.3); color: #34d399;
     &:hover { background: rgba(52,211,153,0.2); }
@@ -700,6 +706,15 @@
     flex-direction: row; justify-content: center;
     padding: 11px 12px; font-size: 13px;
     &:hover { opacity: 0.88; }
+  }
+
+  &.send {
+    background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #10b981;
+    grid-column: 1 / -1;
+    flex-direction: row; justify-content: center;
+    padding: 11px 12px; font-size: 13px;
+    &:hover { background: rgba(16,185,129,0.2); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
   }
 }
 

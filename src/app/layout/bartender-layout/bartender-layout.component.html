@@ -1,0 +1,60 @@
+<div class="bt-shell">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="bt-sidebar">
+    <!-- Brand -->
+    <div class="bt-brand">
+      <span class="material-icons brand-ico">sports_bar</span>
+      <span class="brand-label">BarOps</span>
+    </div>
+
+    <!-- Profile pill -->
+    <div class="bt-profile">
+      <div class="bt-avatar">{{ initials }}</div>
+      <div class="bt-profile-info">
+        <span class="bt-name">{{ userName }}</span>
+        <span class="bt-role">Bartender</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="bt-nav">
+
+      <span class="nav-section">Mi espacio</span>
+      <a routerLink="/bartender/dashboard" routerLinkActive="active">
+        <span class="material-icons">dashboard</span> Mi Dashboard
+      </a>
+      <a routerLink="/bartender/events" routerLinkActive="active">
+        <span class="material-icons">event</span> Mis Eventos
+      </a>
+
+      <span class="nav-section">Catálogo</span>
+      <a routerLink="/bartender/drinks" routerLinkActive="active">
+        <span class="material-icons">local_bar</span> Drinks
+      </a>
+      <a routerLink="/bartender/packages" routerLinkActive="active">
+        <span class="material-icons">inventory_2</span> Packages
+      </a>
+      <a routerLink="/bartender/bar-types" routerLinkActive="active">
+        <span class="material-icons">storefront</span> Bar Types
+      </a>
+      <a routerLink="/bartender/drink-themes" routerLinkActive="active">
+        <span class="material-icons">palette</span> Drink Themes
+      </a>
+
+    </nav>
+
+    <!-- Logout -->
+    <button class="bt-logout" (click)="logout()">
+      <span class="material-icons">logout</span> Cerrar sesión
+    </button>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="bt-main">
+    <div class="bt-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+</div>

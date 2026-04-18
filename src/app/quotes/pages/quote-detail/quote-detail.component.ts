@@ -34,6 +34,7 @@ export class QuoteDetailComponent implements OnInit {
   loading = true;
   error   = '';
   updatingStatus = false;
+  sending = false;
   toast: { message: string; type: 'success' | 'error' } | null = null;
 
   // ── Enriched catalog data ──────────────────────────────────────────────────
@@ -268,6 +269,23 @@ export class QuoteDetailComponent implements OnInit {
   edit(): void        { if (this.quote?._id) this.router.navigate(['/quotes', this.quote._id, 'edit']); }
   goBack(): void      { this.router.navigate(['/quotes']); }
   openBuilder(): void { if (this.quote?._id) this.router.navigate(['/quotes', this.quote._id, 'build']); }
+
+  sendToClient(): void {
+    if (!this.quote?._id || this.sending) return;
+    this.sending = true;
+    this.quotesService.sendQuote(this.quote._id).subscribe({
+      next: (res) => {
+        this.quote   = res.data;
+        this.sending = false;
+        this.showToast('Quote sent to client successfully', 'success');
+      },
+      error: (err) => {
+        this.sending = false;
+        const msg = err?.error?.message || 'Error sending quote';
+        this.showToast(msg, 'error');
+      },
+    });
+  }
 
   convertToReservation(): void {
     if (!this.quote) return;

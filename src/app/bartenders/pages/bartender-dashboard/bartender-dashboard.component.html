@@ -1,0 +1,84 @@
+<div class="bt-dash">
+
+  <!-- ── PROFILE HERO ── -->
+  <div class="profile-hero">
+    <div class="hero-avatar">{{ initials }}</div>
+    <div class="hero-info">
+      <h1>{{ user?.name }} {{ user?.lastName }}</h1>
+      <span class="hero-role">
+        <span class="material-icons">sports_bar</span> Bartender · BarOps
+      </span>
+    </div>
+  </div>
+
+  <!-- ── STATS ── -->
+  <div class="stats-row">
+    <div class="stat-card green">
+      <span class="material-icons">celebration</span>
+      <div>
+        <span class="stat-val">{{ upcoming.length }}</span>
+        <span class="stat-lbl">Upcoming</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="material-icons muted">history</span>
+      <div>
+        <span class="stat-val">{{ events.length }}</span>
+        <span class="stat-lbl">Total Events</span>
+      </div>
+    </div>
+    <div class="stat-card purple">
+      <span class="material-icons purple-icon">event_available</span>
+      <div>
+        <span class="stat-val">{{ past.length }}</span>
+        <span class="stat-lbl">Completed</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EVENTS ── -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="material-icons">event</span>
+      <h3>Mis Eventos Asignados</h3>
+    </div>
+
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div> Cargando eventos…
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && events.length === 0">
+      <span class="material-icons">event_busy</span>
+      <p>No tienes eventos asignados aún.</p>
+    </div>
+
+    <div class="events-list" *ngIf="!loading && events.length > 0">
+      <div class="event-row"
+           *ngFor="let e of events"
+           [class.past]="!upcoming.includes(e)">
+
+        <div class="date-col">
+          <span class="date-day">{{ resolveDate(e) | date:'d' }}</span>
+          <span class="date-mon">{{ resolveDate(e) | date:'MMM' }}</span>
+          <span class="date-yr">{{ resolveDate(e) | date:'y' }}</span>
+        </div>
+
+        <div class="event-info">
+          <span class="event-title">{{ resolveTitle(e) }}</span>
+          <span class="event-loc">
+            <span class="material-icons">place</span> {{ resolveLocation(e) }}
+          </span>
+        </div>
+
+        <div class="event-right">
+          <span class="status-pill" [ngClass]="statusClass(e.status)">
+            {{ statusLabel(e.status) }}
+          </span>
+          <span class="upcoming-tag" *ngIf="upcoming.includes(e)">Upcoming</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

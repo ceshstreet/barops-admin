@@ -32,9 +32,9 @@
           </div>
 
           @if (!isEditMode) {
-            <div class="field">
-              <label>Password (Min 12 chars)</label>
-              <input type="password" [(ngModel)]="bartender.password" name="password" placeholder="Minimum 12 characters" required />
+            <div class="field field-full invite-notice">
+              <span class="material-icons">email</span>
+              <span>An invitation email will be sent so the bartender can set their own password.</span>
             </div>
           }
 

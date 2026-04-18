@@ -109,7 +109,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let r of filteredRequests; trackBy: trackByOdooId"
+        <tr *ngFor="let r of pagedRequests; trackBy: trackByOdooId"
           class="inbox-row"
           [class.unread]="!r.isRead"
           (click)="viewRequest(r.odooId)">
@@ -206,6 +206,30 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- ── PAGINATION ── -->
+    <div class="pagination-bar" *ngIf="totalPages > 1">
+      <span class="page-info">
+        {{ (currentPage - 1) * pageSize + 1 }}–{{ pageEnd }}
+        of {{ filteredRequests.length }}
+      </span>
+
+      <div class="page-controls">
+        <button class="page-btn nav" (click)="prevPage()" [disabled]="currentPage === 1">
+          <span class="material-icons">chevron_left</span>
+        </button>
+
+        <ng-container *ngFor="let p of pageNumbers">
+          <button class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">
+            {{ p }}
+          </button>
+        </ng-container>
+
+        <button class="page-btn nav" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>

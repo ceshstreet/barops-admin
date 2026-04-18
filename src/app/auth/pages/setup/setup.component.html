@@ -1,0 +1,85 @@
+<div class="setup-page">
+  <div class="setup-card">
+
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-icon"><span class="material-icons">admin_panel_settings</span></div>
+      <span class="brand-name">BarOps</span>
+    </div>
+
+    <div class="header">
+      <h2>Configuración inicial</h2>
+      <p class="subtitle">Crea la cuenta de administrador principal.</p>
+    </div>
+
+    <!-- Success -->
+    <div class="success-banner" *ngIf="success">
+      <span class="material-icons">check_circle</span>
+      ¡Admin creado! Redirigiendo al login…
+    </div>
+
+    <form (ngSubmit)="submit()" autocomplete="off" *ngIf="!success">
+
+      <!-- Nombre + Apellido -->
+      <div class="row-2">
+        <div class="field">
+          <label>Nombre</label>
+          <div class="input-wrap">
+            <span class="material-icons field-ico">person</span>
+            <input type="text" [(ngModel)]="name" name="name" placeholder="Juan" required />
+          </div>
+        </div>
+        <div class="field">
+          <label>Apellido</label>
+          <div class="input-wrap">
+            <span class="material-icons field-ico">person</span>
+            <input type="text" [(ngModel)]="lastName" name="lastName" placeholder="Pérez" required />
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="field">
+        <label>Correo electrónico</label>
+        <div class="input-wrap">
+          <span class="material-icons field-ico">email</span>
+          <input type="email" [(ngModel)]="email" name="email"
+            placeholder="admin@ejemplo.com" required />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+        <label>Contraseña</label>
+        <div class="input-wrap">
+          <span class="material-icons field-ico">lock</span>
+          <input [type]="showPass ? 'text' : 'password'"
+            [(ngModel)]="password" name="password"
+            placeholder="Mínimo 8 caracteres" required />
+          <button type="button" class="toggle-vis" (click)="showPass = !showPass" tabindex="-1">
+            <span class="material-icons">{{ showPass ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="error-banner" *ngIf="errorMsg">
+        <span class="material-icons">error_outline</span>
+        {{ errorMsg }}
+      </div>
+
+      <button type="submit" class="submit-btn"
+        [disabled]="!name || !lastName || !email || !password || loading">
+        <span class="spinner" *ngIf="loading"></span>
+        <span class="material-icons" *ngIf="!loading">add_circle</span>
+        {{ loading ? 'Creando…' : 'Crear administrador' }}
+      </button>
+
+    </form>
+
+    <a routerLink="/login" class="back-link">
+      <span class="material-icons">arrow_back</span> Volver al login
+    </a>
+
+  </div>
+</div>
