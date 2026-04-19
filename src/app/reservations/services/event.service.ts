@@ -3,6 +3,29 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+export interface ServiceAddOnLine {
+  addOnId?: string;
+  name: string;
+  detail?: string;
+  price: number;
+}
+
+export interface ServiceConfig {
+  packageId?:      string;
+  packageName?:    string;
+  barTypeId?:      string;
+  barTypeName?:    string;
+  drinkThemeId?:   string;
+  drinkThemeName?: string;
+  addOnLines?:     ServiceAddOnLine[];
+  pricePerGuest?:  number;
+  packageBasePrice?: number;
+  subtotal?:       number;
+  discount?:       number;
+  total?:          number;
+  notes?:          string;
+}
+
 export interface Event {
   _id?: string;
   eventCode?: string;
@@ -21,6 +44,7 @@ export interface Event {
   quoteId?: string;
   quotedTotal?: number;
   packageName?: string;
+  serviceConfig?: ServiceConfig;
   eventInfo?: {
     title?: string;
     type?: string;

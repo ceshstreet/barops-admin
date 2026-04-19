@@ -2,8 +2,18 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { EventService, Event as ReservationEvent } from '../../services/event.service';
+import { forkJoin } from 'rxjs';
+
+import { EventService, Event as ReservationEvent, ServiceConfig, ServiceAddOnLine } from '../../services/event.service';
 import { BartenderService, Bartender } from '../../../bartenders/services/bartender.service';
+import { PackageService } from '../../../packages/services/package.service';
+import { Package } from '../../../packages/models/package.model';
+import { BarTypeService, BarType } from '../../../bar-types/services/bar-type.service';
+import { DrinkThemeService } from '../../../drink-themes/services/drink-theme.service';
+import { DrinkTheme } from '../../../drink-themes/models/drink-theme.model';
+import { AddOnService } from '../../../add-ons/services/add-on.service';
+import { AddOn } from '../../../add-ons/models/add-on.model';
+import { QuotesService } from '../../../quotes/services/quotes.service';
 import { ToastService } from '../../../shared/services/toast.service';
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
@@ -28,19 +38,53 @@ export class ReservationDetailComponent implements OnInit {
   private router           = inject(Router);
   private eventService     = inject(EventService);
   private bartenderService = inject(BartenderService);
+  private packageService   = inject(PackageService);
+  private barTypeService   = inject(BarTypeService);
+  private drinkThemeService= inject(DrinkThemeService);
+  private addOnService     = inject(AddOnService);
+  private quotesService    = inject(QuotesService);
   private toastService     = inject(ToastService);
 
   reservation: ReservationEvent | null = null;
   allBartenders: Bartender[] = [];
 
-  // Multi-select state
+  // ── Bartender multi-select ────────────────────────────────────────────────
   selectedBartenderIds: string[] = [];
   showBartenderPicker  = false;
-  editingBartenders    = false;   // edit mode for confirmed reservations
-
-  // Availability by date (IDs of bartenders free on event date)
+  editingBartenders    = false;
   availableOnDateIds: Set<string> = new Set();
   dateAvailabilityLoaded = false;
+
+  // ── Catalog data ──────────────────────────────────────────────────────────
+  packages:    Package[]   = [];
+  barTypes:    BarType[]   = [];
+  drinkThemes: DrinkTheme[] = [];
+  allAddOns:   AddOn[]    = [];
+
+  // ── Service Sheet state ───────────────────────────────────────────────────
+  editingServices   = false;
+  savingServices    = false;
+
+  // Form fields (mirrors ServiceConfig)
+  sc_packageId:      string = '';
+  sc_packageName:    string = '';
+  sc_barTypeId:      string = '';
+  sc_barTypeName:    string = '';
+  sc_drinkThemeId:   string = '';
+  sc_drinkThemeName: string = '';
+  sc_addOnLines:     ServiceAddOnLine[] = [];
+  sc_pricePerGuest:  number = 0;
+  sc_packageBasePrice: number = 0;
+  sc_subtotal:       number = 0;
+  sc_discount:       number = 0;
+  sc_total:          number = 0;
+  sc_notes:          string = '';
+
+  // Add-on picker
+  showAddOnPicker = false;
+
+  // Generate Quote
+  generatingQuote = false;
 
   loading = true;
   saving  = false;
@@ -48,10 +92,22 @@ export class ReservationDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
 
-    // Load all bartenders (we show status indicators ourselves)
-    this.bartenderService.getBartenders().subscribe({
-      next: (data) => { this.allBartenders = data; },
-      error: (err)  => console.error(err),
+    // Load catalog + bartenders in parallel
+    forkJoin({
+      bartenders: this.bartenderService.getBartenders(),
+      packages:   this.packageService.getAll(),
+      barTypes:   this.barTypeService.getBarTypes(),
+      themes:     this.drinkThemeService.getAll(),
+      addOns:     this.addOnService.getAll(),
+    }).subscribe({
+      next: ({ bartenders, packages, barTypes, themes, addOns }) => {
+        this.allBartenders = bartenders;
+        this.packages      = packages;
+        this.barTypes      = barTypes;
+        this.drinkThemes   = themes;
+        this.allAddOns     = addOns.data || [];
+      },
+      error: (err) => console.error('Error loading catalogs:', err),
     });
 
     if (id) {
@@ -60,13 +116,12 @@ export class ReservationDetailComponent implements OnInit {
           this.reservation = data;
           this.loading = false;
 
-          // Extract IDs from populated assignedBartenders array
           const assigned = (data.assignedBartenders || []) as any[];
           this.selectedBartenderIds = assigned
             .map(b => (typeof b === 'object' ? b._id : b))
             .filter(Boolean);
 
-          // Fetch which bartenders are free on this event's date
+          // Load availability
           const dateStr = data.eventDate || (data as any).eventInfo?.date;
           if (dateStr) {
             this.bartenderService.getAvailableByDate(dateStr, data._id).subscribe({
@@ -77,13 +132,167 @@ export class ReservationDetailComponent implements OnInit {
               error: () => { this.dateAvailabilityLoaded = true; },
             });
           }
+
+          // Prime service sheet form from existing serviceConfig
+          this.loadServiceSheetFromReservation(data);
         },
         error: () => { this.loading = false; },
       });
     }
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // ── Service Sheet helpers ─────────────────────────────────────────────────
+
+  private loadServiceSheetFromReservation(ev: ReservationEvent): void {
+    const sc = ev.serviceConfig ?? {};
+    this.sc_packageId       = sc.packageId       || '';
+    this.sc_packageName     = sc.packageName     || ev.packageName || '';
+    this.sc_barTypeId       = sc.barTypeId       || '';
+    this.sc_barTypeName     = sc.barTypeName     || '';
+    this.sc_drinkThemeId    = sc.drinkThemeId    || '';
+    this.sc_drinkThemeName  = sc.drinkThemeName  || '';
+    this.sc_addOnLines      = (sc.addOnLines     || []).map(a => ({ ...a }));
+    this.sc_pricePerGuest   = sc.pricePerGuest   || 0;
+    this.sc_packageBasePrice= sc.packageBasePrice|| 0;
+    this.sc_subtotal        = sc.subtotal        || 0;
+    this.sc_discount        = sc.discount        || 0;
+    this.sc_total           = sc.total           || ev.quotedTotal || 0;
+    this.sc_notes           = sc.notes           || ev.notes       || '';
+  }
+
+  get hasServiceConfig(): boolean {
+    return !!(
+      this.sc_packageId    ||
+      this.sc_barTypeId    ||
+      this.sc_drinkThemeId ||
+      this.sc_addOnLines.length > 0 ||
+      this.sc_total > 0
+    );
+  }
+
+  onPackageChange(pkgId: string): void {
+    this.sc_packageId = pkgId;
+    const pkg = this.packages.find(p => p._id === pkgId);
+    if (pkg) {
+      this.sc_packageName     = pkg.name;
+      this.sc_packageBasePrice= pkg.basePrice    || 0;
+      this.sc_pricePerGuest   = pkg.pricePerGuest|| 0;
+      this.recalcTotal();
+    } else {
+      this.sc_packageName = '';
+    }
+  }
+
+  onBarTypeChange(btId: string): void {
+    this.sc_barTypeId = btId;
+    const bt = this.barTypes.find(b => b._id === btId);
+    this.sc_barTypeName = bt?.name || '';
+  }
+
+  onDrinkThemeChange(dtId: string): void {
+    this.sc_drinkThemeId = dtId;
+    const dt = this.drinkThemes.find(d => d._id === dtId);
+    this.sc_drinkThemeName = dt?.name || '';
+  }
+
+  isAddOnSelected(id: string): boolean {
+    return this.sc_addOnLines.some(l => l.addOnId === id);
+  }
+
+  toggleAddOn(addOn: AddOn): void {
+    if (this.isAddOnSelected(addOn._id)) {
+      this.sc_addOnLines = this.sc_addOnLines.filter(l => l.addOnId !== addOn._id);
+    } else {
+      this.sc_addOnLines = [
+        ...this.sc_addOnLines,
+        { addOnId: addOn._id, name: addOn.name, detail: addOn.defaultDetail || '', price: addOn.defaultPrice || 0 },
+      ];
+    }
+    this.recalcTotal();
+  }
+
+  removeAddOn(addOnId: string): void {
+    this.sc_addOnLines = this.sc_addOnLines.filter(l => l.addOnId !== addOnId);
+    this.recalcTotal();
+  }
+
+  recalcTotal(): void {
+    const addOnTotal = this.sc_addOnLines.reduce((s, a) => s + (a.price || 0), 0);
+    this.sc_subtotal = this.sc_packageBasePrice + addOnTotal;
+    this.sc_total    = Math.max(0, this.sc_subtotal - (this.sc_discount || 0));
+  }
+
+  saveServiceConfig(): void {
+    if (!this.reservation?._id) return;
+    this.savingServices = true;
+
+    const serviceConfig: ServiceConfig = {
+      packageId:       this.sc_packageId      || undefined,
+      packageName:     this.sc_packageName    || undefined,
+      barTypeId:       this.sc_barTypeId      || undefined,
+      barTypeName:     this.sc_barTypeName    || undefined,
+      drinkThemeId:    this.sc_drinkThemeId   || undefined,
+      drinkThemeName:  this.sc_drinkThemeName || undefined,
+      addOnLines:      this.sc_addOnLines,
+      pricePerGuest:   this.sc_pricePerGuest  || undefined,
+      packageBasePrice:this.sc_packageBasePrice|| undefined,
+      subtotal:        this.sc_subtotal       || undefined,
+      discount:        this.sc_discount       || undefined,
+      total:           this.sc_total          || undefined,
+      notes:           this.sc_notes          || undefined,
+    };
+
+    this.eventService.updateEvent(this.reservation._id, {
+      serviceConfig,
+      quotedTotal: this.sc_total,
+      packageName: this.sc_packageName || undefined,
+      notes:       this.sc_notes       || undefined,
+    } as any).subscribe({
+      next: () => {
+        this.toastService.show('Service details saved!', 'success');
+        this.reservation = { ...this.reservation!, serviceConfig, quotedTotal: this.sc_total };
+        this.savingServices = false;
+        this.editingServices = false;
+        this.showAddOnPicker = false;
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'Error saving service details.';
+        this.toastService.show(msg, 'error');
+        this.savingServices = false;
+      },
+    });
+  }
+
+  cancelServiceEdit(): void {
+    this.loadServiceSheetFromReservation(this.reservation!);
+    this.editingServices  = false;
+    this.showAddOnPicker  = false;
+  }
+
+  // ── Generate Quote ────────────────────────────────────────────────────────
+
+  generateQuote(): void {
+    if (!this.reservation?._id) return;
+    this.generatingQuote = true;
+
+    this.quotesService.fromEvent(this.reservation._id).subscribe({
+      next: (res) => {
+        this.generatingQuote = false;
+        const msg = res.existing ? 'Navigating to existing quote…' : 'Quote created! Opening builder…';
+        this.toastService.show(msg, 'success');
+        // Update local quoteId
+        this.reservation = { ...this.reservation!, quoteId: res.data._id };
+        setTimeout(() => this.router.navigate(['/quotes', res.data._id, 'builder']), 800);
+      },
+      error: (err) => {
+        this.generatingQuote = false;
+        const msg = err?.error?.message || 'Error generating quote.';
+        this.toastService.show(msg, 'error');
+      },
+    });
+  }
+
+  // ── Misc ─────────────────────────────────────────────────────────────────
 
   statusInfo(status: string | undefined) {
     return STATUS_MAP[status ?? 'pending'] ?? STATUS_MAP['pending'];
@@ -128,14 +337,13 @@ export class ReservationDetailComponent implements OnInit {
     if (this.reservation?._id) this.router.navigate(['/events', this.reservation._id]);
   }
 
-  // ── Bartender multi-select ────────────────────────────────────────────────
+  // ── Bartender helpers ─────────────────────────────────────────────────────
 
   get selectedBartenders(): Bartender[] {
     return this.allBartenders.filter(b => this.selectedBartenderIds.includes(b._id!));
   }
 
   get pickerBartenders(): Bartender[] {
-    // Sólo mostrar bartenders disponibles en la fecha + los ya seleccionados (para poder quitarlos)
     const eligible   = this.allBartenders.filter(b =>
       this.isBartenderSelected(b._id!) || this.isAvailableOnDate(b._id!)
     );
@@ -149,7 +357,7 @@ export class ReservationDetailComponent implements OnInit {
   }
 
   isAvailableOnDate(bartenderId: string): boolean {
-    if (!this.dateAvailabilityLoaded) return true; // optimistic before load
+    if (!this.dateAvailabilityLoaded) return true;
     return this.availableOnDateIds.has(bartenderId);
   }
 
@@ -169,7 +377,7 @@ export class ReservationDetailComponent implements OnInit {
     return ((b.name?.[0] ?? '') + (b.lastName?.[0] ?? '')).toUpperCase();
   }
 
-  // ── Actions ───────────────────────────────────────────────────────────────
+  // ── Bartender actions ─────────────────────────────────────────────────────
 
   confirm(): void {
     if (this.selectedBartenderIds.length === 0) {
@@ -203,11 +411,13 @@ export class ReservationDetailComponent implements OnInit {
         this.reservation = { ...this.reservation!, status: 'RECHAZADO' };
         this.saving = false;
       },
-      error: () => { this.toastService.show('Error cancelling reservation.', 'error'); this.saving = false; },
+      error: () => {
+        this.toastService.show('Error cancelling reservation.', 'error');
+        this.saving = false;
+      },
     });
   }
 
-  /** Update bartenders on an already-confirmed reservation */
   saveBartenders(): void {
     this.saving = true;
     this.eventService.updateEvent(this.reservation!._id!, {
@@ -228,7 +438,6 @@ export class ReservationDetailComponent implements OnInit {
   }
 
   cancelEditBartenders(): void {
-    // Restore from reservation data
     const assigned = (this.reservation?.assignedBartenders || []) as any[];
     this.selectedBartenderIds = assigned
       .map(b => (typeof b === 'object' ? b._id : b))

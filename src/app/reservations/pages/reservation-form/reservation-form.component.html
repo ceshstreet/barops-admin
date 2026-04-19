@@ -8,7 +8,7 @@
     </div>
     <div class="header-actions">
       <button class="secondary-btn" (click)="cancel()">Cancel</button>
-      <button class="primary-btn" (click)="save()" [disabled]="!title || !eventDate || saving">
+      <button class="primary-btn" (click)="save()" [disabled]="!canSave || saving">
         {{ saving ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create Reservation') }}
       </button>
     </div>
@@ -87,7 +87,7 @@
             <input type="date" [(ngModel)]="eventDate" />
           </div>
           <div class="field field-full">
-            <label>Location / Venue</label>
+            <label>Location / Venue *</label>
             <input type="text" [(ngModel)]="location" placeholder="Address or venue name" />
           </div>
           <div class="field">
@@ -154,7 +154,13 @@
 
         <!-- Actions -->
         <div class="summary-actions">
-          <button class="action-primary" (click)="save()" [disabled]="!title || !eventDate || saving">
+          <!-- Error banner -->
+          <div class="form-error-banner" *ngIf="formError">
+            <span class="material-icons">error_outline</span>
+            {{ formError }}
+          </div>
+
+          <button class="action-primary" (click)="save()" [disabled]="!canSave || saving">
             <span class="material-icons">{{ isEditMode ? 'save' : 'add_circle' }}</span>
             {{ saving ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create Reservation') }}
           </button>

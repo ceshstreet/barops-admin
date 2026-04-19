@@ -167,7 +167,33 @@ export class ReservationFormComponent implements OnInit {
     return STATUS_OPTIONS.find(s => s.value === value)?.color ?? '#94a3b8';
   }
 
+  // Validation error shown inline
+  formError = '';
+
+  get canSave(): boolean {
+    return !!(this.title && this.eventDate && this.location && (this.clientId || this.clientName));
+  }
+
   save(): void {
+    this.formError = '';
+
+    if (!this.clientId && !this.clientName.trim()) {
+      this.formError = 'Please select an existing client or enter a client name.';
+      return;
+    }
+    if (!this.title.trim()) {
+      this.formError = 'Event name is required.';
+      return;
+    }
+    if (!this.eventDate) {
+      this.formError = 'Event date is required.';
+      return;
+    }
+    if (!this.location.trim()) {
+      this.formError = 'Location / venue is required.';
+      return;
+    }
+
     this.saving = true;
     const payload: any = {
       client:      this.clientId   || undefined,
@@ -207,7 +233,9 @@ export class ReservationFormComponent implements OnInit {
         setTimeout(() => this.router.navigate(['/reservations']), 1200);
       },
       error: (err: any) => {
-        this.toastService.show('Error saving reservation.', 'error');
+        const msg = err?.error?.message || 'Error saving reservation.';
+        this.formError = msg;
+        this.toastService.show(msg, 'error');
         console.error(err);
         this.saving = false;
       },

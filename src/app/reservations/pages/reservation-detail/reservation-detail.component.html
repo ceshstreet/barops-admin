@@ -79,28 +79,278 @@
           </div>
         </div>
 
-        <!-- Services / Package -->
-        <div class="detail-card" *ngIf="reservation.packageName || reservation.quotedTotal">
-          <h3 class="card-title"><span class="material-icons">inventory_2</span> Services & Pricing</h3>
-          <div class="services-block">
-            <div class="service-row" *ngIf="reservation.packageName">
-              <span class="material-icons">check_circle</span>
-              <span>{{ reservation.packageName }}</span>
+        <!-- ══════════════════════════════════════════════════
+             SERVICE SHEET
+             ══════════════════════════════════════════════════ -->
+        <div class="detail-card service-card">
+
+          <!-- Header -->
+          <div class="service-header">
+            <h3 class="card-title">
+              <span class="material-icons">room_service</span>
+              Service Details
+            </h3>
+            <div class="service-header-actions">
+
+              <!-- Generate / Open Quote -->
+              <button class="gen-quote-btn"
+                (click)="generateQuote()"
+                [disabled]="generatingQuote"
+                [title]="reservation.quoteId ? 'Open quote in builder' : 'Generate a PDF quote from this reservation'">
+                <span class="material-icons">{{ generatingQuote ? 'hourglass_empty' : (reservation.quoteId ? 'open_in_new' : 'receipt_long') }}</span>
+                {{ generatingQuote ? 'Generating…' : (reservation.quoteId ? 'Open Quote' : 'Generate Quote') }}
+              </button>
+
+              <!-- Edit / Cancel edit -->
+              <button class="sc-edit-btn" *ngIf="!editingServices" (click)="editingServices = true">
+                <span class="material-icons">edit</span> Edit
+              </button>
+              <button class="sc-cancel-btn" *ngIf="editingServices" (click)="cancelServiceEdit()" [disabled]="savingServices">
+                Cancel
+              </button>
+
             </div>
-            <div class="price-row" *ngIf="reservation.quotedTotal">
-              <span class="price-label">Quoted Total</span>
-              <span class="price-value">${{ reservation.quotedTotal | number:'1.0-0' }}</span>
+          </div>
+
+          <!-- ── READ-ONLY VIEW ── -->
+          <ng-container *ngIf="!editingServices">
+
+            <!-- Empty state -->
+            <div class="sc-empty" *ngIf="!hasServiceConfig">
+              <span class="material-icons">inventory_2</span>
+              <p>No service details configured yet.</p>
+              <button class="sc-empty-btn" (click)="editingServices = true">
+                <span class="material-icons">add_circle</span> Configure Services
+              </button>
             </div>
+
+            <!-- Populated read-only -->
+            <div class="sc-readonly" *ngIf="hasServiceConfig">
+
+              <div class="sc-row" *ngIf="sc_packageName">
+                <span class="sc-ico material-icons">inventory_2</span>
+                <div class="sc-col">
+                  <span class="sc-lbl">Package</span>
+                  <span class="sc-val">{{ sc_packageName }}</span>
+                </div>
+              </div>
+
+              <div class="sc-row" *ngIf="sc_barTypeName">
+                <span class="sc-ico material-icons">storefront</span>
+                <div class="sc-col">
+                  <span class="sc-lbl">Bar Type</span>
+                  <span class="sc-val">{{ sc_barTypeName }}</span>
+                </div>
+              </div>
+
+              <div class="sc-row" *ngIf="sc_drinkThemeName">
+                <span class="sc-ico material-icons">local_bar</span>
+                <div class="sc-col">
+                  <span class="sc-lbl">Drink Theme</span>
+                  <span class="sc-val">{{ sc_drinkThemeName }}</span>
+                </div>
+              </div>
+
+              <!-- Add-ons chips -->
+              <div class="sc-row" *ngIf="sc_addOnLines.length > 0">
+                <span class="sc-ico material-icons">extension</span>
+                <div class="sc-col">
+                  <span class="sc-lbl">Add-ons ({{ sc_addOnLines.length }})</span>
+                  <div class="sc-addon-chips">
+                    <span class="sc-addon-chip" *ngFor="let a of sc_addOnLines">
+                      {{ a.name }}
+                      <span *ngIf="a.price > 0" class="sc-addon-price">+${{ a.price }}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pricing summary -->
+              <div class="sc-pricing" *ngIf="sc_total > 0">
+                <div class="sc-price-row" *ngIf="sc_packageBasePrice > 0">
+                  <span>Package base</span>
+                  <span>${{ sc_packageBasePrice | number:'1.0-0' }}</span>
+                </div>
+                <div class="sc-price-row" *ngIf="sc_discount > 0">
+                  <span>Discount</span>
+                  <span class="sc-discount">-${{ sc_discount | number:'1.0-0' }}</span>
+                </div>
+                <div class="sc-price-total">
+                  <span>Total</span>
+                  <span>${{ sc_total | number:'1.0-0' }}</span>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div class="sc-row sc-notes-row" *ngIf="sc_notes">
+                <span class="sc-ico material-icons">notes</span>
+                <div class="sc-col">
+                  <span class="sc-lbl">Notes</span>
+                  <span class="sc-val sc-val-notes">{{ sc_notes }}</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- View original quote link -->
             <a class="quote-link" *ngIf="reservation.quoteId" [routerLink]="['/quotes', reservation.quoteId]">
               <span class="material-icons">receipt_long</span>
               View Original Quote
               <span class="material-icons arrow">open_in_new</span>
             </a>
-          </div>
-        </div>
 
-        <!-- Notes -->
-        <div class="detail-card" *ngIf="reservation.notes">
+          </ng-container>
+
+          <!-- ── EDIT FORM ── -->
+          <div class="sc-form" *ngIf="editingServices">
+
+            <!-- Package -->
+            <div class="sc-field">
+              <label class="sc-label">
+                <span class="material-icons">inventory_2</span>
+                Package
+                <span class="sc-optional">optional</span>
+              </label>
+              <select class="sc-select" [value]="sc_packageId" (change)="onPackageChange($any($event.target).value)">
+                <option value="">— None —</option>
+                <option *ngFor="let p of packages" [value]="p._id">{{ p.name }}</option>
+              </select>
+            </div>
+
+            <!-- Bar Type -->
+            <div class="sc-field">
+              <label class="sc-label">
+                <span class="material-icons">storefront</span>
+                Bar Type
+                <span class="sc-optional">optional</span>
+              </label>
+              <select class="sc-select" [value]="sc_barTypeId" (change)="onBarTypeChange($any($event.target).value)">
+                <option value="">— None —</option>
+                <option *ngFor="let b of barTypes" [value]="b._id">{{ b.name }}</option>
+              </select>
+            </div>
+
+            <!-- Drink Theme -->
+            <div class="sc-field">
+              <label class="sc-label">
+                <span class="material-icons">local_bar</span>
+                Drink Theme
+                <span class="sc-optional">optional</span>
+              </label>
+              <select class="sc-select" [value]="sc_drinkThemeId" (change)="onDrinkThemeChange($any($event.target).value)">
+                <option value="">— None —</option>
+                <option *ngFor="let t of drinkThemes" [value]="t._id">{{ t.name }}</option>
+              </select>
+            </div>
+
+            <!-- Add-ons -->
+            <div class="sc-field">
+              <label class="sc-label">
+                <span class="material-icons">extension</span>
+                Add-ons
+                <span class="sc-optional">optional</span>
+              </label>
+
+              <!-- Selected chips with remove -->
+              <div class="sc-selected-addons" *ngIf="sc_addOnLines.length > 0">
+                <div class="sc-sel-chip" *ngFor="let a of sc_addOnLines">
+                  <span>{{ a.name }}</span>
+                  <span *ngIf="a.price > 0" class="sc-addon-price">+${{ a.price }}</span>
+                  <button type="button" class="sc-sel-remove" (click)="removeAddOn(a.addOnId!)">
+                    <span class="material-icons">close</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Toggle picker -->
+              <button type="button" class="sc-addon-toggle" (click)="showAddOnPicker = !showAddOnPicker">
+                <span class="material-icons">{{ showAddOnPicker ? 'expand_less' : 'add' }}</span>
+                {{ showAddOnPicker ? 'Close' : (sc_addOnLines.length === 0 ? 'Add Add-ons' : 'Add More') }}
+              </button>
+
+              <!-- Picker grid -->
+              <div class="sc-addon-picker" *ngIf="showAddOnPicker">
+                <div class="sc-addon-item"
+                  *ngFor="let a of allAddOns"
+                  [class.selected]="isAddOnSelected(a._id)"
+                  (click)="toggleAddOn(a)">
+                  <span class="material-icons sc-addon-check">
+                    {{ isAddOnSelected(a._id) ? 'check_circle' : 'radio_button_unchecked' }}
+                  </span>
+                  <div class="sc-addon-info">
+                    <span class="sc-addon-name">{{ a.name }}</span>
+                    <span class="sc-addon-detail" *ngIf="a.defaultDetail">{{ a.defaultDetail }}</span>
+                  </div>
+                  <span class="sc-addon-tag-price" *ngIf="a.defaultPrice">+${{ a.defaultPrice }}</span>
+                </div>
+                <div class="sc-addon-empty" *ngIf="allAddOns.length === 0">
+                  No add-ons available in catalog.
+                </div>
+              </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="sc-pricing-form">
+              <div class="sc-field sc-field-half">
+                <label class="sc-label">
+                  <span class="material-icons">payments</span>
+                  Price per Guest
+                </label>
+                <div class="sc-input-wrap">
+                  <span class="sc-currency">$</span>
+                  <input type="number" class="sc-input" [(ngModel)]="sc_pricePerGuest" min="0" />
+                </div>
+              </div>
+              <div class="sc-field sc-field-half">
+                <label class="sc-label">
+                  <span class="material-icons">discount</span>
+                  Discount
+                </label>
+                <div class="sc-input-wrap">
+                  <span class="sc-currency">$</span>
+                  <input type="number" class="sc-input" [(ngModel)]="sc_discount" min="0" (ngModelChange)="recalcTotal()" />
+                </div>
+              </div>
+              <div class="sc-field sc-total-field">
+                <label class="sc-label">
+                  <span class="material-icons">paid</span>
+                  Total
+                </label>
+                <div class="sc-input-wrap">
+                  <span class="sc-currency">$</span>
+                  <input type="number" class="sc-input sc-input-total" [(ngModel)]="sc_total" min="0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="sc-field">
+              <label class="sc-label">
+                <span class="material-icons">notes</span>
+                Internal Notes
+              </label>
+              <textarea class="sc-textarea" [(ngModel)]="sc_notes" rows="3"
+                placeholder="Setup instructions, special requirements, etc.">
+              </textarea>
+            </div>
+
+            <!-- Actions -->
+            <div class="sc-form-actions">
+              <button class="sc-cancel-btn" (click)="cancelServiceEdit()" [disabled]="savingServices">
+                Cancel
+              </button>
+              <button class="sc-save-btn" (click)="saveServiceConfig()" [disabled]="savingServices">
+                <span class="material-icons">{{ savingServices ? 'hourglass_empty' : 'save' }}</span>
+                {{ savingServices ? 'Saving…' : 'Save Services' }}
+              </button>
+            </div>
+
+          </div><!-- /sc-form -->
+
+        </div><!-- /service-card -->
+
+        <!-- Notes (legacy, only if no serviceConfig notes) -->
+        <div class="detail-card" *ngIf="reservation.notes && !sc_notes">
           <h3 class="card-title"><span class="material-icons">notes</span> Notes</h3>
           <p class="notes-text">{{ reservation.notes }}</p>
         </div>
@@ -116,7 +366,6 @@
             </button>
           </div>
 
-          <!-- Read-only chips -->
           <div class="b-chips-row" *ngIf="!editingBartenders">
             <div class="b-chip readonly" *ngFor="let b of selectedBartenders">
               <span class="b-chip-avatar">{{ bartenderInitials(b) }}</span>
@@ -130,13 +379,10 @@
             </div>
           </div>
 
-          <!-- Edit mode -->
           <ng-container *ngIf="editingBartenders">
             <ng-container *ngTemplateOutlet="bartenderPickerTpl"></ng-container>
             <div class="edit-bartenders-actions">
-              <button class="cancel-edit-btn" (click)="cancelEditBartenders()" [disabled]="saving">
-                Cancel
-              </button>
+              <button class="cancel-edit-btn" (click)="cancelEditBartenders()" [disabled]="saving">Cancel</button>
               <button class="save-bartenders-btn" (click)="saveBartenders()" [disabled]="saving">
                 <span class="material-icons">save</span>
                 {{ saving ? 'Saving…' : 'Save Changes' }}
@@ -145,11 +391,9 @@
           </ng-container>
         </div>
 
-        <!-- ── EVENT CREATED BLOCK (confirmed) ── -->
+        <!-- ── EVENT CREATED BLOCK ── -->
         <div class="event-created-card" *ngIf="isConfirmed()">
-          <div class="event-created-icon">
-            <span class="material-icons">celebration</span>
-          </div>
+          <div class="event-created-icon"><span class="material-icons">celebration</span></div>
           <div class="event-created-body">
             <span class="event-created-title">Converted to Event</span>
             <span class="event-created-sub">This reservation was confirmed and is now an active event.</span>
@@ -168,11 +412,8 @@
         <div class="action-card" *ngIf="isPending()">
           <h3 class="card-title"><span class="material-icons">assignment_turned_in</span> Process Reservation</h3>
 
-          <!-- Bartender multi-select -->
           <div class="field">
             <label>Assign Bartenders</label>
-
-            <!-- Selected chips -->
             <div class="b-chips-row" *ngIf="selectedBartenders.length > 0">
               <div class="b-chip" *ngFor="let b of selectedBartenders">
                 <span class="b-chip-avatar">{{ bartenderInitials(b) }}</span>
@@ -186,13 +427,11 @@
               </div>
             </div>
 
-            <!-- Add bartender toggle button -->
             <button class="add-bartender-btn" (click)="showBartenderPicker = !showBartenderPicker">
               <span class="material-icons">{{ showBartenderPicker ? 'expand_less' : 'person_add' }}</span>
               {{ showBartenderPicker ? 'Close list' : (selectedBartenders.length === 0 ? 'Add Bartender' : 'Add Another') }}
             </button>
 
-            <!-- Picker panel -->
             <ng-container *ngIf="showBartenderPicker">
               <ng-container *ngTemplateOutlet="bartenderPickerTpl"></ng-container>
             </ng-container>
@@ -209,7 +448,7 @@
           </div>
         </div>
 
-      </div>
+      </div><!-- /left-col -->
 
       <!-- ══ RIGHT ══ -->
       <div class="right-col">
@@ -219,15 +458,11 @@
           <div class="client-avatar">{{ clientInitials() }}</div>
           <div class="client-name">{{ clientName() }}</div>
           <div class="client-links">
-            <a [href]="'mailto:' + clientEmail()" class="client-link email"
-               *ngIf="clientEmail() !== '—'">
-              <span class="material-icons">email</span>
-              {{ clientEmail() }}
+            <a [href]="'mailto:' + clientEmail()" class="client-link email" *ngIf="clientEmail() !== '—'">
+              <span class="material-icons">email</span>{{ clientEmail() }}
             </a>
-            <a [href]="'https://wa.me/' + clientPhone()" target="_blank" class="client-link phone"
-               *ngIf="clientPhone() !== '—'">
-              <span class="material-icons">whatsapp</span>
-              {{ clientPhone() }}
+            <a [href]="'https://wa.me/' + clientPhone()" target="_blank" class="client-link phone" *ngIf="clientPhone() !== '—'">
+              <span class="material-icons">whatsapp</span>{{ clientPhone() }}
             </a>
           </div>
         </div>
@@ -260,16 +495,43 @@
               <span class="side-stat-val">{{ reservation.guests }}</span>
             </div>
           </div>
-          <div class="side-stat" *ngIf="reservation.quotedTotal">
+          <div class="side-stat" *ngIf="sc_total > 0">
             <span class="material-icons">paid</span>
             <div>
               <span class="side-stat-label">Quoted Total</span>
-              <span class="side-stat-val green">${{ reservation.quotedTotal | number:'1.0-0' }}</span>
+              <span class="side-stat-val green">${{ sc_total | number:'1.0-0' }}</span>
             </div>
           </div>
         </div>
 
-        <!-- Assigned bartenders summary (sidebar) -->
+        <!-- Service summary sidebar -->
+        <div class="side-card" *ngIf="hasServiceConfig">
+          <div class="side-card-label">Services</div>
+          <div class="side-services">
+            <div class="side-svc-row" *ngIf="sc_packageName">
+              <span class="material-icons">inventory_2</span>
+              <span>{{ sc_packageName }}</span>
+            </div>
+            <div class="side-svc-row" *ngIf="sc_barTypeName">
+              <span class="material-icons">storefront</span>
+              <span>{{ sc_barTypeName }}</span>
+            </div>
+            <div class="side-svc-row" *ngIf="sc_drinkThemeName">
+              <span class="material-icons">local_bar</span>
+              <span>{{ sc_drinkThemeName }}</span>
+            </div>
+            <div class="side-svc-row" *ngIf="sc_addOnLines.length > 0">
+              <span class="material-icons">extension</span>
+              <span>{{ sc_addOnLines.length }} add-on{{ sc_addOnLines.length > 1 ? 's' : '' }}</span>
+            </div>
+          </div>
+          <!-- Quote link -->
+          <a class="side-quote-link" *ngIf="reservation.quoteId" [routerLink]="['/quotes', reservation.quoteId]">
+            <span class="material-icons">receipt_long</span> View Quote
+          </a>
+        </div>
+
+        <!-- Bartenders summary (sidebar) -->
         <div class="side-card" *ngIf="selectedBartenders.length > 0">
           <div class="side-card-label">Bartenders ({{ selectedBartenders.length }})</div>
           <div class="side-bartenders">
@@ -283,8 +545,8 @@
           </div>
         </div>
 
-      </div>
-    </div>
+      </div><!-- /right-col -->
+    </div><!-- /detail-layout -->
 
   </ng-container>
 
@@ -299,7 +561,6 @@
 
 <!-- ════════════════════════════════════════════
      SHARED TEMPLATE: Bartender Picker Panel
-     Used in both pending action card + confirmed edit mode
      ════════════════════════════════════════════ -->
 <ng-template #bartenderPickerTpl>
   <div class="b-picker">

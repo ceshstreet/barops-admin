@@ -48,4 +48,11 @@ export class QuotesService {
   deleteQuote(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
   }
+
+  /** Crea (o recupera) una Quote DRAFT a partir de un Event existente */
+  fromEvent(eventId: string): Observable<{ ok: boolean; existing: boolean; data: Quote }> {
+    return this.http.post<{ ok: boolean; existing: boolean; data: Quote }>(
+      `${this.apiUrl}/from-event/${eventId}`, {}
+    );
+  }
 }
