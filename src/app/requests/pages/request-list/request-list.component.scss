@@ -33,7 +33,7 @@
 .stat-icon {
   width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  .material-icons { font-size: 20px; }
+  .material-icons { font-size: 20px; line-height: 1; display: block; }
   &.purple { background: rgba(124,92,255,0.15); color: #7c5cff; }
   &.amber  { background: rgba(245,158,11,0.15);  color: #f59e0b; }
   &.blue   { background: rgba(96,165,250,0.15);  color: #60a5fa; }

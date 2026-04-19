@@ -1,18 +1,81 @@
 <header class="topbar">
-  <div class="left">
-    <h1>Event & Bar Management</h1>
-    <p>Administrative dashboard</p>
+
+  <!-- ── LEFT: Page identity ───────────────────────────────────────────────── -->
+  <div class="tb-left">
+    <div class="page-icon">
+      <span class="material-icons">{{ pageInfo().icon }}</span>
+    </div>
+    <div class="page-meta">
+      <h1 class="page-title">{{ pageInfo().title }}</h1>
+      <span class="page-sub">{{ pageInfo().subtitle }}</span>
+    </div>
   </div>
 
-  <div class="right">
-    <div class="search-box">
-      <span class="material-icons">search</span>
-      <input type="text" placeholder="Search events, clients, bartenders..." />
+  <!-- ── CENTER: Global search ─────────────────────────────────────────────── -->
+  <div class="tb-center">
+    <div class="search-wrap" [class.active]="searchOpen()">
+
+      <div class="search-field">
+        <span class="material-icons search-ico">search</span>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search clients by name, email or phone…"
+          [value]="searchQuery"
+          (input)="onSearchInput($any($event.target).value)"
+          (focus)="searchResults().length > 0 && searchOpen.set(true)"
+          autocomplete="off" />
+        <button class="search-clear" *ngIf="searchQuery" (click)="clearSearch()">
+          <span class="material-icons">close</span>
+        </button>
+        <span class="search-spinner" *ngIf="searching()"></span>
+      </div>
+
+      <!-- Dropdown results -->
+      <div class="search-dropdown" *ngIf="searchOpen() && searchResults().length > 0">
+        <div class="sd-label">Clients</div>
+        <button
+          class="sd-item"
+          *ngFor="let c of searchResults()"
+          (click)="selectClient(c)">
+          <div class="sd-avatar">{{ (c.name[0] + c.lastName[0]).toUpperCase() }}</div>
+          <div class="sd-info">
+            <span class="sd-name">{{ c.name }} {{ c.lastName }}</span>
+            <span class="sd-detail">{{ c.email }} · {{ c.phone }}</span>
+          </div>
+          <span class="material-icons sd-arrow">chevron_right</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── RIGHT: Date, bell, user ───────────────────────────────────────────── -->
+  <div class="tb-right">
+
+    <!-- Date chip -->
+    <div class="date-chip">
+      <span class="material-icons">today</span>
+      <span>{{ today }}</span>
     </div>
 
-    <button class="new-btn">
-      <span class="material-icons">add</span>
-      New Event
+    <!-- Notifications bell -->
+    <button class="notif-btn" (click)="goToRequests()" title="Inbox — pending requests">
+      <span class="material-icons">notifications</span>
+      <span class="notif-badge" *ngIf="pendingCount() > 0">
+        {{ pendingCount() > 9 ? '9+' : pendingCount() }}
+      </span>
     </button>
+
+    <!-- User avatar -->
+    <div class="user-chip" *ngIf="user()">
+      <div class="user-avatar">{{ initials }}</div>
+      <div class="user-meta">
+        <span class="user-name">{{ user()!.name }} {{ user()!.lastName }}</span>
+        <span class="user-role">{{ user()!.role === 'admin' ? 'Administrator' : 'Bartender' }}</span>
+      </div>
+    </div>
+
   </div>
+
 </header>

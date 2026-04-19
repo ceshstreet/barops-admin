@@ -135,7 +135,7 @@
             </div>
             <div class="field">
               <label>Event Date</label>
-              <input type="date" [(ngModel)]="eventDate" />
+              <input type="date" [(ngModel)]="eventDate" [min]="today" />
             </div>
             <div class="field field-full">
               <label>Location / Venue</label>

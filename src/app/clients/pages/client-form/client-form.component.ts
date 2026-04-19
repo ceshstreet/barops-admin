@@ -84,15 +84,29 @@ export class ClientFormComponent implements OnInit, AfterViewInit {
   }
 
 
-  ////
+  formError = '';
+
+  private validateEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  }
+
   saveClient() {
-    const phoneEl = document.querySelector('.iti input[type="tel"]') as HTMLInputElement;
+    this.formError = '';
+
+    if (!this.client.name.trim() || !this.client.lastName.trim()) {
+      this.formError = 'Name and last name are required.'; return;
+    }
+    if (!this.client.email.trim() || !this.validateEmail(this.client.email)) {
+      this.formError = 'Please enter a valid email address.'; return;
+    }
+
+    const phoneEl    = document.querySelector('.iti input[type="tel"]') as HTMLInputElement;
     const dialCodeEl = document.querySelector('.iti__selected-dial-code') as HTMLElement;
+    const dialCode   = dialCodeEl?.innerText?.trim() || '+503';
+    const number     = phoneEl?.value?.trim() || '';
+    if (!number) { this.formError = 'Phone number is required.'; return; }
 
-    const dialCode = dialCodeEl?.innerText?.trim() || '+503';
-    const number = phoneEl?.value?.trim() || '';
-    const fullPhone = `${dialCode}${number}`.replace(/\s/g, '');
-
+    const fullPhone  = `${dialCode}${number}`.replace(/\s/g, '');
     const clientData = { ...this.client, phone: fullPhone };
 
     if (this.isEditMode && this.clientId) {
@@ -102,8 +116,7 @@ export class ClientFormComponent implements OnInit, AfterViewInit {
           setTimeout(() => this.router.navigate(['/clients']), 1500);
         },
         error: (err) => {
-          this.toastService.show('Error updating client.', 'error');
-          console.error(err);
+          this.formError = err?.error?.message || 'Error updating client.';
         }
       });
     } else {
@@ -113,8 +126,7 @@ export class ClientFormComponent implements OnInit, AfterViewInit {
           setTimeout(() => this.router.navigate(['/clients']), 1500);
         },
         error: (err) => {
-          this.toastService.show('Error creating client.', 'error');
-          console.error(err);
+          this.formError = err?.error?.message || 'Error creating client.';
         }
       });
     }

@@ -50,6 +50,7 @@ export class QuoteFormComponent implements OnInit, OnDestroy {
   eventName    = '';
   eventType    = '';
   eventDate    = '';
+  today        = new Date().toISOString().split('T')[0];
   location     = '';
   guestCount   = 50;
   budgetRange  = '';

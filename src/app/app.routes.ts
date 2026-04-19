@@ -50,6 +50,7 @@ import { RequestListComponent }      from './requests/pages/request-list/request
 import { RequestDetailComponent }    from './requests/pages/request-detail/request-detail.component';
 import { AddOnListComponent }        from './add-ons/pages/add-on-list/add-on-list.component';
 import { AddOnFormComponent }        from './add-ons/pages/add-on-form/add-on-form.component';
+import { AdminListComponent }        from './admins/pages/admin-list/admin-list.component';
 
 // ── Bartender pages ──────────────────────────────────────────────────────────
 import { BartenderDashboardComponent } from './bartenders/pages/bartender-dashboard/bartender-dashboard.component';
@@ -125,6 +126,8 @@ export const routes: Routes = [
       { path: 'add-ons',             component: AddOnListComponent },
       { path: 'add-ons/new',         component: AddOnFormComponent },
       { path: 'add-ons/:id/edit',    component: AddOnFormComponent },
+
+      { path: 'admins',              component: AdminListComponent },
 
       { path: 'quotes',              component: QuoteListComponent },
       { path: 'quotes/new',          component: QuoteFormComponent },

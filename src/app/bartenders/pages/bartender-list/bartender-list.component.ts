@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BartenderService, Bartender } from '../../services/bartender.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -7,7 +8,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 @Component({
   selector: 'app-bartender-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './bartender-list.component.html',
   styleUrl: './bartender-list.component.scss'
 })
@@ -15,6 +16,15 @@ export class BartenderListComponent implements OnInit {
   bartenders: Bartender[] = [];
   showDeleteModal = false;
   bartenderToDelete: Bartender | null = null;
+
+  // Reset password
+  showResetModal    = false;
+  bartenderToReset: Bartender | null = null;
+  resetPassword     = '';
+  resetConfirm      = '';
+  showResetPass     = false;
+  resetError        = '';
+  resetSaving       = false;
 
   constructor(
     private router: Router,
@@ -77,5 +87,38 @@ export class BartenderListComponent implements OnInit {
     if (status === 'AVAILABLE') return 'available';
     if (status === 'BUSY') return 'busy';
     return 'inactive';
+  }
+
+  openReset(event: Event, bartender: Bartender): void {
+    event.stopPropagation();
+    this.bartenderToReset = bartender;
+    this.resetPassword    = '';
+    this.resetConfirm     = '';
+    this.resetError       = '';
+    this.showResetModal   = true;
+  }
+
+  cancelReset(): void {
+    this.showResetModal   = false;
+    this.bartenderToReset = null;
+  }
+
+  confirmReset(): void {
+    if (!this.resetPassword) { this.resetError = 'Ingresa la nueva contraseña.'; return; }
+    if (this.resetPassword.length < 8) { this.resetError = 'Mínimo 8 caracteres.'; return; }
+    if (this.resetPassword !== this.resetConfirm) { this.resetError = 'Las contraseñas no coinciden.'; return; }
+
+    this.resetSaving = true;
+    this.bartenderService.resetPassword(this.bartenderToReset!._id!, this.resetPassword).subscribe({
+      next: () => {
+        this.resetSaving = false;
+        this.cancelReset();
+        this.toastService.show('Contraseña actualizada correctamente.', 'success');
+      },
+      error: (e: any) => {
+        this.resetSaving = false;
+        this.resetError = e?.error?.message || 'Error al actualizar la contraseña.';
+      },
+    });
   }
 }

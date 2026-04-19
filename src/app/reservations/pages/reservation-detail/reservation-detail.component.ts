@@ -135,9 +135,12 @@ export class ReservationDetailComponent implements OnInit {
   }
 
   get pickerBartenders(): Bartender[] {
-    // Show unselected first, then selected — all visible
-    const unselected = this.allBartenders.filter(b => !this.isBartenderSelected(b._id!));
-    const selected   = this.allBartenders.filter(b =>  this.isBartenderSelected(b._id!));
+    // Sólo mostrar bartenders disponibles en la fecha + los ya seleccionados (para poder quitarlos)
+    const eligible   = this.allBartenders.filter(b =>
+      this.isBartenderSelected(b._id!) || this.isAvailableOnDate(b._id!)
+    );
+    const unselected = eligible.filter(b => !this.isBartenderSelected(b._id!));
+    const selected   = eligible.filter(b =>  this.isBartenderSelected(b._id!));
     return [...unselected, ...selected];
   }
 

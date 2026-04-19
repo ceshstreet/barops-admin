@@ -43,6 +43,9 @@
               <button class="icon-btn edit" (click)="editBartender($event, bartender)" title="Edit bartender">
                 <span class="material-icons">edit</span>
               </button>
+              <button class="icon-btn reset" (click)="openReset($event, bartender)" title="Resetear contraseña">
+                <span class="material-icons">lock_reset</span>
+              </button>
               <button class="icon-btn danger" (click)="confirmDelete($event, bartender)" title="Delete bartender">
                 <span class="material-icons">delete</span>
               </button>
@@ -53,6 +56,46 @@
     </table>
   </div>
 </div>
+
+<!-- ── MODAL RESET CONTRASEÑA ── -->
+@if (showResetModal && bartenderToReset) {
+  <div class="modal-overlay" (click)="cancelReset()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon reset-icon">
+        <span class="material-icons">lock_reset</span>
+      </div>
+      <h3>Resetear contraseña</h3>
+      <p>Nueva contraseña para <strong>{{ getFullName(bartenderToReset) }}</strong>.</p>
+
+      <div class="reset-fields">
+        <div class="reset-field">
+          <label>Nueva contraseña</label>
+          <div class="pass-wrap">
+            <input [type]="showResetPass ? 'text' : 'password'"
+              [(ngModel)]="resetPassword" placeholder="Mínimo 8 caracteres" />
+            <button type="button" (click)="showResetPass = !showResetPass">
+              <span class="material-icons">{{ showResetPass ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+        </div>
+        <div class="reset-field">
+          <label>Confirmar contraseña</label>
+          <input type="password" [(ngModel)]="resetConfirm" placeholder="Repite la contraseña" />
+        </div>
+        <div class="reset-error" *ngIf="resetError">
+          <span class="material-icons">error_outline</span> {{ resetError }}
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-ghost" (click)="cancelReset()">Cancelar</button>
+        <button class="btn-primary-sm" (click)="confirmReset()" [disabled]="resetSaving">
+          {{ resetSaving ? 'Guardando…' : 'Cambiar contraseña' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
 
 @if (showDeleteModal && bartenderToDelete) {
   <div class="modal-overlay" (click)="cancelDelete()">

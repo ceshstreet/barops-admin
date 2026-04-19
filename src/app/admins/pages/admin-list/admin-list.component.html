@@ -1,0 +1,219 @@
+<div class="admins-page">
+
+  <!-- ── HEADER ── -->
+  <div class="page-header">
+    <div>
+      <h1>Administradores</h1>
+      <p class="subtitle">Gestiona las cuentas con acceso total al sistema.</p>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">
+      <span class="material-icons">add</span> Nuevo admin
+    </button>
+  </div>
+
+  <!-- ── SUCCESS TOAST ── -->
+  <div class="toast-success" *ngIf="successMsg">
+    <span class="material-icons">check_circle</span> {{ successMsg }}
+  </div>
+
+  <!-- ── LOADING ── -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div> Cargando…
+  </div>
+
+  <!-- ── GRID ── -->
+  <div class="admins-grid" *ngIf="!loading">
+    <div class="admin-card" *ngFor="let a of admins">
+
+      <div class="card-top">
+        <div class="avatar">{{ initials(a) }}</div>
+        <div class="card-info">
+          <span class="card-name">{{ a.name }} {{ a.lastName }}</span>
+          <span class="card-email">{{ a.email }}</span>
+        </div>
+        <span class="verified-pill" [class.verified]="a.isVerified">
+          {{ a.isVerified ? 'Verificado' : 'Sin verificar' }}
+        </span>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-icon" title="Editar" (click)="openEdit(a)">
+          <span class="material-icons">edit</span>
+        </button>
+        <button class="btn-icon" title="Resetear contraseña" (click)="openReset(a)">
+          <span class="material-icons">lock_reset</span>
+        </button>
+        <button class="btn-icon danger" title="Eliminar" (click)="openDelete(a)">
+          <span class="material-icons">delete</span>
+        </button>
+      </div>
+
+    </div>
+
+    <div class="empty-state" *ngIf="admins.length === 0">
+      <span class="material-icons">manage_accounts</span>
+      <p>No hay administradores registrados.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MODAL — CREAR
+══════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="modal === 'create'" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><span class="material-icons">person_add</span> Nuevo administrador</h3>
+      <button class="modal-close" (click)="close()"><span class="material-icons">close</span></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="row-2">
+        <div class="field">
+          <label>Nombre</label>
+          <input type="text" [(ngModel)]="form.name" placeholder="Juan" />
+        </div>
+        <div class="field">
+          <label>Apellido</label>
+          <input type="text" [(ngModel)]="form.lastName" placeholder="Pérez" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" [(ngModel)]="form.email" placeholder="admin@ejemplo.com" />
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <div class="input-wrap">
+          <input [type]="showPass ? 'text' : 'password'" [(ngModel)]="form.password" placeholder="Mínimo 8 caracteres" />
+          <button type="button" class="toggle-vis" (click)="showPass = !showPass">
+            <span class="material-icons">{{ showPass ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Confirmar contraseña</label>
+        <input type="password" [(ngModel)]="form.confirm" placeholder="Repite la contraseña" />
+      </div>
+      <div class="error-msg" *ngIf="errorMsg">
+        <span class="material-icons">error_outline</span> {{ errorMsg }}
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="close()">Cancelar</button>
+      <button class="btn-primary" (click)="submitCreate()" [disabled]="saving">
+        <span class="spinner-sm" *ngIf="saving"></span>
+        {{ saving ? 'Creando…' : 'Crear admin' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MODAL — EDITAR
+══════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="modal === 'edit'" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><span class="material-icons">edit</span> Editar administrador</h3>
+      <button class="modal-close" (click)="close()"><span class="material-icons">close</span></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="row-2">
+        <div class="field">
+          <label>Nombre</label>
+          <input type="text" [(ngModel)]="form.name" />
+        </div>
+        <div class="field">
+          <label>Apellido</label>
+          <input type="text" [(ngModel)]="form.lastName" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" [(ngModel)]="form.email" />
+      </div>
+      <div class="error-msg" *ngIf="errorMsg">
+        <span class="material-icons">error_outline</span> {{ errorMsg }}
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="close()">Cancelar</button>
+      <button class="btn-primary" (click)="submitEdit()" [disabled]="saving">
+        <span class="spinner-sm" *ngIf="saving"></span>
+        {{ saving ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MODAL — RESET CONTRASEÑA
+══════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="modal === 'reset'" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><span class="material-icons">lock_reset</span> Resetear contraseña</h3>
+      <button class="modal-close" (click)="close()"><span class="material-icons">close</span></button>
+    </div>
+
+    <div class="modal-body">
+      <p class="reset-hint">
+        Cambiando contraseña de <strong>{{ selected?.name }} {{ selected?.lastName }}</strong>.
+      </p>
+      <div class="field">
+        <label>Nueva contraseña</label>
+        <div class="input-wrap">
+          <input [type]="showResetPass ? 'text' : 'password'" [(ngModel)]="resetPass" placeholder="Mínimo 8 caracteres" />
+          <button type="button" class="toggle-vis" (click)="showResetPass = !showResetPass">
+            <span class="material-icons">{{ showResetPass ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Confirmar contraseña</label>
+        <input type="password" [(ngModel)]="resetConfirm" placeholder="Repite la contraseña" />
+      </div>
+      <div class="error-msg" *ngIf="errorMsg">
+        <span class="material-icons">error_outline</span> {{ errorMsg }}
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="close()">Cancelar</button>
+      <button class="btn-primary" (click)="submitReset()" [disabled]="saving">
+        <span class="spinner-sm" *ngIf="saving"></span>
+        {{ saving ? 'Guardando…' : 'Cambiar contraseña' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MODAL — ELIMINAR
+══════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="modal === 'delete'" (click)="close()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><span class="material-icons" style="color:#f87171">delete</span> Eliminar admin</h3>
+      <button class="modal-close" (click)="close()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <p class="delete-warning">
+        ¿Estás seguro de eliminar a <strong>{{ selected?.name }} {{ selected?.lastName }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="close()">Cancelar</button>
+      <button class="btn-danger" (click)="confirmDelete()" [disabled]="saving">
+        <span class="spinner-sm" *ngIf="saving"></span>
+        {{ saving ? 'Eliminando…' : 'Sí, eliminar' }}
+      </button>
+    </div>
+  </div>
+</div>

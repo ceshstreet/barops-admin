@@ -108,6 +108,97 @@ table {
   align-items: center;
 }
 
+// ── ICON BUTTONS ─────────────────────────────────────────────────────────────
+.icon-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.14s;
+  .material-icons { font-size: 16px; color: rgba(234,241,255,0.5); }
+  &.edit:hover { background: rgba(124,92,255,0.12); border-color: rgba(124,92,255,0.3);
+    .material-icons { color: #a78bfa; } }
+  &.reset:hover { background: rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.3);
+    .material-icons { color: #60a5fa; } }
+  &.danger:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3);
+    .material-icons { color: #f87171; } }
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-card {
+  width: 100%; max-width: 420px;
+  background: #111827; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 32px 28px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center;
+  h3 { margin: 0; font-size: 18px; font-weight: 800; color: #eaf1ff; }
+  p  { margin: 0; font-size: 13px; color: rgba(234,241,255,0.55); line-height: 1.6;
+    strong { color: #eaf1ff; } }
+}
+.modal-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  .material-icons { font-size: 26px; }
+  &.danger-icon { background: rgba(239,68,68,0.12); .material-icons { color: #f87171; } }
+  &.reset-icon  { background: rgba(96,165,250,0.12);  .material-icons { color: #60a5fa; } }
+}
+.modal-actions {
+  display: flex; gap: 10px; width: 100%; justify-content: center;
+}
+.btn-ghost {
+  padding: 10px 18px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600;
+  background: transparent; border: 1px solid rgba(255,255,255,0.12); color: rgba(234,241,255,0.6);
+  &:hover { background: rgba(255,255,255,0.05); }
+}
+.btn-danger {
+  padding: 10px 18px; border-radius: 10px; border: none; cursor: pointer;
+  background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35);
+  color: #f87171; font-size: 13px; font-weight: 700;
+  &:hover { background: rgba(239,68,68,0.25); }
+}
+.btn-primary-sm {
+  padding: 10px 18px; border-radius: 10px; border: none; cursor: pointer;
+  background: linear-gradient(135deg,#7c5cff,#5b3fd9); color: #fff; font-size: 13px; font-weight: 700;
+  &:hover:not(:disabled) { opacity: 0.88; }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+// ── RESET FORM ────────────────────────────────────────────────────────────────
+.reset-fields {
+  display: flex; flex-direction: column; gap: 12px; width: 100%; text-align: left;
+}
+.reset-field {
+  display: flex; flex-direction: column; gap: 6px;
+  label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(234,241,255,0.4); }
+  input {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 10px 12px; color: #eaf1ff; font-size: 13px; outline: none;
+    &::placeholder { color: rgba(234,241,255,0.25); }
+    &:focus { border-color: rgba(124,92,255,0.5); }
+  }
+}
+.pass-wrap {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding-right: 4px;
+  &:focus-within { border-color: rgba(124,92,255,0.5); }
+  input { flex: 1; background: none; border: none; padding: 10px 12px; color: #eaf1ff; font-size: 13px; outline: none;
+    &::placeholder { color: rgba(234,241,255,0.25); } }
+  button { background: none; border: none; cursor: pointer; padding: 6px; border-radius: 6px;
+    color: rgba(234,241,255,0.3);
+    .material-icons { font-size: 17px; }
+    &:hover { color: rgba(234,241,255,0.7); } }
+}
+.reset-error {
+  display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+  background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 8px; font-size: 12px; color: #f87171;
+  .material-icons { font-size: 14px; flex-shrink: 0; }
+}
+
 // ── RESPONSIVE ───────────────────────────────────────────────────────────────
 @media (max-width: 768px) {
   .page-header { flex-direction: column; align-items: flex-start; }

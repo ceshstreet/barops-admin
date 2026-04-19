@@ -48,6 +48,10 @@ export class BartenderService {
 
   /** Returns bartenders that are free on the given date (ISO string).
    *  excludeEventId: the current event being edited — excluded from conflict check. */
+  resetPassword(id: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/reset-password`, { password });
+  }
+
   getAvailableByDate(date: string, excludeEventId?: string): Observable<Bartender[]> {
     let params = `date=${encodeURIComponent(date)}`;
     if (excludeEventId) params += `&excludeEventId=${excludeEventId}`;
